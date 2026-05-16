@@ -1,0 +1,25 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Outputs (never commit real customer data)
+discovery-bundle*.json
+*.bundle
+*.age
+*.enc
+secrets/
+.env
+.env.*
+!.env.example
+
+# Build / IaC artifacts
+*.tfstate
+*.tfstate.*
+.terraform/
+cdk.out/
+node_modules/
+__pycache__/
+*.pyc
