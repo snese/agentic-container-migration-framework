@@ -1,4 +1,6 @@
-# Phase 4: Migrate
+# Phase 3: Migrate
+
+**MAP alignment:** AWS MAP — *Migrate & Modernize* (migrate portion).
 
 **Goal:** Execute the plan, wave by wave.
 

@@ -1,9 +1,11 @@
-# Phase 6: Document
+# Phase 5: Document
 
-**Goal:** Capture lessons learned as a reusable case study.
+**MAP alignment:** cross-cutting (post-engagement).
+
+**Goal:** Capture lessons learned as a reusable case study and feed improvements back into the framework.
 
 ## Inputs
-- All artifacts from Phases 1–5
+- All artifacts from Phases 1–4
 
 ## Activities
 - Anonymize customer-specific details

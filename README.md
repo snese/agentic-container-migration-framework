@@ -22,17 +22,27 @@ Container workloads — especially in regulated, air-gapped, or customer-sensiti
 
 ACMF uses **agents as the execution layer** — but agents that are *short-lived, customer-controlled, and auditable*.
 
+## AWS MAP & CAF alignment
+
+ACMF is designed to plug into customer engagements that already speak AWS [Migration Acceleration Program (MAP)](https://aws.amazon.com/migration-acceleration-program/) and [Cloud Adoption Framework (CAF)](https://aws.amazon.com/cloud-adoption-framework/) — not to replace them.
+
+- **Phases** map to MAP's *Assess / Mobilize / Migrate & Modernize*.
+- **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
+- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class support for non-AWS source platforms (Anthos, OpenShift, Rancher).
+
+Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md).
+
 ## Framework Phases
 
 ```
-Phase 1: Discover    →  Phase 2: Assess    →  Phase 3: Plan
-   (agent-driven)        (LLM analysis)        (target mapping)
-       ↓                       ↓                     ↓
-Phase 4: Migrate     →  Phase 5: Optimize  →  Phase 6: Document
-   (IaC + cutover)       (cost / SRE)          (case study)
+Phase 1: Assess     →  Phase 2: Mobilize  →  Phase 3: Migrate
+  (discovery + MRA)     (plan + landing zone)   (wave cutovers)
+        ↓                       ↓                     ↓
+                       Phase 4: Modernize  →  Phase 5: Document
+                       (optimize + refactor)   (case study)
 ```
 
-Detailed phase docs: see [`docs/phases/`](docs/phases/).
+Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF perspectives, 7 Rs for containers): see [`docs/methodology/`](docs/methodology/).
 
 ## Source / Target Matrix
 
@@ -76,7 +86,9 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 .
 ├── README.md                       # This file
 ├── docs/
-│   ├── phases/                     # Phase 1-6 detailed playbooks
+│   ├── CONSTITUTION.md             # Framework principles (amendment process)
+│   ├── methodology/                # MAP/CAF alignment, 7Rs for containers
+│   ├── phases/                     # MAP-aligned 5-phase playbooks
 │   ├── discovery/                  # Discovery option specs
 │   ├── decisions/                  # Decision trees / ADRs
 │   └── case-studies/               # Real customer stories (anonymized)
@@ -98,7 +110,7 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 
 ## Getting Started
 
-> 🚧 Tooling is still being built. For now, see [`docs/phases/01-discover.md`](docs/phases/01-discover.md) for the manual flow.
+> 🚧 Tooling is still being built. For now, see [`docs/phases/01-assess.md`](docs/phases/01-assess.md) for the manual flow.
 
 ## Roadmap
 
