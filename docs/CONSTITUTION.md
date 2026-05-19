@@ -6,6 +6,8 @@ The non-negotiable principles of the Agentic Container Migration Framework. Ever
 
 We do not install long-running agents in the customer environment. Discovery, assessment, and planning rely on ephemeral runs, manifest snapshots, or short-lived read-only credentials. The most intrusive option a customer can pick is still bounded in time and scope. If a workflow requires a persistent footprint, it is a deliberate, opt-in exception — documented, time-boxed, and removable in one command.
 
+> **Pending amendment (v0.6):** an amendment proposal under [`docs/discovery/mcp-augmentation.md`](./discovery/mcp-augmentation.md#constitution-amendment-proposal-stub) clarifies that *remote, read-only, customer-pinned* MCP servers may be queried by ephemeral agents during discovery without violating §1 — with explicit air-gapped exclusion. To be tabled under the amendment process below.
+
 ## 2. Agent-driven, human-judged
 
 Agents (any coding-agent CLI such as [Kiro CLI](https://kiro.dev/docs/cli/installation/), persistent runtimes such as the open-source [Strands Agents SDK](https://strandsagents.com/), or scripted LLM calls) are the *execution layer* for repeatable, context-heavy work — discovery, manifest analysis, IaC scaffolding, runbook drafting. Humans own taste and judgment: target service decisions, blockers, cutover go/no-go, customer communication. We never let an agent ship to production without a named human owner on the change.

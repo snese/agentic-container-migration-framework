@@ -2,7 +2,7 @@
 
 Single source of truth for planned-but-not-yet-done work. When you are tempted to write `TBD` in any other file, add the item here instead and link to it.
 
-**Status legend:** 🔜 planned · 🚧 in progress · ✅ shipped · ⛔ deprecated
+**Status legend:** 🔜 planned · 🚧 in progress · ✅ shipped · 🟡 stub (entry exists, dry-run schema-valid; real collection pending) · ⛔ deprecated
 
 ## Phase 1 — Assess
 
@@ -10,6 +10,11 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 |---|---|---|
 | GKE Enterprise on VMware discovery prompt + JSON Schema | 🚧 | First reference adapter (formerly Anthos on VMware) |
 | Self-export bash script (`scripts/discovery/gke-enterprise-vmware-export.sh`) | ✅ | Option 2 of the discovery menu |
+| Self-export bash script (`scripts/discovery/gke-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster GKE specifics (gcloud, Workload Identity) pending |
+| Self-export bash script (`scripts/discovery/aks-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster AKS specifics (az, Azure AD, Workload Identity) pending |
+| Self-export bash script (`scripts/discovery/openshift-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster OpenShift specifics (oc, Routes, SCC) pending |
+| Self-export bash script (`scripts/discovery/rancher-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster Rancher specifics (rancher CLI, projects) pending |
+| Shared `scripts/discovery/lib/` (common, output-bundle, kubectl-collectors) | ✅ | Sourced by stub adapters; gke-enterprise-vmware migration tracked separately |
 | OpenShift discovery prompt | 🔜 | After GKE Enterprise reference is stable |
 | GKE discovery prompt | 🔜 | Standard GKE (cloud-native) + GKE Enterprise fleet |
 | AKS discovery prompt | 🔜 | Azure AD RBAC, Azure CNI, Azure Disk/File CSI |

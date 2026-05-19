@@ -2,30 +2,31 @@
 
 > TL;DR: Don't default. Decide per-workload using the matrix below.
 >
+> **Compute-model selection lives elsewhere.** Once you've picked ECS or EKS, the launch-type / node-pool decision is a separate doc:
+> - [ECS compute model](./ecs-compute-model.md) (Fargate vs EC2 vs Fargate Spot)
+> - [EKS compute model](./eks-compute-model.md) (Auto Mode vs Karpenter vs Managed Node Groups vs Fargate profiles)
+>
 > **Note on App Runner:** AWS App Runner entered maintenance mode on 2026-04-30 (no new customers). It is no longer a recommended target for new container migrations; existing App Runner workloads should plan a move to ECS Fargate. See [#37](https://github.com/snese/agentic-container-migration-framework/issues/37).
 
 ## Decision Matrix
 
-| Factor | → EKS | → ECS Fargate |
-|--------|-------|---------------|
+| Factor | → EKS | → ECS |
+|--------|-------|-------|
 | K8s API usage (CRDs, operators) | Heavy | None / minimal |
 | Service mesh (Istio, Linkerd) | Yes | No |
-| Stateful workloads | Yes | Limited (EFS only) |
+| Stateful workloads | Yes | Limited (EFS only on Fargate) |
 | Team K8s expertise | High | Medium |
 | Operational overhead tolerance | High (standard) / Low (Auto Mode) | Low |
 | Cost sensitivity | Medium | High |
 | Workload type | Mixed / system | Stateless services / batch |
 | Networking complexity | Custom CNI, NetworkPolicies | Standard VPC |
-| Compute management | Self-managed / Karpenter / Auto Mode | Fully managed (Fargate) |
+| Compute management | See [EKS compute model](./eks-compute-model.md) | See [ECS compute model](./ecs-compute-model.md) |
 
-## EKS Auto Mode vs Standard EKS
+## EKS vs ECS — the binary question
 
-EKS Auto Mode (GA re:Invent 2024) automates compute provisioning, scaling, and patching. It changes the ECS-vs-EKS calculus:
+The top-level question is: **does the workload need the Kubernetes API?** That includes CRDs, operators, admission webhooks, and service-mesh CRs. If yes → EKS. If no, and ops simplicity / cost matter more than flexibility → ECS.
 
-- **When Auto Mode tips toward EKS**: Customer needs K8s APIs (CRDs, operators) but wants ECS-level operational simplicity. Auto Mode eliminates the "EKS needs more ops" argument.
-- **When ECS still wins**: No K8s requirement, simpler programming model, Docker Compose compatibility (ECS Express Mode).
-- **Key difference**: Auto Mode still requires K8s knowledge for workload manifests. ECS doesn't.
-- **For GDC for VMware migrations**: Auto Mode is often the right default — GDC teams already know K8s manifests, and Auto Mode removes the node management burden they previously delegated to GDC/GKE.
+EKS Auto Mode (GA re:Invent 2024) erased the old "EKS needs more ops" argument: customers who need the K8s API can now get ECS-level operational simplicity. ECS still wins when there is **no** K8s requirement — simpler programming model, Docker Compose compatibility (ECS Express Mode), and lower cognitive overhead for non-K8s teams. Detailed compute-model trade-offs are in the per-target docs linked above.
 
 ## GDC for VMware → AWS Mapping Heuristics
 

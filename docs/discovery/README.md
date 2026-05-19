@@ -56,7 +56,7 @@ See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discover
 
 ## Option 4: Agent-Assisted Ephemeral Run ⭐ (recommended default)
 
-**Reference runtime:** [Kiro CLI](https://kiro.dev/docs/cli/installation/) (publicly available, supports prompt files + tool allowlist + `--no-write`). Any agent harness with equivalent guarantees works; ACMF does not lock you in.
+**Reference runtime:** [Kiro CLI](https://kiro.dev/docs/cli/installation/) in [headless mode](https://kiro.dev/docs/cli/headless/) (publicly available; supports `--no-interactive`, tool trust allowlist via `--trust-tools`, and API-key auth via `KIRO_API_KEY`). Any agent harness with equivalent guarantees works; ACMF does not lock you in.
 
 **Mechanism:** Customer installs the agent CLI temporarily. We provide a prompt file + tool allowlist. Customer runs, gets structured output, can uninstall after.
 
@@ -75,16 +75,34 @@ See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discover
 
 **Recipe:**
 ```bash
-# Customer side
-kiro \
-  --prompt-file acmf/prompts/discovery/gke-enterprise-vmware.prompt.md \
-  --tools-allow "kubectl:get,kubectl:describe,gcloud:read,govc:ls" \
-  --output discovery-bundle.json \
-  --no-write
+# Customer side. Kiro CLI headless mode reads the prompt as a positional
+# argument (no --prompt-file flag is documented today — inline via $(cat)).
+# The tool allowlist uses --trust-tools (comma-separated). Output is captured
+# from stdout; the prompt itself instructs the agent to emit a JSON bundle
+# conforming to schemas/discovery-bundle.schema.json.
+
+export KIRO_API_KEY="<customer-issued-key>"
+
+kiro-cli chat --no-interactive \
+  --trust-tools=read,grep,execute_bash \
+  "$(cat acmf/prompts/discovery/gke-enterprise-vmware.prompt.md)" \
+  > discovery-bundle.json
 
 # Encrypt and ship
 age -r <our-pubkey> -o discovery-bundle.json.age discovery-bundle.json
 ```
+
+> **[VERIFICATION-PENDING]** Kiro CLI headless flags above are sourced from
+> <https://kiro.dev/docs/cli/headless/> (binary name `kiro-cli`, `--no-interactive`,
+> `--trust-tools`, `--trust-all-tools`, `KIRO_API_KEY`). Confirm against the
+> version installed in your environment — the public docs render client-side
+> and the flag surface evolves quickly (see issue
+> [kirodotdev/Kiro#5423](https://github.com/kirodotdev/Kiro/issues/5423) for
+> in-flight machine-readable output flags).
+
+**Optional augmentation:** MCP servers (e.g. AWS Knowledge MCP) can give the
+agent richer context during discovery. This is **opt-in** and disabled by
+default — see [`mcp-augmentation.md`](./mcp-augmentation.md).
 
 See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discovery/gke-enterprise-vmware.prompt.md).
 

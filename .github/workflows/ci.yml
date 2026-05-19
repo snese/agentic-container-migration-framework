@@ -119,3 +119,16 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Run contract validator
         run: bash scripts/validate-prompt-schema.sh
+
+  discovery-export-smoke:
+    name: Discovery-export dry-run smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run smoke test
+        run: bash tests/discovery-export-smoke.sh
