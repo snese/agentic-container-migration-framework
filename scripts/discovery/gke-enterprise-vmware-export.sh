@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: 096c0e71cd79e0287601d2a60d3a5dfe7699fb5f)#!/usr/bin/env bash
+#!/usr/bin/env bash
 # gke-enterprise-vmware-export.sh
 #
 # ACMF Phase 1 (Assess) — GKE Enterprise on VMware (formerly Anthos) self-export discovery script.

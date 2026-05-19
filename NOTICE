@@ -1,0 +1,6 @@
+Agentic Container Migration Framework (ACMF)
+Copyright 2026 Hung-Che Lo
+
+This product includes a methodology, prompts, schemas, and tooling for
+agent-assisted container workload migrations to AWS, distributed under the
+Apache License, Version 2.0 (see LICENSE).

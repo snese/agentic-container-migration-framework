@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: c14d1059dd406511b545e5e7c50ac7d5549a2f21)# Source Adapter: GKE Enterprise on VMware (formerly Anthos)
+# Source Adapter: GKE Enterprise on VMware (formerly Anthos)
 
 Status: ✅ v0.3 — first reference adapter.
 

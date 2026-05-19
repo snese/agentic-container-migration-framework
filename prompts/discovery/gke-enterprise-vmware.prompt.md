@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: 8603afc1b4a6b8da765eb289ac7a65bee6b36fbe)# Discovery Prompt — GKE Enterprise on VMware (formerly Anthos)
+# Discovery Prompt — GKE Enterprise on VMware (formerly Anthos)
 
 > **For**: Kiro CLI ephemeral run (Discovery Option 4)
 > **Output**: Structured JSON conforming to `schemas/discovery-bundle.schema.json`
