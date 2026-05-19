@@ -1,0 +1,312 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-05-19T05:48:00Z",
+  "generated_by": "kiro-cli",
+  "scope": {
+    "clusters": ["prod-anthos-1"],
+    "namespaces_included": ["payments", "checkout", "inventory"],
+    "namespaces_excluded": ["kube-system", "gke-system", "gmp-system"]
+  },
+  "clusters": [
+    {
+      "name": "prod-anthos-1",
+      "version": "1.28.5-gke.1217",
+      "location": "dc-tpe-1",
+      "platform": "vmware",
+      "control_plane": {
+        "ha_mode": "stacked-ha",
+        "node_count": 3
+      },
+      "node_pools": [
+        {
+          "name": "default-pool",
+          "count": 6,
+          "machine_type": "vsphere-8vcpu-32gb",
+          "k8s_version": "1.28.5",
+          "taints": [],
+          "labels": { "tier": "app" }
+        }
+      ],
+      "anthos_version": "1.16.3",
+      "anthos_config_management_version": "1.17.1",
+      "service_mesh": {
+        "enabled": true,
+        "type": "asm",
+        "version": "1.20.2"
+      }
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "prod-anthos-1",
+      "namespace": "payments",
+      "kind": "Deployment",
+      "name": "payment-api",
+      "classification": "stateless",
+      "replicas": { "desired": 4, "current": 4 },
+      "images": ["registry.example.com/payments/api:v1.42.0"],
+      "resources": {
+        "requests": { "cpu": "500m", "memory": "512Mi" },
+        "limits": { "cpu": "1000m", "memory": "1Gi" }
+      },
+      "env_summary": ["DB_HOST=<configmap:db-config>", "DB_PASSWORD=<REDACTED>"],
+      "volume_mounts": [
+        { "name": "config", "mount_path": "/etc/app", "read_only": true }
+      ]
+    },
+    {
+      "cluster": "prod-anthos-1",
+      "namespace": "inventory",
+      "kind": "StatefulSet",
+      "name": "inventory-db",
+      "classification": "stateful",
+      "replicas": { "desired": 3, "current": 3 },
+      "images": ["registry.example.com/postgres:15.4"],
+      "resources": {
+        "requests": { "cpu": "2", "memory": "8Gi" },
+        "limits": { "cpu": "4", "memory": "16Gi" }
+      },
+      "env_summary": ["POSTGRES_PASSWORD=<REDACTED>"],
+      "volume_mounts": [
+        { "name": "data", "mount_path": "/var/lib/postgresql/data", "read_only": false }
+      ]
+    }
+  ],
+  "networking": {
+    "services": [
+      {
+        "cluster": "prod-anthos-1",
+        "namespace": "payments",
+        "name": "payment-api",
+        "type": "ClusterIP",
+        "selectors": { "app": "payment-api" },
+        "external_ips": [],
+        "ports": [
+          { "name": "http", "port": 80, "target_port": 8080, "protocol": "TCP" }
+        ]
+      }
+    ],
+    "ingress": [
+      {
+        "cluster": "prod-anthos-1",
+        "namespace": "payments",
+        "name": "payment-gateway",
+        "kind": "Gateway",
+        "hosts": ["pay.example.com"],
+        "tls": true
+      }
+    ],
+    "network_policies": {
+      "count": 12,
+      "samples": [
+        {
+          "cluster": "prod-anthos-1",
+          "namespace": "payments",
+          "name": "deny-all-egress",
+          "policy_types": ["Egress"]
+        }
+      ]
+    },
+    "service_mesh": {
+      "virtual_services": { "count": 8, "samples": [] },
+      "destination_rules": { "count": 8, "samples": [] },
+      "authorization_policies": { "count": 5, "samples": [] }
+    }
+  },
+  "storage": {
+    "storage_classes": [
+      {
+        "name": "vsphere-csi-fast",
+        "provisioner": "csi.vsphere.vmware.com",
+        "parameters": { "storagepolicyname": "gold" },
+        "reclaim_policy": "Delete",
+        "volume_binding_mode": "WaitForFirstConsumer"
+      }
+    ],
+    "persistent_volumes": [
+      {
+        "name": "pv-inventory-data-0",
+        "size": "100Gi",
+        "reclaim_policy": "Retain",
+        "access_modes": ["ReadWriteOnce"],
+        "source_type": "vsphere-csi",
+        "storage_class": "vsphere-csi-fast"
+      }
+    ],
+    "persistent_volume_claims": [
+      {
+        "cluster": "prod-anthos-1",
+        "namespace": "inventory",
+        "name": "data-inventory-db-0",
+        "size": "100Gi",
+        "linked_pv": "pv-inventory-data-0",
+        "mounted_by": ["StatefulSet/inventory-db"]
+      }
+    ]
+  },
+  "identity": {
+    "service_accounts": {
+      "total_count": 47,
+      "with_non_default_tokens": [
+        {
+          "cluster": "prod-anthos-1",
+          "namespace": "payments",
+          "name": "payment-api-sa"
+        }
+      ]
+    },
+    "cluster_role_bindings": [
+      {
+        "cluster": "prod-anthos-1",
+        "name": "platform-admins",
+        "role_ref": "cluster-admin",
+        "subjects": [
+          { "kind": "Group", "name": "platform@example.com", "namespace": "" }
+        ]
+      }
+    ],
+    "workload_identity_bindings": [
+      {
+        "cluster": "prod-anthos-1",
+        "namespace": "payments",
+        "k8s_service_account": "payment-api-sa",
+        "external_identity": "gsa:payment-api@proj.iam.gserviceaccount.com"
+      }
+    ]
+  },
+  "external_dependencies": [
+    {
+      "host": "stripe-api.example.com",
+      "port": 443,
+      "protocol": "https",
+      "source": "env",
+      "used_by": ["prod-anthos-1/payments/Deployment/payment-api"]
+    },
+    {
+      "host": "kafka.shared.svc",
+      "port": 9092,
+      "protocol": "tcp",
+      "source": "configmap",
+      "used_by": ["prod-anthos-1/inventory/StatefulSet/inventory-db"]
+    }
+  ],
+  "crds": [
+    {
+      "group": "cert-manager.io",
+      "version": "v1",
+      "kind": "Certificate",
+      "scope": "Namespaced",
+      "known_operator": "cert-manager",
+      "needs_human_review": false
+    },
+    {
+      "group": "internal.example.com",
+      "version": "v1alpha1",
+      "kind": "PaymentRoute",
+      "scope": "Namespaced",
+      "known_operator": null,
+      "needs_human_review": true
+    }
+  ],
+  "vmware": {
+    "clusters": [
+      { "name": "vc-prod-cluster-1", "datacenter": "TPE-DC1", "host_count": 8 }
+    ],
+    "hosts": [
+      {
+        "name": "esxi-01.tpe.example.com",
+        "cpu_cores": 48,
+        "cpu_mhz": 2400,
+        "memory_gb": 512,
+        "cpu_utilization_pct": 62.5,
+        "memory_utilization_pct": 71.2
+      }
+    ],
+    "datastores": [
+      {
+        "name": "vsan-prod-1",
+        "type": "vSAN",
+        "capacity_gb": 40960,
+        "free_gb": 12880,
+        "iops_capability": 200000
+      }
+    ],
+    "vm_to_node_mapping": [
+      {
+        "vm_name": "anthos-node-01",
+        "k8s_node": "anthos-node-01.local",
+        "cluster": "prod-anthos-1",
+        "host": "esxi-01.tpe.example.com"
+      }
+    ]
+  },
+  "utilization": {
+    "nodes": [
+      {
+        "cluster": "prod-anthos-1",
+        "name": "anthos-node-01.local",
+        "cpu_capacity": "8",
+        "cpu_allocatable": "7800m",
+        "cpu_usage": "3200m",
+        "memory_capacity": "32Gi",
+        "memory_allocatable": "30Gi",
+        "memory_usage": "18Gi",
+        "cpu_utilization_pct_30d_avg": 42.0,
+        "cpu_utilization_pct_30d_p95": 78.0,
+        "cpu_utilization_pct_30d_max": 91.0,
+        "memory_utilization_pct_30d_avg": 60.0,
+        "memory_utilization_pct_30d_p95": 80.0,
+        "memory_utilization_pct_30d_max": 88.0
+      }
+    ],
+    "pods": [
+      {
+        "cluster": "prod-anthos-1",
+        "namespace": "payments",
+        "name": "payment-api-7c8d-abc",
+        "owner": "Deployment/payment-api",
+        "cpu_request": "500m",
+        "cpu_limit": "1000m",
+        "cpu_usage": "320m",
+        "memory_request": "512Mi",
+        "memory_limit": "1Gi",
+        "memory_usage": "410Mi",
+        "restart_count": 0
+      }
+    ],
+    "summary": {
+      "cluster_cpu_utilization_pct": 42.0,
+      "cluster_memory_utilization_pct": 60.0,
+      "over_provisioning_ratio": 1.8,
+      "metrics_source": "prometheus"
+    }
+  },
+  "traffic": {
+    "pairs": [
+      {
+        "source": "payments/payment-api",
+        "destination": "inventory/inventory-db",
+        "requests_per_sec": 240.5,
+        "bytes_per_sec": 1048576,
+        "p50_latency_ms": 4.2,
+        "p95_latency_ms": 18.0,
+        "p99_latency_ms": 42.5
+      }
+    ],
+    "summary": {
+      "east_west_bytes_per_sec": 5242880,
+      "north_south_bytes_per_sec": 1048576,
+      "total_service_pairs": 23,
+      "telemetry_source": "istio"
+    }
+  },
+  "skipped": [
+    {
+      "command": "kubectl top pod -A",
+      "reason": "metrics-server not installed in monitoring namespace"
+    }
+  ],
+  "warnings": [
+    "1 CRD requires human classification: internal.example.com/PaymentRoute"
+  ]
+}

@@ -1,0 +1,713 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/snese/agentic-container-migration-framework/schemas/discovery-bundle.schema.json",
+  "title": "ACMF Discovery Bundle",
+  "description": "Structured output of an ACMF Phase 1 (Assess) discovery run for an Anthos-on-VMware (or compatible) source environment. Produced by Discovery Option 2/3/4 runners.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "generated_by",
+    "scope",
+    "clusters",
+    "workloads",
+    "networking",
+    "storage",
+    "identity",
+    "external_dependencies",
+    "crds",
+    "vmware",
+    "utilization",
+    "traffic",
+    "skipped",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2.0",
+      "description": "ACMF discovery bundle schema version."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of bundle generation."
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Tool/runner that produced this bundle (e.g. 'kiro-cli', 'self-export-script', 'manual')."
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clusters", "namespaces_included", "namespaces_excluded"],
+      "properties": {
+        "clusters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Cluster names/contexts included in this run."
+        },
+        "namespaces_included": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "namespaces_excluded": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "description": "Per-cluster control-plane and node-pool inventory.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "platform"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "location": { "type": "string" },
+          "platform": {
+            "type": "string",
+            "enum": ["vmware", "gcp", "baremetal", "aws", "azure", "other"]
+          },
+          "control_plane": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ha_mode": { "type": "string" },
+              "node_count": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "node_pools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "count"],
+              "properties": {
+                "name": { "type": "string" },
+                "count": { "type": "integer", "minimum": 0 },
+                "machine_type": { "type": "string" },
+                "k8s_version": { "type": "string" },
+                "taints": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" }
+                }
+              }
+            }
+          },
+          "anthos_version": { "type": ["string", "null"] },
+          "anthos_config_management_version": { "type": ["string", "null"] },
+          "service_mesh": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "type": { "type": "string", "description": "e.g. 'asm', 'istio', 'none'" },
+              "version": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "workloads": {
+      "type": "array",
+      "description": "Workload inventory across all included namespaces.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cluster", "namespace", "kind", "name", "classification"],
+        "properties": {
+          "cluster": { "type": "string" },
+          "namespace": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["Deployment", "StatefulSet", "DaemonSet", "Job", "CronJob"]
+          },
+          "name": { "type": "string" },
+          "classification": {
+            "type": "string",
+            "enum": ["stateless", "stateful", "batch", "system"]
+          },
+          "replicas": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "desired": { "type": ["integer", "null"], "minimum": 0 },
+              "current": { "type": ["integer", "null"], "minimum": 0 }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "resources": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "requests": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              "limits": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          },
+          "env_summary": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Env var keys (values redacted) and source refs."
+          },
+          "volume_mounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": { "type": "string" },
+                "mount_path": { "type": "string" },
+                "read_only": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "networking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["services", "ingress", "network_policies", "service_mesh"],
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "namespace", "name", "type"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "namespace": { "type": "string" },
+              "name": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName", "Headless"]
+              },
+              "selectors": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              "external_ips": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "ports": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": { "type": "string" },
+                    "port": { "type": "integer" },
+                    "target_port": { "type": ["integer", "string"] },
+                    "protocol": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ingress": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "namespace", "name", "kind"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "namespace": { "type": "string" },
+              "name": { "type": "string" },
+              "kind": {
+                "type": "string",
+                "enum": ["Ingress", "Gateway", "HTTPRoute"]
+              },
+              "hosts": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "tls": { "type": "boolean" }
+            }
+          }
+        },
+        "network_policies": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count"],
+          "properties": {
+            "count": { "type": "integer", "minimum": 0 },
+            "samples": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "cluster": { "type": "string" },
+                  "namespace": { "type": "string" },
+                  "name": { "type": "string" },
+                  "policy_types": {
+                    "type": "array",
+                    "items": { "type": "string", "enum": ["Ingress", "Egress"] }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "service_mesh": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["virtual_services", "destination_rules", "authorization_policies"],
+          "properties": {
+            "virtual_services": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["count"],
+              "properties": {
+                "count": { "type": "integer", "minimum": 0 },
+                "samples": { "type": "array", "items": { "type": "object" } }
+              }
+            },
+            "destination_rules": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["count"],
+              "properties": {
+                "count": { "type": "integer", "minimum": 0 },
+                "samples": { "type": "array", "items": { "type": "object" } }
+              }
+            },
+            "authorization_policies": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["count"],
+              "properties": {
+                "count": { "type": "integer", "minimum": 0 },
+                "samples": { "type": "array", "items": { "type": "object" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_classes", "persistent_volumes", "persistent_volume_claims"],
+      "properties": {
+        "storage_classes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "provisioner"],
+            "properties": {
+              "name": { "type": "string" },
+              "provisioner": { "type": "string" },
+              "parameters": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              "reclaim_policy": { "type": "string" },
+              "volume_binding_mode": { "type": "string" }
+            }
+          }
+        },
+        "persistent_volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "size", "access_modes"],
+            "properties": {
+              "name": { "type": "string" },
+              "size": { "type": "string" },
+              "reclaim_policy": { "type": "string" },
+              "access_modes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod"]
+                }
+              },
+              "source_type": {
+                "type": "string",
+                "description": "e.g. vsphere-csi, nfs, hostpath, ebs"
+              },
+              "storage_class": { "type": "string" }
+            }
+          }
+        },
+        "persistent_volume_claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "namespace", "name", "size"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "namespace": { "type": "string" },
+              "name": { "type": "string" },
+              "size": { "type": "string" },
+              "linked_pv": { "type": ["string", "null"] },
+              "mounted_by": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service_accounts", "cluster_role_bindings", "workload_identity_bindings"],
+      "properties": {
+        "service_accounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total_count"],
+          "properties": {
+            "total_count": { "type": "integer", "minimum": 0 },
+            "with_non_default_tokens": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["cluster", "namespace", "name"],
+                "properties": {
+                  "cluster": { "type": "string" },
+                  "namespace": { "type": "string" },
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "cluster_role_bindings": {
+          "type": "array",
+          "description": "ClusterRoleBindings to non-system subjects.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "name", "role_ref", "subjects"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "name": { "type": "string" },
+              "role_ref": { "type": "string" },
+              "subjects": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": { "type": "string" },
+                    "name": { "type": "string" },
+                    "namespace": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "workload_identity_bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cluster": { "type": "string" },
+              "namespace": { "type": "string" },
+              "k8s_service_account": { "type": "string" },
+              "external_identity": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "external_dependencies": {
+      "type": "array",
+      "description": "Deduplicated external dependencies inferred from env, ConfigMaps, ExternalName services, and NetworkPolicy egress.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["host", "used_by"],
+        "properties": {
+          "host": { "type": "string" },
+          "port": { "type": ["integer", "null"], "minimum": 0, "maximum": 65535 },
+          "protocol": { "type": ["string", "null"] },
+          "source": {
+            "type": "string",
+            "description": "Where this was inferred from.",
+            "enum": ["env", "configmap", "externalname", "networkpolicy", "annotation", "other"]
+          },
+          "used_by": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Workload references in 'cluster/namespace/kind/name' form."
+          }
+        }
+      }
+    },
+    "crds": {
+      "type": "array",
+      "description": "All CustomResourceDefinitions discovered.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group", "version", "kind", "scope"],
+        "properties": {
+          "group": { "type": "string" },
+          "version": { "type": "string" },
+          "kind": { "type": "string" },
+          "scope": {
+            "type": "string",
+            "enum": ["Namespaced", "Cluster"]
+          },
+          "known_operator": {
+            "type": ["string", "null"],
+            "description": "e.g. 'cert-manager', 'external-dns'; null if unknown."
+          },
+          "needs_human_review": { "type": "boolean" }
+        }
+      }
+    },
+    "vmware": {
+      "type": "object",
+      "description": "vCenter inventory underlying Anthos clusters. May be empty if Discovery Option excludes govc; document in skipped[].",
+      "additionalProperties": false,
+      "required": ["clusters", "hosts", "datastores", "vm_to_node_mapping"],
+      "properties": {
+        "clusters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "datacenter": { "type": "string" },
+              "host_count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "cpu_cores": { "type": "integer", "minimum": 0 },
+              "cpu_mhz": { "type": "integer", "minimum": 0 },
+              "memory_gb": { "type": "number", "minimum": 0 },
+              "cpu_utilization_pct": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "memory_utilization_pct": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+            }
+          }
+        },
+        "datastores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type", "capacity_gb"],
+            "properties": {
+              "name": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": ["VMFS", "vSAN", "NFS", "VVOL", "other"]
+              },
+              "capacity_gb": { "type": "number", "minimum": 0 },
+              "free_gb": { "type": ["number", "null"], "minimum": 0 },
+              "iops_capability": { "type": ["integer", "null"], "minimum": 0 }
+            }
+          }
+        },
+        "vm_to_node_mapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["vm_name", "k8s_node"],
+            "properties": {
+              "vm_name": { "type": "string" },
+              "k8s_node": { "type": "string" },
+              "cluster": { "type": "string" },
+              "host": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "utilization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodes", "pods", "summary"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "name"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "name": { "type": "string" },
+              "cpu_capacity": { "type": "string" },
+              "cpu_allocatable": { "type": "string" },
+              "cpu_usage": { "type": ["string", "null"] },
+              "memory_capacity": { "type": "string" },
+              "memory_allocatable": { "type": "string" },
+              "memory_usage": { "type": ["string", "null"] },
+              "cpu_utilization_pct_30d_avg": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "cpu_utilization_pct_30d_p95": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "cpu_utilization_pct_30d_max": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "memory_utilization_pct_30d_avg": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "memory_utilization_pct_30d_p95": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "memory_utilization_pct_30d_max": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+            }
+          }
+        },
+        "pods": {
+          "type": "array",
+          "description": "Top consumers (e.g. top 50 by CPU/memory).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cluster", "namespace", "name"],
+            "properties": {
+              "cluster": { "type": "string" },
+              "namespace": { "type": "string" },
+              "name": { "type": "string" },
+              "owner": { "type": ["string", "null"] },
+              "cpu_request": { "type": ["string", "null"] },
+              "cpu_limit": { "type": ["string", "null"] },
+              "cpu_usage": { "type": ["string", "null"] },
+              "memory_request": { "type": ["string", "null"] },
+              "memory_limit": { "type": ["string", "null"] },
+              "memory_usage": { "type": ["string", "null"] },
+              "restart_count": { "type": ["integer", "null"], "minimum": 0 }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cluster_cpu_utilization_pct",
+            "cluster_memory_utilization_pct",
+            "over_provisioning_ratio"
+          ],
+          "properties": {
+            "cluster_cpu_utilization_pct": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "cluster_memory_utilization_pct": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "over_provisioning_ratio": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "description": "Aggregate requests/actual ratio. >1 means over-provisioned."
+            },
+            "metrics_source": {
+              "type": ["string", "null"],
+              "enum": ["metrics-server", "prometheus", "thanos", "mixed", null]
+            }
+          }
+        }
+      }
+    },
+    "traffic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pairs", "summary"],
+      "properties": {
+        "pairs": {
+          "type": "array",
+          "description": "Top service-to-service flows (capped, e.g. 50).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "destination"],
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "namespace/service form."
+              },
+              "destination": { "type": "string" },
+              "requests_per_sec": { "type": ["number", "null"], "minimum": 0 },
+              "bytes_per_sec": { "type": ["number", "null"], "minimum": 0 },
+              "p50_latency_ms": { "type": ["number", "null"], "minimum": 0 },
+              "p95_latency_ms": { "type": ["number", "null"], "minimum": 0 },
+              "p99_latency_ms": { "type": ["number", "null"], "minimum": 0 }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "east_west_bytes_per_sec",
+            "north_south_bytes_per_sec",
+            "total_service_pairs"
+          ],
+          "properties": {
+            "east_west_bytes_per_sec": { "type": ["number", "null"], "minimum": 0 },
+            "north_south_bytes_per_sec": { "type": ["number", "null"], "minimum": 0 },
+            "total_service_pairs": { "type": ["integer", "null"], "minimum": 0 },
+            "telemetry_source": {
+              "type": ["string", "null"],
+              "enum": ["istio", "asm", "ebpf", "inferred", null]
+            }
+          }
+        }
+      }
+    },
+    "skipped": {
+      "type": "array",
+      "description": "Commands that were skipped (timeouts, permission denied, write-only) — preserved for audit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "reason"],
+        "properties": {
+          "command": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Non-fatal anomalies detected during discovery."
+    }
+  }
+}
