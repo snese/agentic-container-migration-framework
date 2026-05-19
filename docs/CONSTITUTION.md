@@ -8,7 +8,7 @@ We do not install long-running agents in the customer environment. Discovery, as
 
 ## 2. Agent-driven, human-judged
 
-Agents (Kiro CLI, Strands, scripted LLM calls) are the *execution layer* for repeatable, context-heavy work — discovery, manifest analysis, IaC scaffolding, runbook drafting. Humans own taste and judgment: target service decisions, blockers, cutover go/no-go, customer communication. We never let an agent ship to production without a named human owner on the change.
+Agents (any coding-agent CLI such as [Kiro CLI](https://kiro.dev/docs/cli/installation/), persistent runtimes such as the open-source [Strands Agents SDK](https://strandsagents.com/), or scripted LLM calls) are the *execution layer* for repeatable, context-heavy work — discovery, manifest analysis, IaC scaffolding, runbook drafting. Humans own taste and judgment: target service decisions, blockers, cutover go/no-go, customer communication. We never let an agent ship to production without a named human owner on the change.
 
 ## 3. Auditable end-to-end
 

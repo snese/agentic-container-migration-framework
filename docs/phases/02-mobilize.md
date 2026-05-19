@@ -2,6 +2,8 @@
 
 **MAP alignment:** AWS MAP — *Mobilize*.
 
+**Why this phase matters:** Mobilize turns discovery data into executable decisions. Skip it and Migrate becomes trial-and-error against production traffic — every undecided 7 Rs choice or unowned blocker surfaces during cutover, when the cost of a wrong call is highest. Migrate (Phase 3) reads `target-mapping.yaml`, `waves.yaml`, and the IaC skeleton produced here as gospel; if those artifacts are thin, Phase 3 cannot run safely.
+
 **Goal:** Turn the Assess outputs into an executable migration plan, prepare the AWS landing zone, and get the customer to a state where wave 1 cutover is a low-drama event.
 
 This phase merges what v0.1 called "Assess" and "Plan." MAP treats workload assessment, target mapping, planning, and landing zone prep as a single mobilization effort, and that matches reality: you can't finalize a target mapping without a landing zone design, and you can't size the landing zone without an assessment.

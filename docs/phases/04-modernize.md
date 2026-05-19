@@ -2,6 +2,8 @@
 
 **MAP alignment:** AWS MAP — *Migrate & Modernize* (modernize portion).
 
+**Why this phase matters:** For container workloads, modernization is rarely optional. Skip Phase 4 and you bank a cluster that costs more than it should, with deferred 7 Rs Refactor decisions still open and an operating model that still leans on the old platform's habits — typically 20–40% over-provisioned compute and an under-developed on-call rotation within 90 days. Phase 4 is also the only place where Discovery Option 5 (longer-lived agent runtime, opt-in) is permitted; that handoff produces the optimization backlog Phase 5 turns into a case study.
+
 **Goal:** Post-migration modernization — cost, reliability, security, and the architectural improvements that were deferred from cutover.
 
 For container workloads, modernization is rarely optional. Right-sizing, Karpenter tuning, IRSA cleanup, and GitOps maturity all live here. Refactor decisions deferred from Phase 2 (e.g. moving a service to App Runner or Lambda) are scheduled and executed in this phase.

@@ -15,8 +15,6 @@
 - **Identity:** IRSA (Pod Identity for newer setups)
 - **Networking:** VPC CNI, NetworkPolicies via Calico
 
-## TBD
+## Planned additions
 
-- Reference Terraform module
-- Reference Helm umbrella chart
-- Mesh federation for live migration
+Reference Terraform module, reference Helm umbrella chart, and mesh-federation live-migration pattern are tracked in [`ROADMAP.md`](../../../ROADMAP.md).

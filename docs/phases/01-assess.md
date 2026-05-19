@@ -2,6 +2,8 @@
 
 **MAP alignment:** AWS MAP — *Assess*.
 
+**Why this phase matters:** Skip Assess and you build a landing zone for the wrong workloads, miss external dependencies, and end up redesigning mid-migration — typically 4–6 weeks of avoidable rework on a multi-cluster engagement. Assess is the only phase that produces a customer-signed `discovery-bundle.json` and a Migration Readiness Assessment (MRA) — both are hard prerequisites for Mobilize, because every wave-grouping, target-mapping, and landing-zone decision in Phase 2 cites them as evidence.
+
 **Goal:** Build a complete, structured picture of the source environment *and* the customer's organizational readiness — without installing persistent agents.
 
 This phase combines what v0.1 called "Discover" with the Migration Readiness Assessment (MRA) dimensions from MAP. Discovery without readiness is a manifest dump; readiness without discovery is a survey nobody trusts.

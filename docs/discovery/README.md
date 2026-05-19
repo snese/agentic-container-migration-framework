@@ -54,9 +54,11 @@ See [`scripts/discovery/anthos-vmware-export.sh`](../../scripts/discovery/anthos
 
 ---
 
-## Option 4: Kiro CLI Ephemeral Run ⭐ (recommended default)
+## Option 4: Agent-Assisted Ephemeral Run ⭐ (recommended default)
 
-**Mechanism:** Customer installs `kiro` CLI temporarily. We provide a prompt file + tool allowlist. Customer runs, gets structured output, can uninstall after.
+**Reference runtime:** [Kiro CLI](https://kiro.dev/docs/cli/installation/) (publicly available, supports prompt files + tool allowlist + `--no-write`). Any agent harness with equivalent guarantees works; ACMF does not lock you in.
+
+**Mechanism:** Customer installs the agent CLI temporarily. We provide a prompt file + tool allowlist. Customer runs, gets structured output, can uninstall after.
 
 **Pros:**
 - Agent-driven (handles edge cases gracefully)
@@ -66,8 +68,10 @@ See [`scripts/discovery/anthos-vmware-export.sh`](../../scripts/discovery/anthos
 - Output is structured JSON, easy to validate
 
 **Cons:**
-- Requires Kiro CLI install (small footprint)
+- Requires the agent CLI install (small footprint)
 - LLM call from customer environment (need policy clearance)
+
+**Fallback:** if the agent CLI cannot be installed, this option degrades cleanly to Option 2 — the same prompt is consumable as a Bash/Python runbook with no agent runtime. See [`docs/prerequisites.md`](../prerequisites.md).
 
 **Recipe:**
 ```bash
@@ -86,9 +90,11 @@ See [`prompts/discovery/anthos-vmware.prompt.md`](../../prompts/discovery/anthos
 
 ---
 
-## Option 5: Strands Agent (opt-in, optimization phase only)
+## Option 5: Persistent Agent Runtime (opt-in, optimization phase only)
 
-**Mechanism:** Persistent agent running in customer env for ongoing optimization recommendations.
+**Reference runtime:** [Strands Agents SDK](https://strandsagents.com/) ([GitHub](https://github.com/strands-agents/sdk-python)) — open-source, model-agnostic. Any persistent runtime under customer control works.
+
+**Mechanism:** Longer-lived agent running in customer env for ongoing optimization recommendations.
 
 **Use when:** Phase 5 (Optimize) only, with explicit customer opt-in. **Not for discovery.**
 
@@ -98,7 +104,7 @@ See [`prompts/discovery/anthos-vmware.prompt.md`](../../prompts/discovery/anthos
 
 ```
 Air-gapped or extreme policy?              → Option 1 or 2
-Want auditability + automation?            → Option 4 (Kiro CLI)
+Want auditability + automation?            → Option 4 (agent-assisted)
 Online + trusted + want fastest path?      → Option 3
 Phase 5 ongoing optimization?              → Option 5
 Default recommendation:                    → Option 4
