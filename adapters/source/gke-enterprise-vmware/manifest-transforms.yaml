@@ -1,0 +1,407 @@
+successfully downloaded text file (SHA: b9ab0d1239852a3d4bd1f73ac81c8e44b3b456f7)# manifest-transforms.yaml
+#
+# ACMF v0.3 — GKE Enterprise on VMware (formerly Anthos) → EKS manifest transformation rules.
+#
+# Purpose:
+#   Machine-readable rule set describing every K8s manifest mutation needed
+#   to move a GKE Enterprise on VMware workload to EKS. Consumed by:
+#     - LLM agents (Kiro/Q) as ground-truth mapping
+#     - kustomize/yq automation pipelines
+#     - human reviewers (rationale + before/after diff for each rule)
+#
+# Schema (informal):
+#   transforms:
+#     - id:           short stable id (snake_case)
+#       title:        human description
+#       category:     annotation | identity | ingress | storage | networkpolicy | mesh | image | misc
+#       severity:     required | recommended | optional
+#       match:        kind/apiVersion/path/regex selector
+#       action:       replace | remove | add | rewrite
+#       from:         (literal value or path the rule looks for)
+#       to:           (literal value or path the rule writes)
+#       yq:           (yq 4.x expression performing the rewrite, idempotent)
+#       sed:          (sed fallback, optional)
+#       kustomize:    (kustomize patch fragment, optional)
+#       rationale:    why
+#       diff:         minimal before/after illustration
+#       refs:         supporting docs
+#
+# Validate / apply with yq 4.x:
+#   yq -i 'eval(load("manifest-transforms.yaml") | .transforms[] | .yq) // .' my-manifest.yaml
+#   (in practice: drive transforms one-by-one from a wrapper script — see
+#    examples/gke-enterprise-vmware-to-eks/transform.sh)
+#
+# Test fixtures:
+#   examples/gke-enterprise-manifests/*.yaml  (apply rules → expected output documented inline)
+
+version: "0.3.0"
+source: gke-enterprise-vmware
+target: eks
+
+# Default global selectors used by many rules below
+defaults:
+  apiVersion_v1: v1
+  apiVersion_apps: apps/v1
+
+transforms:
+
+  # -------------------------------------------------------------------------
+  # 1. ANNOTATION TRANSLATIONS
+  # -------------------------------------------------------------------------
+
+  - id: drop_neg_annotation
+    title: Remove cloud.google.com/neg (GCP Network Endpoint Groups)
+    category: annotation
+    severity: required
+    match:
+      kind: [Service]
+      annotation_key: "cloud.google.com/neg"
+    action: remove
+    yq: 'del(.metadata.annotations["cloud.google.com/neg"])'
+    sed: '/cloud\.google\.com\/neg:/d'
+    rationale: >
+      NEG is GCP-specific. On EKS, the AWS Load Balancer Controller uses
+      target-type annotations on the Ingress instead (see ingress_class_to_alb).
+    diff: |
+      - annotations:
+      -   cloud.google.com/neg: '{"ingress": true}'
+      + annotations: {}
+    refs:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/network-endpoint-group
+      - https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/
+
+  - id: drop_backend_config
+    title: Remove cloud.google.com/backend-config
+    category: annotation
+    severity: required
+    match:
+      kind: [Service, Ingress]
+      annotation_key: "cloud.google.com/backend-config"
+    action: remove
+    yq: 'del(.metadata.annotations["cloud.google.com/backend-config"])'
+    rationale: >
+      BackendConfig CRD does not exist on EKS. Equivalent settings (timeouts,
+      health checks, IAP) are expressed via ALB Ingress annotations
+      (alb.ingress.kubernetes.io/*).
+    diff: |
+      - annotations:
+      -   cloud.google.com/backend-config: '{"default": "my-bc"}'
+      + # see ingress_alb_annotations rule for ALB equivalents
+    refs:
+      - https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/ingress/annotations/
+
+  - id: drop_app_protocols
+    title: Remove cloud.google.com/app-protocols
+    category: annotation
+    severity: recommended
+    match:
+      kind: [Service]
+      annotation_key: "cloud.google.com/app-protocols"
+    action: remove
+    yq: 'del(.metadata.annotations["cloud.google.com/app-protocols"])'
+    rationale: >
+      ALB on EKS infers protocol per port. HTTP/2 / gRPC is set via
+      alb.ingress.kubernetes.io/backend-protocol-version: GRPC.
+    diff: |
+      - cloud.google.com/app-protocols: '{"https":"HTTPS"}'
+      + # set alb.ingress.kubernetes.io/backend-protocol on Ingress instead
+
+  # -------------------------------------------------------------------------
+  # 2. WORKLOAD IDENTITY → POD IDENTITY / IRSA
+  # -------------------------------------------------------------------------
+
+  - id: workload_identity_to_pod_identity
+    title: Replace iam.gke.io/gcp-service-account with EKS Pod Identity (preferred) or IRSA
+    category: identity
+    severity: required
+    match:
+      kind: [ServiceAccount]
+      annotation_key: "iam.gke.io/gcp-service-account"
+    action: replace
+    from: 'metadata.annotations["iam.gke.io/gcp-service-account"]'
+    to:   'metadata.annotations["eks.amazonaws.com/role-arn"]'
+    yq: |
+      .metadata.annotations["eks.amazonaws.com/role-arn"] = ("arn:aws:iam::ACCOUNT_ID:role/" + (.metadata.annotations["iam.gke.io/gcp-service-account"] | split("@")[0]) + "-role")
+      | del(.metadata.annotations["iam.gke.io/gcp-service-account"])
+    rationale: >
+      Workload Identity bindings (KSA → GSA) become EKS Pod Identity associations
+      (KSA → IAM role) or IRSA via OIDC. Pod Identity is preferred for new clusters
+      (simpler, no OIDC trust policy). The IAM role itself must be provisioned
+      separately (see Phase 3 cutover playbook).
+    diff: |
+      - annotations:
+      -   iam.gke.io/gcp-service-account: payment-api@proj.iam.gserviceaccount.com
+      + annotations:
+      +   eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/payment-api-role
+    refs:
+      - https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html
+      - https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
+
+  # -------------------------------------------------------------------------
+  # 3. INGRESS CLASS GCE → ALB
+  # -------------------------------------------------------------------------
+
+  - id: ingress_class_to_alb
+    title: Change ingress class from gce/gce-internal to alb
+    category: ingress
+    severity: required
+    match:
+      kind: [Ingress]
+      path_or_annotation:
+        - spec.ingressClassName
+        - 'metadata.annotations["kubernetes.io/ingress.class"]'
+    action: replace
+    yq: |
+      .spec.ingressClassName = "alb"
+      | del(.metadata.annotations["kubernetes.io/ingress.class"])
+    rationale: >
+      `gce` and `gce-internal` provisioners are GKE-only. AWS Load Balancer
+      Controller uses `alb` ingressClassName and `internet-facing` /
+      `internal` scheme annotation for public/private separation.
+    diff: |
+      - spec:
+      -   ingressClassName: gce-internal
+      + spec:
+      +   ingressClassName: alb
+
+  - id: ingress_alb_annotations
+    title: Add baseline ALB annotations (scheme + target-type)
+    category: ingress
+    severity: required
+    match:
+      kind: [Ingress]
+    action: add
+    yq: |
+      .metadata.annotations["alb.ingress.kubernetes.io/scheme"] //= "internet-facing"
+      | .metadata.annotations["alb.ingress.kubernetes.io/target-type"] //= "ip"
+    rationale: >
+      Without these the AWS LB Controller will fall back to defaults (instance
+      target-type) which breaks Pod Identity + Fargate scheduling. `target-type=ip`
+      is required for Fargate and recommended for managed nodes.
+    diff: |
+      + alb.ingress.kubernetes.io/scheme: internet-facing
+      + alb.ingress.kubernetes.io/target-type: ip
+    refs:
+      - https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/ingress/annotations/
+
+  - id: gateway_api_passthrough
+    title: Anthos Gateway → AWS Gateway API Controller (or ALB Ingress fallback)
+    category: ingress
+    severity: recommended
+    match:
+      kind: [Gateway]
+      apiVersion_regex: "^gateway\\.networking\\.k8s\\.io/"
+    action: rewrite
+    yq: |
+      .spec.gatewayClassName = "aws-alb"
+    rationale: >
+      Gateway API CRD is portable; only gatewayClassName changes. Customers
+      using Anthos Service Mesh Gateway can use AWS Gateway API Controller
+      (alpha) or fall back to ALB Ingress.
+    diff: |
+      - spec:
+      -   gatewayClassName: gke-l7-global-external-managed
+      + spec:
+      +   gatewayClassName: aws-alb
+    refs:
+      - https://www.gateway-api-controller.eks.aws.dev/
+
+  # -------------------------------------------------------------------------
+  # 4. STORAGECLASS / PV TRANSLATIONS
+  # -------------------------------------------------------------------------
+
+  - id: storageclass_vsphere_to_ebs_gp3
+    title: Replace vSphere CSI StorageClass with EBS gp3 (default)
+    category: storage
+    severity: required
+    match:
+      kind: [StorageClass]
+      provisioner: "csi.vsphere.vmware.com"
+    action: rewrite
+    yq: |
+      .provisioner = "ebs.csi.aws.com"
+      | .parameters = { "type": "gp3", "encrypted": "true" }
+      | .reclaimPolicy = (.reclaimPolicy // "Delete")
+      | .volumeBindingMode = "WaitForFirstConsumer"
+      | .allowVolumeExpansion = true
+    rationale: >
+      vSphere CSI StoragePolicy semantics ("gold", "silver") map naturally to
+      EBS volume types. Default to gp3 + encryption-at-rest. Use io2 for
+      latency-sensitive StatefulSets (Postgres, Kafka).
+    diff: |
+      - provisioner: csi.vsphere.vmware.com
+      - parameters: { storagepolicyname: gold }
+      + provisioner: ebs.csi.aws.com
+      + parameters: { type: gp3, encrypted: "true" }
+      + allowVolumeExpansion: true
+    refs:
+      - https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+      - https://aws.amazon.com/ebs/general-purpose/
+
+  - id: storageclass_rwx_to_efs
+    title: For ReadWriteMany workloads, switch to EFS CSI
+    category: storage
+    severity: required
+    match:
+      kind: [PersistentVolumeClaim]
+      access_modes_contains: "ReadWriteMany"
+    action: rewrite
+    yq: |
+      .spec.storageClassName = "efs-sc"
+    rationale: >
+      EBS does not support RWX. Any RWX claim must move to EFS (or FSx for
+      Lustre / FSx for OpenZFS). Provision an `efs-sc` StorageClass backed by
+      the EFS CSI driver.
+    diff: |
+      - storageClassName: vsphere-csi-rwx
+      + storageClassName: efs-sc
+    refs:
+      - https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html
+
+  # -------------------------------------------------------------------------
+  # 5. NETWORKPOLICY ADJUSTMENTS
+  # -------------------------------------------------------------------------
+
+  - id: networkpolicy_default_keep
+    title: NetworkPolicies pass through unchanged
+    category: networkpolicy
+    severity: optional
+    match:
+      kind: [NetworkPolicy]
+    action: rewrite
+    yq: '.'
+    rationale: >
+      NetworkPolicy spec is portable across CNIs. EKS with VPC CNI + AWS
+      Network Policy controller (or Calico) supports the standard API. No
+      transformation required, but verify that egress to GCP-only endpoints
+      (e.g. metadata.google.internal) is replaced with VPC equivalents.
+    diff: "(no change)"
+    refs:
+      - https://docs.aws.amazon.com/eks/latest/userguide/cni-network-policy.html
+
+  - id: networkpolicy_strip_metadata_egress
+    title: Strip GCP metadata-server egress rules
+    category: networkpolicy
+    severity: recommended
+    match:
+      kind: [NetworkPolicy]
+      contains_string: "169.254.169.254"
+    action: rewrite
+    yq: |
+      .spec.egress = [.spec.egress[]? | select((.to // []) | tostring | test("metadata\\.google") | not)]
+    rationale: >
+      `169.254.169.254` is shared between GCP and AWS but the metadata schema
+      differs. Pods using IMDSv2 on EKS need explicit egress to that address;
+      keep the rule but document the new use.
+
+  # -------------------------------------------------------------------------
+  # 6. SERVICE MESH (ASM → Istio on EKS / VPC Lattice)
+  # -------------------------------------------------------------------------
+
+  - id: asm_revision_label_strip
+    title: Strip ASM-specific istio.io/rev=asm-* labels
+    category: mesh
+    severity: required
+    match:
+      label_key_regex: "^istio\\.io/rev$"
+      label_value_regex: "^asm-"
+    action: replace
+    yq: |
+      .metadata.labels["istio.io/rev"] = "default"
+    rationale: >
+      ASM uses managed revisions (asm-1-20-2-asm-2). Open-source Istio on EKS
+      uses simple revisions (default, canary). Set to `default` post-migration
+      and re-pin once Istio is installed on EKS.
+    diff: |
+      - istio.io/rev: asm-1-20-2-asm-2
+      + istio.io/rev: default
+
+  - id: asm_managed_dataplane_annotation
+    title: Remove proxy.istio.io/config managed-by annotations specific to ASM
+    category: mesh
+    severity: recommended
+    match:
+      annotation_key_regex: "^mesh\\.cloud\\.google\\.com/"
+    action: remove
+    yq: |
+      with_entries(select(.key | test("^mesh\\.cloud\\.google\\.com/") | not))
+    rationale: >
+      `mesh.cloud.google.com/*` annotations are interpreted by ASM control
+      plane only. They are no-ops on Istio but pollute manifests; strip them.
+    diff: |
+      - mesh.cloud.google.com/proxy: '{"managed":"true"}'
+
+  # -------------------------------------------------------------------------
+  # 7. CONTAINER REGISTRY REWRITE
+  # -------------------------------------------------------------------------
+
+  - id: registry_gcr_to_ecr
+    title: Rewrite gcr.io / *-docker.pkg.dev image refs to ECR
+    category: image
+    severity: required
+    match:
+      kind: [Deployment, StatefulSet, DaemonSet, Job, CronJob]
+      image_regex: "^(gcr\\.io|.+-docker\\.pkg\\.dev)/"
+    action: rewrite
+    yq: |
+      (.. | .image? | select(. != null and (. | test("^(gcr\\.io|.+-docker\\.pkg\\.dev)/"))))
+        |= sub("^gcr\\.io/[^/]+/"; "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/")
+         | sub("^[^/]+-docker\\.pkg\\.dev/[^/]+/[^/]+/"; "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/")
+    sed: 's|gcr\.io/[^/]\+/|ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/|g'
+    rationale: >
+      ECR is the AWS-native registry. Set up ECR replication or pull-through
+      cache from the source registry during cutover; Phase 3 playbook covers
+      replication automation.
+    diff: |
+      - image: gcr.io/my-project/payments/api:v1.42.0
+      + image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/payments/api:v1.42.0
+    refs:
+      - https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html
+
+  # -------------------------------------------------------------------------
+  # 8. MISC HOUSEKEEPING
+  # -------------------------------------------------------------------------
+
+  - id: drop_anthos_managed_labels
+    title: Drop addons.gke.io / anthos.gke.io system labels
+    category: misc
+    severity: recommended
+    match:
+      label_key_regex: "^(addons\\.gke\\.io|anthos\\.gke\\.io)/"
+    action: remove
+    yq: |
+      .metadata.labels |= with_entries(select(.key | test("^(addons\\.gke\\.io|anthos\\.gke\\.io)/") | not))
+    rationale: Anthos addon labels are noise on EKS; strip to keep manifests clean.
+
+  - id: nodeselector_zone_topology
+    title: Translate failure-domain.beta.kubernetes.io/zone selectors
+    category: misc
+    severity: recommended
+    match:
+      kind: [Deployment, StatefulSet]
+      contains_string: "failure-domain.beta.kubernetes.io/zone"
+    action: rewrite
+    yq: |
+      (.. | objects | select(has("failure-domain.beta.kubernetes.io/zone"))) |=
+        ( . + {"topology.kubernetes.io/zone": .["failure-domain.beta.kubernetes.io/zone"]} | del(.["failure-domain.beta.kubernetes.io/zone"]) )
+    rationale: >
+      Modern Kubernetes (1.17+) standard label is topology.kubernetes.io/zone.
+      EKS only populates the new label on managed node groups; replace the
+      deprecated label to keep scheduling working.
+
+# -------------------------------------------------------------------------
+# Coverage matrix (for reviewer sanity)
+# -------------------------------------------------------------------------
+# Anthos source                                    | EKS target                 | Rule id
+# -------------------------------------------------+----------------------------+-----------------------------
+# cloud.google.com/neg                             | (removed; ALB native)      | drop_neg_annotation
+# cloud.google.com/backend-config                  | alb.ingress.kubernetes.io/*| drop_backend_config + ingress_alb_annotations
+# iam.gke.io/gcp-service-account                   | eks.amazonaws.com/role-arn | workload_identity_to_pod_identity
+# kubernetes.io/ingress.class: gce[-internal]      | ingressClassName: alb      | ingress_class_to_alb
+# csi.vsphere.vmware.com (RWO)                     | ebs.csi.aws.com (gp3)      | storageclass_vsphere_to_ebs_gp3
+# csi.vsphere.vmware.com (RWX)                     | efs.csi.aws.com            | storageclass_rwx_to_efs
+# istio.io/rev: asm-*                              | istio.io/rev: default      | asm_revision_label_strip
+# mesh.cloud.google.com/*                          | (removed)                  | asm_managed_dataplane_annotation
+# gcr.io / *-docker.pkg.dev                        | *.dkr.ecr.*.amazonaws.com  | registry_gcr_to_ecr
+# addons.gke.io / anthos.gke.io labels             | (removed)                  | drop_anthos_managed_labels
+# failure-domain.beta.kubernetes.io/zone           | topology.kubernetes.io/zone| nodeselector_zone_topology
