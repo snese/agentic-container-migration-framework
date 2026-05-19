@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  schema-validate:
+    name: JSON Schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate schema example bundles
+        run: |
+          npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \
+            -s schemas/discovery-bundle.schema.json \
+            -d 'schemas/examples/*.json' \
+            -c ajv-formats
+      - name: Validate walkthrough discovery bundle
+        run: |
+          npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \
+            -s schemas/discovery-bundle.schema.json \
+            -d 'examples/anthos-vmware-to-eks/01-discovery-bundle.json' \
+            -c ajv-formats
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "./scripts"
+          severity: warning
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: sudo apt-get update && sudo apt-get install -y yamllint
+      - name: Lint YAML files
+        run: |
+          set -e
+          shopt -s globstar nullglob
+          files=()
+          for p in adapters/**/*.yaml examples/**/*.yaml .github/workflows/*.yml; do
+            [ -f "$p" ] && files+=("$p")
+          done
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No YAML files found to lint"
+            exit 0
+          fi
+          printf '%s\n' "${files[@]}"
+          yamllint -c .yamllint "${files[@]}"
+        shell: bash
+
+  markdown-link-check:
+    name: Markdown link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run markdown-link-check
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: "yes"
+          use-verbose-mode: "yes"
+          config-file: ".github/markdown-link-check.json"
+
+  bundle-roundtrip:
+    name: Discovery bundle round-trip smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify all required top-level keys present
+        run: |
+          set -euo pipefail
+          BUNDLE=examples/anthos-vmware-to-eks/01-discovery-bundle.json
+          SCHEMA=schemas/discovery-bundle.schema.json
+          required=$(jq -r '.required[]' "$SCHEMA")
+          count=$(echo "$required" | wc -l)
+          echo "Schema requires $count top-level keys"
+          missing=0
+          while IFS= read -r key; do
+            if ! jq -e --arg k "$key" 'has($k)' "$BUNDLE" >/dev/null; then
+              echo "::error::Bundle is missing required key: $key"
+              missing=$((missing + 1))
+            fi
+          done <<< "$required"
+          if [ "$missing" -gt 0 ]; then
+            echo "::error::$missing required top-level key(s) missing from bundle"
+            exit 1
+          fi
+          echo "All required top-level keys present"
+      - name: Re-validate against schema
+        run: |
+          npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \
+            -s schemas/discovery-bundle.schema.json \
+            -d 'examples/anthos-vmware-to-eks/01-discovery-bundle.json' \
+            -c ajv-formats
+
+  prompt-schema-contract:
+    name: Prompt ↔ schema contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Run contract validator
+        run: bash scripts/validate-prompt-schema.sh

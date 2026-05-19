@@ -33,12 +33,12 @@ Pick one based on customer constraints. See [`docs/discovery/`](../discovery/) f
 
 1. Customer installs `kiro` CLI (one-time, can be uninstalled after).
 2. We provide:
-   - `prompts/discovery/anthos-vmware.prompt.md`
+   - `prompts/discovery/gke-enterprise-vmware.prompt.md`
    - Tool allowlist: `kubectl` (read-only), `gcloud` (read-only), `vmware-govc` (read-only)
 3. Customer runs:
    ```bash
    kiro \
-     --prompt-file prompts/discovery/anthos-vmware.prompt.md \
+     --prompt-file prompts/discovery/gke-enterprise-vmware.prompt.md \
      --tools-allow kubectl,gcloud,govc \
      --output discovery-bundle.json
    ```

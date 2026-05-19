@@ -29,3 +29,7 @@ Conventional Commits style preferred:
 - `fix:` correction / bugfix
 - `docs:` doc-only changes
 - `refactor:` reorganization without semantic change
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [Apache License, Version 2.0](./LICENSE), the same license that covers the rest of this project. Do not submit code or content you cannot relicense under Apache-2.0.

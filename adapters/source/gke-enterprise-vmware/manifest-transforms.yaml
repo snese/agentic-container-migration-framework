@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: b9ab0d1239852a3d4bd1f73ac81c8e44b3b456f7)# manifest-transforms.yaml
+# manifest-transforms.yaml
 #
 # ACMF v0.3 — GKE Enterprise on VMware (formerly Anthos) → EKS manifest transformation rules.
 #
@@ -29,10 +29,10 @@ successfully downloaded text file (SHA: b9ab0d1239852a3d4bd1f73ac81c8e44b3b456f7
 # Validate / apply with yq 4.x:
 #   yq -i 'eval(load("manifest-transforms.yaml") | .transforms[] | .yq) // .' my-manifest.yaml
 #   (in practice: drive transforms one-by-one from a wrapper script — see
-#    examples/gke-enterprise-vmware-to-eks/transform.sh)
+#    examples/anthos-vmware-to-eks/transform.sh)
 #
 # Test fixtures:
-#   examples/gke-enterprise-manifests/*.yaml  (apply rules → expected output documented inline)
+#   examples/anthos-manifests/*.yaml  (apply rules → expected output documented inline)
 
 version: "0.3.0"
 source: gke-enterprise-vmware

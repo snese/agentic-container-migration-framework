@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: c14d1059dd406511b545e5e7c50ac7d5549a2f21)# Source Adapter: GKE Enterprise on VMware (formerly Anthos)
+# Source Adapter: GKE Enterprise on VMware (formerly Anthos)
 
 Status: ✅ v0.3 — first reference adapter.
 
@@ -8,8 +8,8 @@ Status: ✅ v0.3 — first reference adapter.
 
 - [`manifest-transforms.yaml`](./manifest-transforms.yaml) — machine-readable rule set (annotations, identity, ingress, storage, mesh, registry).
 - Self-export script: [`../../../scripts/discovery/gke-enterprise-vmware-export.sh`](../../../scripts/discovery/gke-enterprise-vmware-export.sh) — bundles output into the v0.2.0 [discovery schema](../../../schemas/discovery-bundle.schema.json).
-- Sample manifests for fixture testing: [`../../../examples/gke-enterprise-manifests/`](../../../examples/gke-enterprise-manifests/).
-- End-to-end walkthrough: [`../../../examples/gke-enterprise-vmware-to-eks/`](../../../examples/gke-enterprise-vmware-to-eks/).
+- Sample manifests for fixture testing: [`../../../examples/anthos-manifests/`](../../../examples/anthos-manifests/).
+- End-to-end walkthrough: [`../../../examples/anthos-vmware-to-eks/`](../../../examples/anthos-vmware-to-eks/).
 
 ## Scope
 
@@ -17,7 +17,7 @@ GKE Enterprise on VMware clusters (formerly "Anthos on-prem" / "Anthos clusters 
 
 ## What this adapter provides
 
-- Discovery prompt: [prompts/discovery/gke-enterprise-vmware.prompt.md](../../prompts/discovery/gke-enterprise-vmware.prompt.md)
+- Discovery prompt: [prompts/discovery/gke-enterprise-vmware.prompt.md](../../../prompts/discovery/gke-enterprise-vmware.prompt.md)
 - Self-export script: `scripts/discovery/gke-enterprise-vmware-export.sh`
 - GKE Enterprise-specific mapping rules:
   - Anthos Config Sync → ArgoCD on EKS (primary) / Flux CD (alternative)

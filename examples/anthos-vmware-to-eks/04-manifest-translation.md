@@ -3,7 +3,7 @@
 This document shows ACME Corp's `payment-api` and `inventory-db` manifests
 **before** (GDC for VMware) and **after** (EKS), with each change linked back to a
 rule id from
-[`adapters/source/anthos-vmware/manifest-transforms.yaml`](../../adapters/source/anthos-vmware/manifest-transforms.yaml).
+[`adapters/source/gke-enterprise-vmware/manifest-transforms.yaml`](../../adapters/source/gke-enterprise-vmware/manifest-transforms.yaml).
 
 The "before" YAMLs are the same shape as the test fixtures in
 [`examples/anthos-manifests/`](../anthos-manifests/).

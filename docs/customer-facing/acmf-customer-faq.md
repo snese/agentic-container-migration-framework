@@ -157,7 +157,7 @@ Yes — that is the design center. The five-option discovery menu, evidence-base
 
 ### …a multi-cluster GDC for VMware estate?
 
-Yes. The GDC for VMware adapter (`adapters/source/anthos-vmware/`) is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
+Yes. The GDC for VMware adapter (`adapters/source/gke-enterprise-vmware/`) is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
 
 ### …a workload that uses Service Mesh / Operators / CRDs heavily?
 

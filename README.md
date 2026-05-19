@@ -153,7 +153,7 @@ See [`examples/anthos-vmware-to-eks/`](examples/anthos-vmware-to-eks/) for a fic
 
 ## License
 
-To be set on first public release. See [`ROADMAP.md`](./ROADMAP.md#governance).
+This project is licensed under the [Apache License, Version 2.0](./LICENSE). See [`NOTICE`](./NOTICE) for attribution. Contributions are accepted under the same license — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## Contact
 

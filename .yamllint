@@ -1,0 +1,31 @@
+extends: default
+
+rules:
+  line-length:
+    max: 200
+    level: warning
+  document-start: disable
+  truthy:
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 2
+    min-spaces-inside-empty: -1
+    max-spaces-inside-empty: -1
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  colons:
+    max-spaces-after: -1
+  commas:
+    max-spaces-after: -1
+
+ignore: |
+  .git/
+  node_modules/

@@ -38,7 +38,7 @@ produces, end-to-end, for one anonymized fictional customer.
 - [Traffic shifting playbook](../../docs/playbooks/traffic-shifting.md)
 - [ECS vs EKS decision](../../docs/decisions/ecs-vs-eks.md)
 - [Data migration patterns](../../docs/decisions/data-migration-patterns.md)
-- [GDC for VMware source adapter](../../adapters/source/anthos-vmware/)
+- [GDC for VMware source adapter](../../adapters/source/gke-enterprise-vmware/)
 - [EKS target adapter](../../adapters/target/eks/)
 
 ## Source data
