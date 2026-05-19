@@ -8,7 +8,7 @@ It is opinionated about three things: **non-intrusive by default**, **agent-driv
 
 [^1]: Internal benchmark on multi-cluster Anthos-on-VMware engagements (≈100–200 workloads). Manual, SA-led discovery and manifest analysis runs 5–10 working days; the same scope on Discovery Option 4 (agent-assisted, see below) typically completes in 1–2 hours of agent runtime plus human review. Customer-specific results vary; ACMF surfaces a per-engagement baseline as an Assess-phase artifact rather than a marketing claim.
 
-**Status:** 🚧 v0.3 draft — Anthos on VMware → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
+**Status:** 🚧 v0.3 draft — GDC for VMware (formerly Anthos on VMware) → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
 
 ## Why "Agentic"?
 
@@ -24,7 +24,7 @@ Container workloads — especially in regulated, air-gapped, or customer-sensiti
 | Persistent agent (App2Container, ATX) | Ephemeral agent run |
 | VM-centric tooling | Container/K8s-native |
 | Manual discovery scripts | LLM-assisted analysis with auditable prompts |
-| One-shot lift-and-shift | Decision-tree-based target selection (EKS vs ECS vs App Runner) |
+| One-shot lift-and-shift | Decision-tree-based target selection (EKS vs ECS) |
 
 ACMF uses **agents as the execution layer** — but agents that are *short-lived, customer-controlled, and auditable*.
 
@@ -34,7 +34,7 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 
 - **Phases** map to MAP's *Assess / Mobilize / Migrate & Modernize*.
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
-- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class support for non-AWS source platforms (Anthos, OpenShift, Rancher).
+- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class support for non-AWS source platforms (GDC/Anthos, GKE, AKS, OpenShift, Rancher).
 
 Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md). For the relationship with [AWS Transform](https://aws.amazon.com/transform/), see [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
@@ -52,20 +52,24 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 
 ## Source / Target Matrix
 
-| Source ↓ / Target → | EKS | ECS (Fargate) | App Runner |
-|---|---|---|---|
-| **Anthos on VMware** | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
-| **Anthos on GCP** | 🔜 | 🔜 | 🔜 |
-| **OpenShift** | 🔜 | 🔜 | — |
-| **Rancher / vanilla K8s** | 🔜 | 🔜 | 🔜 |
+| Source ↓ / Target → | EKS | ECS (Fargate) |
+|---|---|---|
+| **GDC for VMware** (formerly Anthos on VMware) | ✅ Primary | ✅ Selective |
+| **GDC for Bare Metal** (formerly Anthos on Bare Metal) | ✅ Shares VMware adapter | ✅ Selective |
+| **GKE** (formerly "Anthos on GCP") | 🔜 | 🔜 |
+| **AKS** (Azure Kubernetes Service) | 🔜 | 🔜 |
+| **OpenShift** | 🔜 | 🔜 |
+| **Rancher / vanilla K8s** | 🔜 | 🔜 |
 
-✅ = supported · 🔜 = planned (see [ROADMAP.md](./ROADMAP.md)) · ⚠️ = with caveats
+✅ = supported · 🔜 = planned (see [ROADMAP.md](./ROADMAP.md))
+
+> **Note:** AWS App Runner entered maintenance mode (2026-04-30, no new customers) and is no longer a recommended migration target. Existing App Runner workloads should target ECS Fargate instead. See [#37](https://github.com/snese/agentic-container-migration-framework/issues/37).
 
 ## Non-Intrusive Discovery Options
 
 ACMF deliberately avoids deploying long-running agents. Discovery options, ordered by intrusiveness:
 
-1. **Manifest-only** — customer ships Helm charts / Anthos Config Sync repo; we analyze offline.
+1. **Manifest-only** — customer ships Helm charts / Config Sync repo; we analyze offline.
 2. **Self-export script** — pure bash + `kubectl` / `gcloud` read-only commands, output JSON bundle.
 3. **Read-only credentials** — short-lived ServiceAccount, we run discovery from our env.
 4. **Agent-assisted ephemeral run** ⭐ — customer runs a coding-agent CLI ([Kiro CLI](https://kiro.dev/docs/cli/installation/) is the reference) with our prompt + read-only tool allowlist; produces a structured JSON output bundle.
@@ -78,11 +82,11 @@ See [`docs/discovery/`](docs/discovery/) for each option's prompts, scripts, and
 ## ECS vs EKS Decision Tree
 
 ```
-Anthos workload characteristics
+Source workload characteristics
 ├─ Heavy K8s API usage (CRDs, operators, service mesh)? ─→ EKS
 ├─ Stateful + complex networking? ───────────────────────→ EKS
 ├─ Stateless + minimize ops + cost-sensitive? ───────────→ ECS (Fargate)
-├─ Single-service HTTP app? ─────────────────────────────→ App Runner
+├─ Single-service HTTP app? ─────────────────────────────→ ECS (Fargate)
 └─ Mixed portfolio? ─────────────────────────────────────→ Hybrid (EKS + ECS by namespace)
 ```
 
@@ -105,14 +109,16 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 │   └── case-studies/               # Real customer stories (anonymized)
 ├── adapters/
 │   ├── source/
-│   │   ├── anthos-vmware/          # First reference adapter
-│   │   ├── anthos-gcp/             # Planned
+│   │   ├── anthos-vmware/          # GDC for VMware — first reference adapter
+│   │   ├── gke/                    # Planned (formerly "anthos-gcp")
+│   │   ├── aks/                    # Planned
 │   │   ├── openshift/              # Planned
 │   │   └── _template/              # How to add a new source
 │   └── target/
 │       ├── eks/
 │       ├── ecs-fargate/
-│       └── app-runner/
+│       └── _deprecated/
+│           └── app-runner/         # ⛔ Maintenance mode 2026-04-30
 ├── prompts/                        # Discovery / analysis / planning prompts
 ├── schemas/                        # JSON schemas for inter-phase artifacts
 ├── scripts/                        # Self-export bash scripts
