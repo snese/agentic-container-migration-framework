@@ -27,7 +27,7 @@ This is **internal/delivery-side**, but every claim made here can be backed by s
 2. **Frame the constraint** (30s). Most container customers can't run a persistent collector. Anthos sits behind their firewall; OpenShift is regulated; Rancher is sovereign. So you're back to "send us your YAML" and a Confluence page of decisions.
 3. **Introduce the shift** (60s). ACMF replaces the persistent agent with an *ephemeral* one — a coding-agent CLI the customer runs **once**, with a prompt and tool allowlist they can audit. Output is structured JSON; the agent uninstalls. No phone-home, no daemon.
 4. **Tie to AWS standards** (60s). Phases map to MAP. Deliverables hit all six CAF perspectives. Target selection isn't "EKS for everything" — it's a per-workload decision matrix between EKS, ECS Fargate, and App Runner, with the rationale recorded in YAML.
-5. **Concrete next step** (30s). Pick a discovery option (we have five, ordered by intrusiveness). Walk Phase 1 on a single cluster. You get a discovery bundle, a readiness scorecard, and a draft target-mapping inside one engagement week.
+5. **Concrete next step** (30s). Pick a discovery option (we have five, ordered by intrusiveness) and an engagement shape (self-service, SA-assisted, ProServe, or partner — see [`engagement-model.md`](./engagement-model.md)). Walk Phase 1 on a single cluster. You get a discovery bundle, a readiness scorecard, and a draft target-mapping inside one engagement week.
 
 ## Discovery questions
 

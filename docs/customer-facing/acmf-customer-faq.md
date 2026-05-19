@@ -86,7 +86,7 @@ Yes. Every prompt is in the public repository under `prompts/`. You can read the
 
 ### How is ACMF priced?
 
-The framework itself is free and open. The engagement around it is priced like any consulting or partner-led migration — by scope and effort. If you are inside an AWS MAP funded engagement, ACMF deliverables map cleanly into MAP-funded line items (Assess, Mobilize, Migrate & Modernize).
+The framework itself is free and open. The engagement around it is priced like any consulting or partner-led migration — by scope and effort. If you are inside an AWS MAP funded engagement, ACMF deliverables map cleanly into MAP-funded line items (Assess, Mobilize, Migrate & Modernize). For the four standard engagement shapes (self-service, SA-assisted, ProServe, partner), see [`engagement-model.md`](./engagement-model.md).
 
 ### What does an engagement cost roughly?
 
@@ -111,7 +111,7 @@ The migration itself is still a real project. ACMF compresses the **assessment a
 
 ### Can I run ACMF myself without a delivery partner?
 
-Yes. The repository contains every prompt, schema, and playbook you need. Customers with strong platform teams have everything required to self-deliver Assess and Mobilize. Engaging a partner is helpful for landing-zone IaC, the harder cutovers, and the "second set of eyes on the target-service decision" — but it is not required by the framework.
+Yes. The repository contains every prompt, schema, and playbook you need. Customers with strong platform teams have everything required to self-deliver Assess and Mobilize. Engaging a partner is helpful for landing-zone IaC, the harder cutovers, and the "second set of eyes on the target-service decision" — but it is not required by the framework. The four delivery shapes (self-service, SA-assisted, ProServe, partner), with timelines and MAP eligibility, are documented in [`engagement-model.md`](./engagement-model.md).
 
 ### What does an ACMF engagement deliver, concretely?
 

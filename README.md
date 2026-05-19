@@ -130,6 +130,14 @@ ACMF is a **methodology**, not a CLI. To run an engagement today:
 
 Tooling and reference Terraform/CDK modules are tracked in [`ROADMAP.md`](./ROADMAP.md).
 
+## Reference architecture diagrams
+
+Visual reference for the methodology, source/target adapter model, discovery flow, and Phase 3 traffic shift: [`docs/architecture/diagrams.md`](docs/architecture/diagrams.md). All diagrams are Mermaid and render natively on GitHub.
+
+## End-to-end example
+
+See [`examples/anthos-vmware-to-eks/`](examples/anthos-vmware-to-eks/) for a fictional but schema-valid 5-cluster / 80-workload walkthrough, including a one-page [executive summary](examples/anthos-vmware-to-eks/00-executive-summary.md) you can hand to a sponsor.
+
 ## License
 
 To be set on first public release. See [`ROADMAP.md`](./ROADMAP.md#governance).

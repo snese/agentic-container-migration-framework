@@ -55,8 +55,9 @@ discovery)  landing     cutovers)    GitOps,        framework
 
 1. Read [`acmf-pitch-guide.md`](./acmf-pitch-guide.md) — talk track and discovery questions.
 2. Pre-read the [`acmf-customer-faq.md`](./acmf-customer-faq.md) for the security and data-handling questions that always come up.
-3. Pick a discovery option from [`docs/prerequisites.md`](../prerequisites.md) that matches the customer's policy posture.
+3. Pick an engagement shape from [`engagement-model.md`](./engagement-model.md) (self-service / SA-assisted / ProServe / Partner) and a discovery option from [`docs/prerequisites.md`](../prerequisites.md) that matches the customer's policy posture.
 4. Walk [`docs/phases/01-assess.md`](../phases/01-assess.md).
+5. Show the visuals in [`docs/architecture/diagrams.md`](../architecture/diagrams.md) — five-phase flow, adapter model, discovery trust boundary, Phase 3 traffic shift.
 
 ---
 
