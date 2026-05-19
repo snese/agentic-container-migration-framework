@@ -25,6 +25,17 @@ For container workloads, modernization is rarely optional. Right-sizing, Karpent
 - `optimization-backlog.md`
 - Updated IaC
 
+## Playbooks (v0.5 wave A)
+
+- [`docs/playbooks/irsa-to-pod-identity.md`](../playbooks/irsa-to-pod-identity.md) — IRSA → EKS Pod Identity migration with coexistence and rollback gates.
+- [`docs/playbooks/karpenter-rightsizing.md`](../playbooks/karpenter-rightsizing.md) — Karpenter vs Cluster Autoscaler decision, NodePool design principles, and the 30-day right-sizing loop.
+- [`docs/playbooks/observability-uplift.md`](../playbooks/observability-uplift.md) — Cloud Operations / Stackdriver / ASM telemetry mapping onto CloudWatch Container Insights, AMP, AMG, X-Ray, and ADOT.
+
+## Prompts (v0.5 wave A)
+
+- [`prompts/modernize/right-sizing-analysis.prompt.md`](../../prompts/modernize/right-sizing-analysis.prompt.md) — Compute Optimizer + Prometheus → per-workload right-sizing recommendation with confidence scoring (read-only).
+- [`prompts/modernize/gitops-maturity-scorecard.prompt.md`](../../prompts/modernize/gitops-maturity-scorecard.prompt.md) — ArgoCD/Flux installation → 5-dimension L1–L5 GitOps maturity scorecard (read-only). *Wave B companion playbook still pending — see [`ROADMAP.md`](../../ROADMAP.md).*
+
 ## Exit Criteria
 - [ ] Cost target hit (or variance explained)
 - [ ] All Sev-1 security findings closed
