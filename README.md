@@ -1,8 +1,14 @@
 # Agentic Container Migration Framework (ACMF)
 
-> Agent-driven methodology for migrating container workloads from on-premises / hybrid platforms (Anthos, OpenShift, Rancher, vanilla K8s) to AWS (EKS, ECS, App Runner).
+> Cut the repetitive parts of a Kubernetes-to-AWS migration — discovery, manifest analysis, wave planning — from days to hours, with auditable AI agents that run in the customer's environment under the customer's control.
 
-**Status:** 🚧 Early draft — Anthos on VMware → AWS as the first reference scenario.
+**Container migrations don't have to be quarter-long swamps.** ACMF is a methodology that uses *ephemeral* AI agents (not persistent collectors) to compress the assessment-and-planning grind that historically takes a senior architect 5–10 days into a 1–2 hour structured run, with every prompt, tool call, and output under version control[^1].
+
+It is opinionated about three things: **non-intrusive by default**, **agent-driven but human-judged**, and **MAP/CAF-aligned** — so it slots into AWS engagements that already speak the standard language.
+
+[^1]: Internal benchmark on multi-cluster Anthos-on-VMware engagements (≈100–200 workloads). Manual, SA-led discovery and manifest analysis runs 5–10 working days; the same scope on Discovery Option 4 (agent-assisted, see below) typically completes in 1–2 hours of agent runtime plus human review. Customer-specific results vary; ACMF surfaces a per-engagement baseline as an Assess-phase artifact rather than a marketing claim.
+
+**Status:** 🚧 v0.3 draft — Anthos on VMware → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
 
 ## Why "Agentic"?
 
@@ -15,7 +21,7 @@ Container workloads — especially in regulated, air-gapped, or customer-sensiti
 
 | Traditional | ACMF |
 |---|---|
-| Persistent agent (App2Container, ATX) | Ephemeral agent run (Kiro CLI) |
+| Persistent agent (App2Container, ATX) | Ephemeral agent run |
 | VM-centric tooling | Container/K8s-native |
 | Manual discovery scripts | LLM-assisted analysis with auditable prompts |
 | One-shot lift-and-shift | Decision-tree-based target selection (EKS vs ECS vs App Runner) |
@@ -30,7 +36,7 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
 - **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class support for non-AWS source platforms (Anthos, OpenShift, Rancher).
 
-Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md).
+Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md). For the relationship with [AWS Transform](https://aws.amazon.com/transform/), see [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
 ## Framework Phases
 
@@ -53,7 +59,7 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 | **OpenShift** | 🔜 | 🔜 | — |
 | **Rancher / vanilla K8s** | 🔜 | 🔜 | 🔜 |
 
-✅ = supported · 🔜 = planned · ⚠️ = with caveats
+✅ = supported · 🔜 = planned (see [ROADMAP.md](./ROADMAP.md)) · ⚠️ = with caveats
 
 ## Non-Intrusive Discovery Options
 
@@ -62,8 +68,10 @@ ACMF deliberately avoids deploying long-running agents. Discovery options, order
 1. **Manifest-only** — customer ships Helm charts / Anthos Config Sync repo; we analyze offline.
 2. **Self-export script** — pure bash + `kubectl` / `gcloud` read-only commands, output JSON bundle.
 3. **Read-only credentials** — short-lived ServiceAccount, we run discovery from our env.
-4. **Kiro CLI ephemeral run** ⭐ — customer runs `kiro` with our prompt + read-only tool allowlist; produces structured output bundle.
-5. **Strands Agent (opt-in)** — only for ongoing optimization phase, not discovery.
+4. **Agent-assisted ephemeral run** ⭐ — customer runs a coding-agent CLI ([Kiro CLI](https://kiro.dev/docs/cli/installation/) is the reference) with our prompt + read-only tool allowlist; produces a structured JSON output bundle.
+5. **Persistent agent runtime (opt-in)** — only for ongoing Phase 4 (Modernize) optimization, not discovery. Reference: [Strands Agents SDK](https://strandsagents.com/) (open source, [GitHub](https://github.com/strands-agents/sdk-python)).
+
+If the agent CLI cannot be installed in the customer environment, **Option 4 degrades cleanly to Option 2** — the same prompt is consumable as a Bash/Python runbook with no agent runtime required. See [`docs/prerequisites.md`](docs/prerequisites.md) for tool versions, install paths, and fallback procedures.
 
 See [`docs/discovery/`](docs/discovery/) for each option's prompts, scripts, and threat model.
 
@@ -85,12 +93,15 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 ```
 .
 ├── README.md                       # This file
+├── ROADMAP.md                      # Planned items, by phase
 ├── docs/
 │   ├── CONSTITUTION.md             # Framework principles (amendment process)
+│   ├── prerequisites.md            # Tool versions, install paths, fallbacks
 │   ├── methodology/                # MAP/CAF alignment, 7Rs for containers
 │   ├── phases/                     # MAP-aligned 5-phase playbooks
 │   ├── discovery/                  # Discovery option specs
 │   ├── decisions/                  # Decision trees / ADRs
+│   ├── customer-facing/            # 1-pager, pitch guide, FAQ
 │   └── case-studies/               # Real customer stories (anonymized)
 ├── adapters/
 │   ├── source/
@@ -102,7 +113,7 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 │       ├── eks/
 │       ├── ecs-fargate/
 │       └── app-runner/
-├── prompts/                        # Kiro CLI prompts (discovery, analysis, planning)
+├── prompts/                        # Discovery / analysis / planning prompts
 ├── schemas/                        # JSON schemas for inter-phase artifacts
 ├── scripts/                        # Self-export bash scripts
 └── examples/                       # End-to-end walkthroughs
@@ -110,21 +121,18 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 
 ## Getting Started
 
-> 🚧 Tooling is still being built. For now, see [`docs/phases/01-assess.md`](docs/phases/01-assess.md) for the manual flow.
+ACMF is a **methodology**, not a CLI. To run an engagement today:
 
-## Roadmap
+1. Read [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) — what ACMF will and won't do.
+2. Read [`docs/prerequisites.md`](docs/prerequisites.md) — pick the discovery option your customer can support.
+3. Walk [`docs/phases/01-assess.md`](docs/phases/01-assess.md) → 05.
+4. Going to a customer? Start with [`docs/customer-facing/acmf-overview-1pager.md`](docs/customer-facing/acmf-overview-1pager.md).
 
-- [x] Repo skeleton
-- [ ] Anthos-on-VMware discovery prompt + schema
-- [ ] EKS target adapter (ADRs, IaC patterns)
-- [ ] ECS Fargate target adapter
-- [ ] First case study (Anthos → EKS)
-- [ ] Kiro CLI integration guide
-- [ ] OpenShift adapter
+Tooling and reference Terraform/CDK modules are tracked in [`ROADMAP.md`](./ROADMAP.md).
 
 ## License
 
-TBD (private during development).
+To be set on first public release. See [`ROADMAP.md`](./ROADMAP.md#governance).
 
 ## Contact
 

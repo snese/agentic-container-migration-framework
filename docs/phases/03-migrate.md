@@ -2,6 +2,8 @@
 
 **MAP alignment:** AWS MAP — *Migrate & Modernize* (migrate portion).
 
+**Why this phase matters:** This is where planning meets reality. Every decision made in Assess and Mobilize is validated — or invalidated — by actual traffic and data. Skip the wave discipline here and one bad cutover will stall the rest of the program for weeks while trust is rebuilt. Modernize (Phase 4) depends on stable, observable workloads on AWS targets; without a clean Migrate, there is nothing concrete to right-size, harden, or refactor.
+
 **Goal:** Execute the plan, wave by wave.
 
 ## Inputs

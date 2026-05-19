@@ -39,9 +39,6 @@ Anthos clusters running on customer-managed VMware vSphere infrastructure (the "
 - Multi-cluster Service Mesh — usually simplifies on AWS (single VPC per cluster pattern)
 - Policy Controller ConstraintTemplates using `inventory` data — Gatekeeper supports this but requires audit controller setup on EKS
 
-## TBD
+## Planned additions
 
-- Concrete IaC patterns
-- Pricing comparison Anthos vs AWS targets
-- Live migration via mesh federation (advanced pattern)
-- Policy migration tooling (automated ConstraintTemplate validation on target)
+All items previously listed here are tracked in [`ROADMAP.md`](../../../ROADMAP.md) — concrete IaC patterns, Anthos-vs-AWS pricing comparison, mesh-federation live-migration pattern, and Policy Controller migration tooling.

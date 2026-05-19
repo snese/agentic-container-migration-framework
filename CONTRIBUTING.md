@@ -6,7 +6,7 @@ Early-stage. Contributions welcome but please open an issue first to discuss sco
 
 - `docs/` — methodology, decisions, case studies (markdown only)
 - `adapters/` — source-platform and target-platform specific content
-- `prompts/` — Kiro CLI / LLM prompts (versioned)
+- `prompts/` — agent / LLM prompts (versioned). The reference runtimes are [Kiro CLI](https://kiro.dev/docs/cli/installation/) for ephemeral runs and the open-source [Strands Agents SDK](https://strandsagents.com/) for Phase 4 optimization, but prompts are runtime-agnostic.
 - `schemas/` — JSON Schemas for inter-phase artifacts (versioned)
 - `scripts/` — pure bash, no installer required
 - `examples/` — runnable end-to-end walkthroughs

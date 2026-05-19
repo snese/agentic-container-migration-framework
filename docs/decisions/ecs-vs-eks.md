@@ -54,8 +54,10 @@ Split by namespace mapping. Document the rationale per group.
 - ❌ "App Runner for everything stateless" — egress + cold-start surprises
 - ❌ "Standard EKS because Auto Mode is too new" — Auto Mode is GA and production-ready
 
-## Open questions / TBD
+## Open questions
 
-- Concrete cost models per pattern (need real data)
+These remain open and are tracked in [`ROADMAP.md`](../../ROADMAP.md):
+
+- Concrete cost models per pattern (need real customer baselines)
 - EKS Auto Mode vs ECS Fargate — detailed cost comparison for equivalent workloads
 - Multi-region story per target

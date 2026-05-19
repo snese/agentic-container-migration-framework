@@ -21,7 +21,6 @@
 - VPC connector for private dependencies
 - Custom domain via Route 53
 
-## TBD
+## Planned additions
 
-- IaC sample
-- Anthos → App Runner migration pattern (rare but real)
+IaC sample and the Anthos → App Runner migration pattern (rare but real) are tracked in [`ROADMAP.md`](../../../ROADMAP.md).

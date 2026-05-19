@@ -23,7 +23,6 @@
 - DaemonSet equivalent — handled by Fargate platform side
 - Custom CNI / NetworkPolicies — limited
 
-## TBD
+## Planned additions
 
-- Reference Terraform module
-- ECS Service Connect migration recipe from Istio
+Reference Terraform module and ECS Service Connect migration recipe from Istio are tracked in [`ROADMAP.md`](../../../ROADMAP.md).
