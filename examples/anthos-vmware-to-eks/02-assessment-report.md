@@ -79,7 +79,7 @@ assessment of `crds` + `identity` from the bundle. Per-app worksheet lives in
 
 ## 4. Risks and gotchas
 
-Tied to [GDC for VMware source adapter — Known gotchas](../../adapters/source/anthos-vmware/README.md):
+Tied to [GDC for VMware source adapter — Known gotchas](../../adapters/source/gke-enterprise-vmware/README.md):
 
 1. **vSphere CSI volumes** — no direct EBS equivalent for snapshot lineage.
    13 stateful workloads (Postgres ×4, Redis ×3, Elasticsearch ×1, plus edge

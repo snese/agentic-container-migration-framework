@@ -1,7 +1,7 @@
 # GDC for VMware (formerly Anthos on VMware) → AWS Assessment Report
 
 > **Template usage.** Fill every `<placeholder>`. Each section names the
-> [discovery bundle](../prompts/discovery/anthos-vmware.prompt.md) field it
+> [discovery bundle](../prompts/discovery/gke-enterprise-vmware.prompt.md) field it
 > reads from. The bundle is validated against
 > `schemas/discovery-bundle.schema.json` (see [#17][issue-17] — landing in v0.3).
 > Target length: ≤10 pages printed. If a section overflows, move detail to an

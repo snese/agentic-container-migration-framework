@@ -29,10 +29,10 @@
 # Validate / apply with yq 4.x:
 #   yq -i 'eval(load("manifest-transforms.yaml") | .transforms[] | .yq) // .' my-manifest.yaml
 #   (in practice: drive transforms one-by-one from a wrapper script — see
-#    examples/gke-enterprise-vmware-to-eks/transform.sh)
+#    examples/anthos-vmware-to-eks/transform.sh)
 #
 # Test fixtures:
-#   examples/gke-enterprise-manifests/*.yaml  (apply rules → expected output documented inline)
+#   examples/anthos-manifests/*.yaml  (apply rules → expected output documented inline)
 
 version: "0.3.0"
 source: gke-enterprise-vmware

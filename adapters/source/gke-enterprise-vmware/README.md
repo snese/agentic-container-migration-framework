@@ -8,8 +8,8 @@ Status: ✅ v0.3 — first reference adapter.
 
 - [`manifest-transforms.yaml`](./manifest-transforms.yaml) — machine-readable rule set (annotations, identity, ingress, storage, mesh, registry).
 - Self-export script: [`../../../scripts/discovery/gke-enterprise-vmware-export.sh`](../../../scripts/discovery/gke-enterprise-vmware-export.sh) — bundles output into the v0.2.0 [discovery schema](../../../schemas/discovery-bundle.schema.json).
-- Sample manifests for fixture testing: [`../../../examples/gke-enterprise-manifests/`](../../../examples/gke-enterprise-manifests/).
-- End-to-end walkthrough: [`../../../examples/gke-enterprise-vmware-to-eks/`](../../../examples/gke-enterprise-vmware-to-eks/).
+- Sample manifests for fixture testing: [`../../../examples/anthos-manifests/`](../../../examples/anthos-manifests/).
+- End-to-end walkthrough: [`../../../examples/anthos-vmware-to-eks/`](../../../examples/anthos-vmware-to-eks/).
 
 ## Scope
 

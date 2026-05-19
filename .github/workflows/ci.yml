@@ -15,12 +15,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-      - name: Init package-lock cache key
-        run: |
-          if [ ! -f package.json ]; then
-            echo '{"name":"acmf-ci","private":true,"version":"0.0.0"}' > package.json
-          fi
       - name: Validate schema example bundles
         run: |
           npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \

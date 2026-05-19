@@ -1,5 +1,5 @@
 # Sample Anthos Deployment with Workload Identity SA + ASM sidecar.
-# Used as test fixture for adapters/source/anthos-vmware/manifest-transforms.yaml.
+# Used as test fixture for adapters/source/gke-enterprise-vmware/manifest-transforms.yaml.
 #
 # Apply rules: workload_identity_to_pod_identity, asm_revision_label_strip,
 #              registry_gcr_to_ecr, drop_anthos_managed_labels.

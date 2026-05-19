@@ -9,7 +9,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 | Item | Status | Notes / Issue |
 |---|---|---|
 | GKE Enterprise on VMware discovery prompt + JSON Schema | 🚧 | First reference adapter (formerly Anthos on VMware) |
-| Self-export bash script (`scripts/discovery/anthos-vmware-export.sh`) | ✅ | Option 2 of the discovery menu |
+| Self-export bash script (`scripts/discovery/gke-enterprise-vmware-export.sh`) | ✅ | Option 2 of the discovery menu |
 | OpenShift discovery prompt | 🔜 | After GKE Enterprise reference is stable |
 | GKE discovery prompt | 🔜 | Standard GKE (cloud-native) + GKE Enterprise fleet |
 | AKS discovery prompt | 🔜 | Azure AD RBAC, Azure CNI, Azure Disk/File CSI |
@@ -55,7 +55,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes |
 |---|---|---|
-| Source: GKE Enterprise on VMware (formerly Anthos) | 🚧 | First reference; `adapters/source/anthos-vmware/` |
+| Source: GKE Enterprise on VMware (formerly Anthos) | 🚧 | First reference; `adapters/source/gke-enterprise-vmware/` |
 | Source: GKE Enterprise on Bare Metal (formerly Anthos) | ✅ | Shares VMware adapter with `--platform=bare-metal` flag (skips vSphere discovery) |
 | Source: GKE (cloud-native, on GCP) | 🔜 | Standard GKE + GKE Enterprise fleet; `adapters/source/gke/` |
 | Source: AKS (Azure) | 🔜 | Azure AD, Azure CNI, Azure Disk/File CSI; `adapters/source/aks/` |

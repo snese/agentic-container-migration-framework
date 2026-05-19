@@ -34,7 +34,7 @@ Five options, ordered from least to most intrusive. Pick based on customer polic
 
 **Use when:** Air-gapped, regulated, or customer needs to vet every command.
 
-See [`scripts/discovery/anthos-vmware-export.sh`](../../scripts/discovery/anthos-vmware-export.sh).
+See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discovery/gke-enterprise-vmware-export.sh).
 
 ---
 
@@ -77,7 +77,7 @@ See [`scripts/discovery/anthos-vmware-export.sh`](../../scripts/discovery/anthos
 ```bash
 # Customer side
 kiro \
-  --prompt-file acmf/prompts/discovery/anthos-vmware.prompt.md \
+  --prompt-file acmf/prompts/discovery/gke-enterprise-vmware.prompt.md \
   --tools-allow "kubectl:get,kubectl:describe,gcloud:read,govc:ls" \
   --output discovery-bundle.json \
   --no-write
@@ -86,7 +86,7 @@ kiro \
 age -r <our-pubkey> -o discovery-bundle.json.age discovery-bundle.json
 ```
 
-See [`prompts/discovery/anthos-vmware.prompt.md`](../../prompts/discovery/anthos-vmware.prompt.md).
+See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discovery/gke-enterprise-vmware.prompt.md).
 
 ---
 
