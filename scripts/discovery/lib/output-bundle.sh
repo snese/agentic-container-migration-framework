@@ -22,8 +22,8 @@ acmf::bundle::emit() {
   local vmware="${12}" util="${13}" traffic="${14}"
 
   local skipped warnings
-  skipped="$(cat "$ACMF_SKIPPED_FILE")"
-  warnings="$(cat "$ACMF_WARN_FILE")"
+  skipped="$(cat "$ACMF_SKIPPED_FILE" 2>/dev/null || echo '[]')"
+  warnings="$(cat "$ACMF_WARN_FILE" 2>/dev/null || echo '[]')"
 
   jq -n \
     --arg gen_at "$gen_at" \

@@ -27,7 +27,7 @@ acmf::common::log() {
 acmf::common::warn() {
   local msg="$1"
   jq --arg m "$msg" '. += [$m]' "$ACMF_WARN_FILE" \
-    > "$ACMF_WARN_FILE.tmp" && mv "$ACMF_WARN_FILE.tmp" "$ACMF_WARN_FILE"
+    > "$ACMF_WARN_FILE.tmp.$$" && mv "$ACMF_WARN_FILE.tmp.$$" "$ACMF_WARN_FILE"
   acmf::common::log "WARN: $msg"
 }
 
@@ -35,7 +35,7 @@ acmf::common::skip() {
   local cmd="$1" reason="$2"
   jq --arg c "$cmd" --arg r "$reason" \
     '. += [{command:$c, reason:$r}]' "$ACMF_SKIPPED_FILE" \
-    > "$ACMF_SKIPPED_FILE.tmp" && mv "$ACMF_SKIPPED_FILE.tmp" "$ACMF_SKIPPED_FILE"
+    > "$ACMF_SKIPPED_FILE.tmp.$$" && mv "$ACMF_SKIPPED_FILE.tmp.$$" "$ACMF_SKIPPED_FILE"
   acmf::common::log "SKIP [$cmd]: $reason"
 }
 

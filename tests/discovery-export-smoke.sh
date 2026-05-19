@@ -12,8 +12,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPTS_DIR="$ROOT/scripts/discovery"
 SCHEMA="$ROOT/schemas/discovery-bundle.schema.json"
-TMPDIR="$(mktemp -d -t acmf-smoke-XXXXXX)"
-trap 'rm -rf "$TMPDIR"' EXIT
+TEST_TMPDIR="$(mktemp -d -t acmf-smoke-XXXXXX)"
+trap 'rm -rf "$TEST_TMPDIR"' EXIT
 
 # Canonical list of source-adapter export scripts. Both the shipped GKE
 # Enterprise on VMware adapter and the four stub adapters (gke, aks,
@@ -28,7 +28,7 @@ SCRIPTS=(
 
 failures=0
 for s in "${SCRIPTS[@]}"; do
-  out="$TMPDIR/${s%.sh}.json"
+  out="$TEST_TMPDIR/${s%.sh}.json"
   echo "::group::dry-run $s"
   if ! bash "$SCRIPTS_DIR/$s" --dry-run --output "$out"; then
     echo "::error::$s --dry-run failed"

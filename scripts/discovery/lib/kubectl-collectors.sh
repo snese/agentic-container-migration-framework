@@ -22,7 +22,7 @@
 acmf::k8s::collect_workloads() {
   local ns_list="$1" cluster_name="$2"
   local out="[]" ns kind raw classification add
-  for ns in $ns_list; do
+  for ns in ${ns_list}; do
     for kind in Deployment StatefulSet DaemonSet Job CronJob; do
       raw="$(kubectl -n "$ns" get "$kind" -o json 2>/dev/null || echo '{"items":[]}')"
       classification="stateless"
@@ -52,7 +52,7 @@ acmf::k8s::collect_workloads() {
 acmf::k8s::collect_networking() {
   local ns_list="$1" cluster_name="$2"
   local svcs="[]" ing="[]" ns add s i
-  for ns in $ns_list; do
+  for ns in ${ns_list}; do
     s="$(kubectl -n "$ns" get svc -o json 2>/dev/null || echo '{"items":[]}')"
     add="$(echo "$s" | jq --arg c "$cluster_name" --arg ns "$ns" '
       [ .items[] | {
@@ -106,7 +106,7 @@ acmf::k8s::collect_storage() {
     storage_class:(.spec.storageClassName // null)
   } ]' || echo '[]')"
   pvc="[]"
-  for ns in $ns_list; do
+  for ns in ${ns_list}; do
     add="$(kubectl -n "$ns" get pvc -o json 2>/dev/null | jq --arg c "$cluster_name" --arg ns "$ns" '[ .items[] | {
       cluster:$c, namespace:$ns, name:.metadata.name, size:.spec.resources.requests.storage,
       linked_pv:(.spec.volumeName // null), mounted_by:[]
@@ -128,7 +128,7 @@ acmf::k8s::collect_identity() {
   local sa_total wi_json crb add ns
   sa_total="$(kubectl get sa -A -o json 2>/dev/null | jq '.items | length' || echo 0)"
   wi_json="[]"
-  for ns in $ns_list; do
+  for ns in ${ns_list}; do
     add="$(kubectl -n "$ns" get sa -o json 2>/dev/null | jq --arg c "$cluster_name" --arg ns "$ns" '[
       .items[] | select(.metadata.annotations["iam.gke.io/gcp-service-account"]) | {
         cluster:$c, namespace:$ns, k8s_service_account:.metadata.name,
