@@ -8,20 +8,22 @@ It is opinionated about three things: **non-intrusive by default**, **agent-driv
 
 [^1]: Internal benchmark on multi-cluster GKE Enterprise on VMware engagements (≈100–200 workloads). Manual, SA-led discovery and manifest analysis runs 5–10 working days; the same scope on Discovery Option 4 (agent-assisted, see below) typically completes in 1–2 hours of agent runtime plus human review. Customer-specific results vary; ACMF surfaces a per-engagement baseline as an Assess-phase artifact rather than a marketing claim.
 
-**Status:** 🚧 v0.4 draft — GKE Enterprise on VMware (formerly Anthos) → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
+**Status:** 🚧 v0.6 draft — GKE Enterprise on VMware → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
 
 ## Why “Agentic”?
 
-Traditional migration frameworks (AWS MAP, App2Container, MGN) assume:
+**Traditional AWS migration tooling — App2Container, AWS MGN, and Migration Evaluator** — assumes one of:
 - You can install a long-running agent in the customer environment, **or**
 - The workload is VM-based, **or**
 - A consultant runs scripts manually.
+
+These work well for VM-shaped estates. They are a poor fit for K8s-native, regulated, or customer-controlled container workloads.
 
 Container workloads — especially in regulated, air-gapped, or customer-sensitive environments — need a different shape:
 
 | Traditional | ACMF |
 |---|---|
-| Persistent agent (App2Container, ATX) | Ephemeral agent run |
+| Persistent agent (App2Container, MGN replication agent) | Ephemeral agent run |
 | VM-centric tooling | Container/K8s-native |
 | Manual discovery scripts | LLM-assisted analysis with auditable prompts |
 | One-shot lift-and-shift | Decision-tree-based target selection (EKS vs ECS) |
@@ -71,7 +73,7 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 >
 > ACMF primarily targets **GKE Enterprise** (on VMware/Bare Metal) migrations, which represent the vast majority of “Anthos to AWS” customer scenarios.
 
-> **Note:** AWS App Runner entered maintenance mode (2026-04-30, no new customers) and is no longer a recommended migration target. Existing App Runner workloads should target ECS Fargate instead. See [#37](https://github.com/snese/agentic-container-migration-framework/issues/37).
+> Deprecated targets (e.g. AWS App Runner — maintenance mode 2026-04-30) are tracked in [ROADMAP.md](./ROADMAP.md).
 
 ## Non-Intrusive Discovery Options
 
@@ -81,7 +83,7 @@ ACMF deliberately avoids deploying long-running agents. Discovery options, order
 2. **Self-export script** — pure bash + `kubectl` / `gcloud` read-only commands, output JSON bundle.
 3. **Read-only credentials** — short-lived ServiceAccount, we run discovery from our env.
 4. **Agent-assisted ephemeral run** ⭐ — customer runs a coding-agent CLI ([Kiro CLI](https://kiro.dev/docs/cli/installation/), in [headless mode](https://kiro.dev/docs/cli/headless/), is the reference) with our prompt + read-only tool allowlist; produces a structured JSON output bundle.
-5. **Persistent agent runtime (opt-in)** — only for ongoing Phase 4 (Modernize) optimization, not discovery. Reference: [Strands Agents SDK](https://strandsagents.com/) (open source, [GitHub](https://github.com/strands-agents/sdk-python)).
+5. **Persistent agent runtime (opt-in)** — only for ongoing Phase 4 (Modernize) optimization, not discovery. *Placeholder — no reference recipe ships in ACMF today;* see [ROADMAP.md](./ROADMAP.md) Phase 4. Reference runtime: [Strands Agents SDK](https://strandsagents.com/) (open source, [GitHub](https://github.com/strands-agents/sdk-python)).
 
 If the agent CLI cannot be installed in the customer environment, **Option 4 degrades cleanly to Option 2** — the same prompt is consumable as a Bash/Python runbook with no agent runtime required. See [`docs/prerequisites.md`](docs/prerequisites.md) for tool versions, install paths, and fallback procedures.
 

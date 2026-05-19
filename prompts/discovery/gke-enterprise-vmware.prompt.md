@@ -1,5 +1,7 @@
 # Discovery Prompt — GKE Enterprise on VMware (formerly Anthos)
 
+> **Naming note:** Anthos Config Management, Anthos Service Mesh, Anthos Policy Controller, and Workload Identity are Google's product names for technical components and are referenced as-is throughout this prompt. The platform itself was rebranded to **GKE Enterprise**; the component-level names persist in Google's docs and APIs.
+
 > **For**: Kiro CLI ephemeral run (Discovery Option 4)
 > **Output**: Structured JSON conforming to `schemas/discovery-bundle.schema.json`
 > **Read-only**: This prompt MUST NOT issue any write/mutate commands.

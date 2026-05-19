@@ -110,6 +110,8 @@ See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discover
 
 ## Option 5: Persistent Agent Runtime (opt-in, optimization phase only)
 
+> **Status: placeholder, no reference implementation in repo today.** Strands Agents SDK is publicly available, but ACMF does not currently ship a reference recipe for Phase 4 persistent-agent runtime. Tracked in [ROADMAP.md](../../ROADMAP.md) under Phase 4.
+
 **Reference runtime:** [Strands Agents SDK](https://strandsagents.com/) ([GitHub](https://github.com/strands-agents/sdk-python)) — open-source, model-agnostic. Any persistent runtime under customer control works.
 
 **Mechanism:** Longer-lived agent running in customer env for ongoing optimization recommendations.
