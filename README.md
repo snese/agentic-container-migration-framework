@@ -34,7 +34,8 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 
 - **Phases** map to MAP’s *Assess / Mobilize / Migrate & Modernize*.
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
-- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class support for non-AWS source platforms (GKE Enterprise, GKE, AKS, OpenShift, Rancher).
+- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, **first-class target adapters for EKS and ECS Fargate**. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
+- **Relationship to MAP's bundled discovery tooling:** ACMF complements (does not replace) [App2Container](https://docs.aws.amazon.com/app2container/latest/UserGuide/what-is-a2c.html), [AWS MGN](https://docs.aws.amazon.com/mgn/latest/ug/what-is-application-migration-service.html), and [AWS Migration Evaluator](https://aws.amazon.com/migration-evaluator/) — each of which is an AWS-native service rather than a partner tool. ACMF picks up where these stop: container/Kubernetes-native discovery for sources those tools don't cover (GKE Enterprise, GKE, AKS, OpenShift, Rancher).
 
 Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md). For the relationship with [AWS Transform](https://aws.amazon.com/transform/), see [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
@@ -79,7 +80,7 @@ ACMF deliberately avoids deploying long-running agents. Discovery options, order
 1. **Manifest-only** — customer ships Helm charts / Config Sync repo; we analyze offline.
 2. **Self-export script** — pure bash + `kubectl` / `gcloud` read-only commands, output JSON bundle.
 3. **Read-only credentials** — short-lived ServiceAccount, we run discovery from our env.
-4. **Agent-assisted ephemeral run** ⭐ — customer runs a coding-agent CLI ([Kiro CLI](https://kiro.dev/docs/cli/installation/) is the reference) with our prompt + read-only tool allowlist; produces a structured JSON output bundle.
+4. **Agent-assisted ephemeral run** ⭐ — customer runs a coding-agent CLI ([Kiro CLI](https://kiro.dev/docs/cli/installation/), in [headless mode](https://kiro.dev/docs/cli/headless/), is the reference) with our prompt + read-only tool allowlist; produces a structured JSON output bundle.
 5. **Persistent agent runtime (opt-in)** — only for ongoing Phase 4 (Modernize) optimization, not discovery. Reference: [Strands Agents SDK](https://strandsagents.com/) (open source, [GitHub](https://github.com/strands-agents/sdk-python)).
 
 If the agent CLI cannot be installed in the customer environment, **Option 4 degrades cleanly to Option 2** — the same prompt is consumable as a Bash/Python runbook with no agent runtime required. See [`docs/prerequisites.md`](docs/prerequisites.md) for tool versions, install paths, and fallback procedures.
@@ -88,49 +89,56 @@ See [`docs/discovery/`](docs/discovery/) for each option’s prompts, scripts, a
 
 ## ECS vs EKS Decision Tree
 
+The top-level question is binary: **do you need the Kubernetes API?**
+
 ```
-Source workload characteristics
-├─ Heavy K8s API usage (CRDs, operators, service mesh)? ─→ EKS
-├─ Stateful + complex networking? ───────────────────────→ EKS
-├─ Stateless + minimize ops + cost-sensitive? ───────────→ ECS (Fargate)
-├─ Single-service HTTP app? ─────────────────────────────→ ECS (Fargate)
-└─ Mixed portfolio? ─────────────────────────────────────→ Hybrid (EKS + ECS by namespace)
+Does the workload depend on the Kubernetes API
+(CRDs, operators, admission webhooks, service mesh CRs)?
+├─ Yes ─────────────────────────────────────────────────→ EKS
+├─ No, and ops simplicity / cost > flexibility ─────────→ ECS
+└─ Mixed portfolio? ────────────────────────────────────→ Hybrid (EKS + ECS, split by namespace)
 ```
 
-Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-eks.md).
+Compute-model selection (Fargate vs EC2 vs Auto Mode vs Karpenter vs Managed Node Groups vs Fargate profiles) is a separate, target-specific decision. See:
+
+- High-level ECS vs EKS: [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-eks.md)
+- ECS compute model (Fargate vs EC2 vs Fargate Spot): [`docs/decisions/ecs-compute-model.md`](docs/decisions/ecs-compute-model.md)
+- EKS compute model (Auto Mode vs Karpenter vs Managed NG vs Fargate profiles): [`docs/decisions/eks-compute-model.md`](docs/decisions/eks-compute-model.md)
 
 ## Repository Structure
 
 ```
 .
-├── README.md                       # This file
-├── ROADMAP.md                      # Planned items, by phase
+├── README.md                              # This file
+├── ROADMAP.md                             # Planned items, by phase
+├── CONTRIBUTING.md                        # How to contribute
 ├── docs/
-│   ├── CONSTITUTION.md             # Framework principles (amendment process)
-│   ├── prerequisites.md            # Tool versions, install paths, fallbacks
-│   ├── methodology/                # MAP/CAF alignment, 7Rs for containers
-│   ├── phases/                     # MAP-aligned 5-phase playbooks
-│   ├── discovery/                  # Discovery option specs
-│   ├── decisions/                  # Decision trees / ADRs
-│   ├── customer-facing/            # 1-pager, pitch guide, FAQ
-│   └── case-studies/               # Real customer stories (anonymized)
+│   ├── CONSTITUTION.md                    # Framework principles (amendment process)
+│   ├── prerequisites.md                   # Tool versions, install paths, fallbacks
+│   ├── methodology/                       # MAP/CAF alignment, 7Rs for containers
+│   ├── phases/                            # MAP-aligned 5-phase playbooks
+│   ├── discovery/                         # Discovery option specs (incl. MCP augmentation)
+│   ├── decisions/                         # Decision trees / ADRs
+│   ├── playbooks/                         # Phase 4 modernize playbooks
+│   ├── architecture/                      # Reference diagrams
+│   ├── customer-facing/                   # 1-pager, pitch guide, FAQ
+│   └── case-studies/                      # Real customer stories (anonymized)
 ├── adapters/
 │   ├── source/
-│   │   ├── anthos-vmware/          # GKE Enterprise on VMware — first reference adapter
-│   │   ├── gke/                    # Planned
-│   │   ├── aks/                    # Planned
-│   │   ├── openshift/              # Planned
-│   │   └── _template/              # How to add a new source
+│   │   ├── gke-enterprise-vmware/         # First reference adapter (formerly Anthos)
+│   │   └── _template/                     # How to add a new source
 │   └── target/
 │       ├── eks/
-│       ├── ecs-fargate/
-│       └── _deprecated/
-│           └── app-runner/         # ⛔ Maintenance mode 2026-04-30
-├── prompts/                        # Discovery / analysis / planning prompts
-├── schemas/                        # JSON schemas for inter-phase artifacts
-├── scripts/                        # Self-export bash scripts
-└── examples/                       # End-to-end walkthroughs
+│       └── ecs-fargate/
+├── prompts/                               # Discovery / analysis / planning prompts
+├── schemas/                               # JSON schemas for inter-phase artifacts
+├── scripts/                               # Self-export bash scripts (per source adapter)
+├── tests/                                 # Schema-contract and smoke tests
+├── templates/                             # Engagement document templates
+└── examples/                              # End-to-end walkthroughs
 ```
+
+Planned source adapters (see [ROADMAP.md](./ROADMAP.md)) will land under `adapters/source/` with these directory names: `gke/`, `aks/`, `openshift/`, `rancher/`. Deprecated adapters (e.g. App Runner, see ROADMAP) live under `adapters/target/_deprecated/` and are not part of the supported public structure.
 
 ## Getting Started
 
