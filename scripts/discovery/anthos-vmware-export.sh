@@ -43,13 +43,21 @@ usage() {
   exit 2
 }
 
+need_val() {
+  # Validate that flag $1 has a non-empty value $2 that is not another flag.
+  if [[ -z "${2:-}" || "${2:0:2}" == "--" ]]; then
+    echo "error: $1 requires a value" >&2
+    exit 2
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=1; shift ;;
-    --output) OUTPUT="$2"; shift 2 ;;
-    --namespaces) INCLUDE_NS="$2"; shift 2 ;;
-    --exclude) EXCLUDE_NS="$2"; shift 2 ;;
-    --cluster-name) CLUSTER_NAME="$2"; shift 2 ;;
+    --output)       need_val "$1" "${2:-}"; OUTPUT="$2"; shift 2 ;;
+    --namespaces)   need_val "$1" "${2:-}"; INCLUDE_NS="$2"; shift 2 ;;
+    --exclude)      need_val "$1" "${2:-}"; EXCLUDE_NS="$2"; shift 2 ;;
+    --cluster-name) need_val "$1" "${2:-}"; CLUSTER_NAME="$2"; shift 2 ;;
     --no-vmware) SKIP_VMWARE=1; shift ;;
     -h|--help) usage ;;
     *) echo "unknown arg: $1" >&2; usage ;;
