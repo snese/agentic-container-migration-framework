@@ -1,9 +1,9 @@
 # End-to-End Walkthrough: Anthos-on-VMware → EKS
 
 > **Customer:** ACME Corp (fictional)
-> **Source:** 1× Anthos-on-VMware cluster, ~50 applications, ASM-enabled
-> **Target:** Amazon EKS (us-east-1) + ECS Fargate for batch jobs
-> **Timeline:** 12 weeks (Phase 1 → Phase 5 per ACMF Constitution)
+> **Source:** 5× Anthos clusters (4× VMware + 1× baremetal edge), 80 workloads across 13 namespaces, ASM-enabled
+> **Target:** Amazon EKS (us-east-1 + ap-east-2) + ECS Fargate for batch jobs + EKS Hybrid Nodes for edge
+> **Timeline:** 16 weeks (Phase 1 → Phase 5 per ACMF Constitution)
 > **Status:** Reference example — **not** a real customer engagement.
 
 This directory walks through every artifact a real ACMF v0.3 engagement
@@ -11,6 +11,7 @@ produces, end-to-end, for one anonymized fictional customer.
 
 | Artifact | File | ACMF Phase |
 |---|---|---|
+| 0. Executive summary | [`00-executive-summary.md`](./00-executive-summary.md) | Phase 1 — Assess (customer leadership) |
 | 1. Discovery bundle | [`01-discovery-bundle.json`](./01-discovery-bundle.json) | Phase 1 — Assess |
 | 2. Assessment report | [`02-assessment-report.md`](./02-assessment-report.md) | Phase 1 — Assess |
 | 3. Wave plan | [`03-wave-plan.md`](./03-wave-plan.md) | Phase 2 — Mobilize |
