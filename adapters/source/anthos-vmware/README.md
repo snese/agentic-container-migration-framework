@@ -1,6 +1,13 @@
 # Source Adapter: Anthos on VMware
 
-Status: 🚧 In progress — first reference adapter.
+Status: ✅ v0.3 — first reference adapter.
+
+## Artifacts in this adapter
+
+- [`manifest-transforms.yaml`](./manifest-transforms.yaml) — machine-readable rule set (annotations, identity, ingress, storage, mesh, registry).
+- Self-export script: [`../../../scripts/discovery/anthos-vmware-export.sh`](../../../scripts/discovery/anthos-vmware-export.sh) — bundles output into the v0.2.0 [discovery schema](../../../schemas/discovery-bundle.schema.json).
+- Sample manifests for fixture testing: [`../../../examples/anthos-manifests/`](../../../examples/anthos-manifests/).
+- End-to-end walkthrough: [`../../../examples/anthos-vmware-to-eks/`](../../../examples/anthos-vmware-to-eks/).
 
 ## Scope
 

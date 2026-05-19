@@ -1,0 +1,55 @@
+# Sample Anthos StatefulSet with vSphere CSI StorageClass + RWO PVCs.
+# Apply rules: storageclass_vsphere_to_ebs_gp3, registry_gcr_to_ecr,
+#              nodeselector_zone_topology.
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: vsphere-csi-fast
+provisioner: csi.vsphere.vmware.com
+parameters:
+  storagepolicyname: gold
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: inventory-db
+  namespace: inventory
+spec:
+  serviceName: inventory-db
+  replicas: 3
+  selector:
+    matchLabels: { app: inventory-db }
+  template:
+    metadata:
+      labels: { app: inventory-db }
+    spec:
+      nodeSelector:
+        failure-domain.beta.kubernetes.io/zone: dc-tpe-1a
+      containers:
+        - name: postgres
+          image: gcr.io/my-project/postgres:15.4
+          ports:
+            - containerPort: 5432
+          resources:
+            requests: { cpu: "2", memory: 8Gi }
+            limits:   { cpu: "4", memory: 16Gi }
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: pg-secret, key: password }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: vsphere-csi-fast
+        resources:
+          requests:
+            storage: 100Gi

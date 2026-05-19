@@ -1,0 +1,167 @@
+# ArgoCD configuration for ACME Corp's EKS migration target.
+#
+# Pattern: ApplicationSet per wave, sourcing from the ACME GitOps repo
+# (post-translation manifests). This is the artifact ACME's platform team
+# uses to onboard each wave; see ../../docs/playbooks/config-sync-to-argocd.md
+# for the Config Sync → ArgoCD migration pattern.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: acme-migration
+  namespace: argocd
+spec:
+  description: ACME Corp Anthos→EKS migration project
+  sourceRepos:
+    - https://github.com/acme-corp/k8s-manifests-eks
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: platform-write
+      policies:
+        - p, proj:acme-migration:platform-write, applications, *, acme-migration/*, allow
+      groups:
+        - acme-platform@acme.io
+---
+# Wave 1 — sandbox / pilot (5 apps in `internal` namespace)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acme-wave-1-sandbox
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        revision: main
+        directories:
+          - path: 'apps/wave-1/*'
+  template:
+    metadata:
+      name: '{{path.basename}}-wave1'
+      labels:
+        acme.io/wave: "1"
+    spec:
+      project: acme-migration
+      source:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        path: '{{path}}'
+        targetRevision: main
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+---
+# Wave 2 — stateless production (30 apps)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acme-wave-2-stateless
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        revision: main
+        directories:
+          - path: 'apps/wave-2/*'
+  template:
+    metadata:
+      name: '{{path.basename}}-wave2'
+      labels:
+        acme.io/wave: "2"
+    spec:
+      project: acme-migration
+      source:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        path: '{{path}}'
+        targetRevision: main
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+---
+# Wave 3 — stateful (manual sync — explicit human gating per Constitution P3)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acme-wave-3-stateful
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        revision: main
+        directories:
+          - path: 'apps/wave-3/*'
+  template:
+    metadata:
+      name: '{{path.basename}}-wave3'
+      annotations:
+        # Stateful workloads: NO auto-sync; data migration must precede
+        # manifest sync. See 06-cutover-runbook.md.
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+      labels:
+        acme.io/wave: "3"
+    spec:
+      project: acme-migration
+      source:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        path: '{{path}}'
+        targetRevision: main
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      # syncPolicy intentionally omitted: manual sync only.
+---
+# Wave 4 — payments (manual sync, two-person review required)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acme-wave-4-payments
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        revision: main
+        directories:
+          - path: 'apps/wave-4/*'
+  template:
+    metadata:
+      name: '{{path.basename}}-wave4'
+      labels:
+        acme.io/wave: "4"
+    spec:
+      project: acme-migration
+      source:
+        repoURL: https://github.com/acme-corp/k8s-manifests-eks
+        path: '{{path}}'
+        targetRevision: main
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      # Manual sync; promotion controlled by GitHub branch protection
+      # (2 reviewers from acme-payments@acme.io).
