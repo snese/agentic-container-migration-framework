@@ -36,9 +36,18 @@ spec:
     - group: 'networking.k8s.io'
       kind: IngressClass
   namespaceResourceWhitelist:
-    # Workload + config kinds the AppSets sync. Extend per wave.
+    # Workload + config kinds the AppSets sync. Core kinds (Pod, Service,
+    # ServiceAccount, ConfigMap, Endpoints, EventList) are listed explicitly
+    # so that Secret remains OUT of scope — secrets are managed by External
+    # Secrets Operator / IRSA, NOT synced from the GitOps repo.
     - group: ''
-      kind: '*'
+      kind: ConfigMap
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ServiceAccount
+    - group: ''
+      kind: PersistentVolumeClaim
     - group: 'apps'
       kind: '*'
     - group: 'batch'

@@ -49,8 +49,9 @@ usage() {
 
 require_value() {
   local flag="$1" value="${2:-}"
-  if [[ -z "$value" || "$value" == --* ]]; then
-    echo "error: $flag requires a value" >&2
+  # Reject if missing, looks like another flag, or is whitespace-only.
+  if [[ -z "${value//[[:space:]]/}" || "$value" == --* ]]; then
+    echo "error: $flag requires a non-empty value" >&2
     usage
   fi
 }
@@ -79,21 +80,44 @@ SKIPPED_FILE="$TMPDIR_ROOT/skipped.json"; echo "[]" > "$SKIPPED_FILE"
 WARN_FILE="$TMPDIR_ROOT/warnings.json"; echo "[]" > "$WARN_FILE"
 LOCK_FILE="$TMPDIR_ROOT/.lock"
 
+# Detect flock availability (BSD / macOS lack it). Fall back to a noop
+# lock when absent and warn loudly so the user knows concurrent invocations
+# are unsafe on this platform.
+if command -v flock >/dev/null 2>&1; then
+  HAVE_FLOCK=1
+else
+  HAVE_FLOCK=0
+fi
+
 log()  { echo "[acmf-export] $*" >&2; }
 
 _with_lock() {
   local file="$1" filter="$2"; shift 2
-  (
-    flock -x 9
+  if [[ "$HAVE_FLOCK" -eq 1 ]]; then
+    (
+      flock -x 9
+      local tmp="$file.$$"
+      jq "$@" "$filter" "$file" > "$tmp" && mv "$tmp" "$file"
+    ) 9>"$LOCK_FILE"
+  else
     local tmp="$file.$$"
     jq "$@" "$filter" "$file" > "$tmp" && mv "$tmp" "$file"
-  ) 9>"$LOCK_FILE"
+  fi
 }
 
 warn() { local m="$1"; _with_lock "$WARN_FILE" '. += [$m]' --arg m "$m"; log "WARN: $m"; }
 skip() { local cmd="$1" reason="$2"; _with_lock "$SKIPPED_FILE" '. += [{command:$c, reason:$r}]' --arg c "$cmd" --arg r "$reason"; log "SKIP [$cmd]: $reason"; }
 
 require() { command -v "$1" >/dev/null 2>&1 || return 1; }
+
+# ------------------------- Dependency check -------------------------
+if ! command -v jq >/dev/null 2>&1; then
+  echo "error: 'jq' is required and not installed" >&2
+  exit 3
+fi
+if [[ "$HAVE_FLOCK" -eq 0 ]]; then
+  log "WARN: 'flock' not available on this platform (e.g. macOS). Concurrent invocations sharing TMPDIR are unsafe; running a single instance is safe."
+fi
 
 # ------------------------- Mock / dry-run -------------------------
 if [[ "$DRY_RUN" -eq 1 ]]; then
