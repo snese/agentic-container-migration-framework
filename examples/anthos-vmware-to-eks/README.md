@@ -1,7 +1,7 @@
-# End-to-End Walkthrough: Anthos-on-VMware → EKS
+# End-to-End Walkthrough: GDC for VMware (formerly Anthos on VMware) → EKS
 
 > **Customer:** ACME Corp (fictional)
-> **Source:** 5× Anthos clusters (4× VMware + 1× baremetal edge), 80 workloads across 13 namespaces, ASM-enabled
+> **Source:** 5× GDC for VMware clusters (4× VMware + 1× baremetal edge), 80 workloads across 13 namespaces, ASM-enabled
 > **Target:** Amazon EKS (us-east-1 + ap-east-2) + ECS Fargate for batch jobs + EKS Hybrid Nodes for edge
 > **Timeline:** 16 weeks (Phase 1 → Phase 5 per ACMF Constitution)
 > **Status:** Reference example — **not** a real customer engagement.
@@ -38,7 +38,7 @@ produces, end-to-end, for one anonymized fictional customer.
 - [Traffic shifting playbook](../../docs/playbooks/traffic-shifting.md)
 - [ECS vs EKS decision](../../docs/decisions/ecs-vs-eks.md)
 - [Data migration patterns](../../docs/decisions/data-migration-patterns.md)
-- [Anthos source adapter](../../adapters/source/anthos-vmware/)
+- [GDC for VMware source adapter](../../adapters/source/anthos-vmware/)
 - [EKS target adapter](../../adapters/target/eks/)
 
 ## Source data
@@ -46,7 +46,7 @@ produces, end-to-end, for one anonymized fictional customer.
 Every quantified claim in this walkthrough cites either:
 
 - **The ACME discovery bundle** in this folder (fictional but schema-valid)
-- **AWS / Anthos public docs** — linked inline
+- **AWS / GDC public docs** — linked inline
 
 No external benchmarks are fabricated. Where ACMF would normally cite a
 customer-specific finding (e.g. "p95 latency 18 ms"), the value is taken

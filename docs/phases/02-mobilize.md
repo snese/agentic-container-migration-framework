@@ -33,7 +33,7 @@ This phase merges what v0.1 called "Assess" and "Plan." MAP treats workload asse
 
 1. **Account / Organizations layout** — Control Tower or hand-rolled; per-environment account split
 2. **Network design** — VPC CIDRs sized for VPC CNI, hybrid connectivity (Direct Connect / VPN / TGW), egress strategy, DNS
-3. **Cluster pattern** — EKS reference cluster (Karpenter, add-ons baseline), ECS cluster pattern, App Runner service pattern as IaC modules
+3. **Cluster pattern** — EKS reference cluster (Karpenter, add-ons baseline), ECS cluster pattern as IaC modules
 4. **Image supply chain** — ECR organization, scanning, signing, promotion accounts
 5. **Identity baseline** — IAM Identity Center, IRSA / Pod Identity baseline policies
 6. **Observability baseline** — Container Insights / Managed Prometheus / Managed Grafana, log aggregation

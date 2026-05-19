@@ -27,7 +27,7 @@ CAF organizes cloud adoption capabilities into six perspectives. Every ACMF deli
 | **Business** | Business case, TCO model, value-tracking KPIs, modernization ROI | [`business.md`](caf-perspectives/business.md) |
 | **People** | Skills gap analysis, training plan, org/role changes (K8s ops → AWS-native ops) | [`people.md`](caf-perspectives/people.md) |
 | **Governance** | Wave plan, risk register, change control, cost guardrails, portfolio view | [`governance.md`](caf-perspectives/governance.md) |
-| **Platform** | Landing zone, EKS/ECS/App Runner reference architectures, IaC skeletons, network design | [`platform.md`](caf-perspectives/platform.md) |
+| **Platform** | Landing zone, EKS/ECS reference architectures, IaC skeletons, network design | [`platform.md`](caf-perspectives/platform.md) |
 | **Security** | IRSA design, image supply chain, network policies, secrets, compliance mapping | [`security.md`](caf-perspectives/security.md) |
 | **Operations** | SLOs, observability stack, incident runbooks, on-call rotation, GitOps workflow | [`operations.md`](caf-perspectives/operations.md) |
 
@@ -37,9 +37,9 @@ MAP is excellent at the macro shape of a migration, but it was largely shaped by
 
 1. **Container-native discovery and the 7 Rs.** MAP's classic 7 Rs (Retire, Retain, Rehost, Relocate, Repurchase, Replatform, Refactor) were defined for VMs and applications. For Kubernetes workloads, these mean different things — *Rehost* is a manifest port, not a VM lift; *Relocate* usually means EKS-Anywhere or ROSA → ROSA on AWS, not VMware Cloud on AWS. See [`7rs-for-containers.md`](7rs-for-containers.md).
 
-2. **Agentic discovery for hybrid and air-gapped sources.** MAP partner tooling (App2Container, MGN, Migration Evaluator) assumes you can install an agent or run an inventory collector with broad credentials. ACMF supports customers where that is impossible — air-gapped Anthos, sovereign OpenShift, customer-controlled Rancher — by replacing persistent agents with ephemeral, auditable agent runs. See [`docs/discovery/`](../discovery/).
+2. **Agentic discovery for hybrid and air-gapped sources.** MAP partner tooling (App2Container, MGN, Migration Evaluator) assumes you can install an agent or run an inventory collector with broad credentials. ACMF supports customers where that is impossible — air-gapped GDC for VMware (formerly Anthos on VMware), sovereign OpenShift, customer-controlled Rancher — by replacing persistent agents with ephemeral, auditable agent runs. See [`docs/discovery/`](../discovery/).
 
-3. **Source-platform diversity beyond AWS-native.** MAP's reference flows assume VMware → AWS or AWS account → AWS account. ACMF treats Anthos on VMware, Anthos on GCP, OpenShift, Rancher, and vanilla K8s as first-class sources, each with its own adapter. The cross-cloud and cross-distribution concerns (Workload Identity → IRSA, Anthos Config Sync → Argo CD, OpenShift Routes → Ingress) live in source adapters, not in the core methodology.
+3. **Source-platform diversity beyond AWS-native.** MAP's reference flows assume VMware → AWS or AWS account → AWS account. ACMF treats GDC for VMware (formerly Anthos on VMware), GKE (with GKE Enterprise license), OpenShift, Rancher, and vanilla K8s as first-class sources, each with its own adapter. The cross-cloud and cross-distribution concerns (Workload Identity → IRSA, Anthos Config Sync → Argo CD, OpenShift Routes → Ingress) live in source adapters, not in the core methodology.
 
 ## How to use this methodology layer
 

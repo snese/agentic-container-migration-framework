@@ -10,7 +10,7 @@ If a question here drifts from what the framework currently does, that's a bug �
 
 ### What is ACMF, in one sentence?
 
-A methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (Anthos, OpenShift, Rancher, vanilla K8s) to AWS, using ephemeral AI agents that run under your control rather than persistent collectors.
+A methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (GDC for VMware (formerly Anthos on VMware), OpenShift, Rancher, vanilla K8s) to AWS, using ephemeral AI agents that run under your control rather than persistent collectors.
 
 ### Is ACMF a product I buy?
 
@@ -18,7 +18,7 @@ No. It is an open methodology — prompts, schemas, decision trees, and playbook
 
 ### How does this relate to AWS MAP and CAF?
 
-ACMF plugs into AWS MAP and CAF. Phases map 1:1 to MAP (Assess / Mobilize / Migrate & Modernize). Deliverables cover all six AWS CAF perspectives (Business, People, Governance, Platform, Security, Operations). Where ACMF extends MAP is in three places: container-native 7 Rs, agentic discovery for hybrid/air-gapped sources, and first-class support for non-AWS sources like Anthos and OpenShift.
+ACMF plugs into AWS MAP and CAF. Phases map 1:1 to MAP (Assess / Mobilize / Migrate & Modernize). Deliverables cover all six AWS CAF perspectives (Business, People, Governance, Platform, Security, Operations). Where ACMF extends MAP is in three places: container-native 7 Rs, agentic discovery for hybrid/air-gapped sources, and first-class support for non-AWS sources like GDC and OpenShift.
 
 ### How does this relate to AWS Transform?
 
@@ -52,7 +52,7 @@ ACMF itself does not pin you to any region. The LLM you point the agent at deter
 
 ### Is the AI making decisions about my migration?
 
-No. The agent does **structured discovery and draft analysis**. Every target-service decision (EKS vs ECS vs App Runner), every wave-grouping decision, and every cutover go/no-go is owned by a named human reviewer. Principle #2 of our [Constitution](../CONSTITUTION.md) is "agent-driven, human-judged" — and we treat that as load-bearing, not aspirational.
+No. The agent does **structured discovery and draft analysis**. Every target-service decision (EKS vs ECS), every wave-grouping decision, and every cutover go/no-go is owned by a named human reviewer. Principle #2 of our [Constitution](../CONSTITUTION.md) is "agent-driven, human-judged" — and we treat that as load-bearing, not aspirational.
 
 ### Can the agent change anything in my cluster?
 
@@ -141,11 +141,11 @@ ACMF still works. Every analysis prompt doubles as a structured human checklist.
 
 ### Which AWS targets are supported?
 
-Today: **EKS** (including Auto Mode), **ECS Fargate**, **App Runner**. The decision matrix in [`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md) tells you which workload goes where. Hybrid mappings (EKS for system pods, ECS for stateless services) are first-class.
+Today: **EKS** (including Auto Mode) and **ECS Fargate**. The decision matrix in [`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md) tells you which workload goes where. Hybrid mappings (EKS for system pods, ECS for stateless services) are first-class. (App Runner is in maintenance mode as of 2026-04-30 and is no longer recommended for new workloads.)
 
 ### Which source platforms are supported?
 
-Today, in priority order: **Anthos on VMware** (first reference adapter), then Anthos on GCP, OpenShift, Rancher, and vanilla K8s. See [`ROADMAP.md`](../../ROADMAP.md) for status.
+Today, in priority order: **GDC for VMware** (formerly Anthos on VMware — first reference adapter), then **GDC for Bare Metal** (shares VMware adapter), **GKE** (with GKE Enterprise license, formerly "Anthos on GCP"), OpenShift, Rancher, and vanilla K8s. See [`ROADMAP.md`](../../ROADMAP.md) for status.
 
 ---
 
@@ -155,13 +155,13 @@ Today, in priority order: **Anthos on VMware** (first reference adapter), then A
 
 Yes — that is the design center. The five-option discovery menu, evidence-based recommendations, and customer-controlled execution model exist precisely because regulated customers cannot use App2Container or persistent collectors.
 
-### …a multi-cluster Anthos estate?
+### …a multi-cluster GDC for VMware estate?
 
-Yes. The Anthos-on-VMware adapter is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
+Yes. The GDC for VMware adapter (`adapters/source/anthos-vmware/`) is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
 
 ### …a workload that uses Service Mesh / Operators / CRDs heavily?
 
-Yes — those workloads usually map to EKS. The decision matrix and the Anthos adapter both call this out explicitly. Anthos Service Mesh → Istio on EKS or Amazon VPC Lattice; Policy Controller → OPA Gatekeeper or Kyverno; Workload Identity → IRSA / EKS Pod Identity.
+Yes — those workloads usually map to EKS. The decision matrix and the GDC for VMware adapter both call this out explicitly. Anthos Service Mesh → Istio on EKS or Amazon VPC Lattice; Anthos Policy Controller → OPA Gatekeeper or Kyverno; Workload Identity → IRSA / EKS Pod Identity.
 
 ### …a workload I want to **modernize** (not just migrate)?
 

@@ -27,7 +27,7 @@ Governance is how the migration stays predictable: portfolio visibility, risk ma
 ## Anti-patterns to avoid
 
 - "Cluster-level" governance only — losing visibility into who owns workloads inside the cluster.
-- Letting Anthos / OpenShift's built-in policy controllers retire without replacing them with OPA/Gatekeeper or Kyverno.
+- Letting GDC / OpenShift's built-in policy controllers retire without replacing them with OPA/Gatekeeper or Kyverno.
 - Approving the wave plan once and never updating it as discovery uncovers new dependencies.
 - Treating CRD inventory as a Day-2 problem; it's a Day-0 portfolio question.
 

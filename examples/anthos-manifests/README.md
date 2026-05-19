@@ -1,6 +1,6 @@
-# Anthos manifest test fixtures
+# Anthos manifest test fixtures (GDC for VMware source)
 
-These three samples cover the most common Anthos-specific constructs that
+These three samples cover the most common GDC-specific (formerly Anthos-specific) constructs that
 need translation when migrating to EKS. They are inputs for the rules
 defined in [`adapters/source/anthos-vmware/manifest-transforms.yaml`](../../adapters/source/anthos-vmware/manifest-transforms.yaml).
 

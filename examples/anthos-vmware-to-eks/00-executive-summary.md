@@ -1,4 +1,4 @@
-# Executive Summary — ACME Corp Anthos → AWS Migration
+# Executive Summary — ACME Corp GDC for VMware (formerly Anthos on VMware) → AWS Migration
 
 **Audience:** ACME Corp executive sponsor (VP Eng / CIO)
 **Engagement window:** 16 weeks
@@ -10,12 +10,12 @@
 
 ## What we found
 
-ACME runs **5 Anthos clusters** spread across two Taipei data centres, one
+ACME runs **5 GDC for VMware clusters** spread across two Taipei data centres, one
 Hsinchu DR site, and a Kaohsiung edge POP — 80 production workloads, 247
 service accounts, 11 stateful systems, and 38 service-mesh routes. The estate
 is **healthy** (28% avg CPU, 1.9× over-provisioned) but **stuck on VMware**:
 contracts renew in Q1, ASM is on a managed-dataplane track that ACME wants to
-exit, and the DR cluster is one Anthos minor version behind prod.
+exit, and the DR cluster is one GDC minor version behind prod.
 
 In one ACMF discovery run we produced a schema-validated inventory of every
 workload, every external dependency, every CRD, and every Workload-Identity

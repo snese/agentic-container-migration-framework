@@ -1,6 +1,6 @@
 # CAF Perspective: Security
 
-Security in a container migration is where careless lift-and-shift gets ugly fast. Anthos Workload Identity does not exist on EKS. OpenShift SCCs do not translate to PodSecurityStandards 1:1. Network policies that worked under Calico may behave differently under VPC CNI. Treat security as a Day-0 design exercise, not a hardening pass.
+Security in a container migration is where careless lift-and-shift gets ugly fast. GDC Workload Identity does not exist on EKS. OpenShift SCCs do not translate to PodSecurityStandards 1:1. Network policies that worked under Calico may behave differently under VPC CNI. Treat security as a Day-0 design exercise, not a hardening pass.
 
 ## Stakeholders
 

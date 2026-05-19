@@ -1,4 +1,4 @@
-# Traffic Shifting Playbook — Anthos → AWS Cutover
+# Traffic Shifting Playbook — GDC for VMware (formerly Anthos on VMware) → AWS Cutover
 
 > **Scope.** Methodology-level guidance: when to shift progressively vs
 > big-bang, the numbered cutover sequence, and rollback trigger thresholds.
@@ -43,7 +43,7 @@ and continue".
      multi-primary) with shared trust root, **or**
    - Non-mesh path → [VPC peering / Transit Gateway + Route 53 Private
      Hosted Zone][vpc-r53] for service discovery.
-   - **Gate B:** Synthetic probe from AWS-side reaches Anthos-side service
+   - **Gate B:** Synthetic probe from AWS-side reaches GDC-side service
      and vice versa; mTLS handshake (if mesh) succeeds.
 3. **Mirror traffic (shadow).** Route 100% to source, mirror a copy to AWS
    target. With Istio: `VirtualService.http.mirror`

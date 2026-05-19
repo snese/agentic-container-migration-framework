@@ -1,6 +1,6 @@
 # CAF Perspective: People
 
-The People perspective addresses skills, roles, and culture. Container migrations have a specific failure mode here: the team that runs Anthos or OpenShift today is *not* automatically ready to run EKS tomorrow, even though it's "all Kubernetes." The shape of operational responsibility shifts.
+The People perspective addresses skills, roles, and culture. Container migrations have a specific failure mode here: the team that runs GDC for VMware (formerly Anthos on VMware) or OpenShift today is *not* automatically ready to run EKS tomorrow, even though it's "all Kubernetes." The shape of operational responsibility shifts.
 
 ## Stakeholders
 
@@ -12,7 +12,7 @@ The People perspective addresses skills, roles, and culture. Container migration
 ## Container-specific capabilities
 
 - **K8s-distribution skill mapping.** Identify what Anthos Config Sync / OpenShift Operators / Rancher Fleet skills translate directly to AWS (Argo CD, EKS Add-ons, Karpenter) and what is genuinely new (IRSA, AWS VPC CNI, ECS task definitions).
-- **Shared-responsibility re-education.** Anthos and OpenShift are heavily managed in opinionated ways; EKS gives more control and therefore more responsibility (node patching strategy, add-on lifecycle, networking choices). Teams must re-learn where the line is.
+- **Shared-responsibility re-education.** GDC and OpenShift are heavily managed in opinionated ways; EKS gives more control and therefore more responsibility (node patching strategy, add-on lifecycle, networking choices). Teams must re-learn where the line is.
 - **Platform team vs application team boundary.** Container migrations are a chance to redraw the platform/app contract — what's a self-service paved road, what's an exception path.
 - **Agent-assisted operations enablement.** Train operators to use ACMF agentic playbooks for diagnostics, drift detection, and runbook execution rather than memorizing kubectl one-liners.
 
@@ -25,7 +25,7 @@ The People perspective addresses skills, roles, and culture. Container migration
 
 ## Anti-patterns to avoid
 
-- Assuming "Kubernetes is Kubernetes" — Anthos operators do not automatically know IRSA, VPC CNI quirks, or Karpenter.
+- Assuming "Kubernetes is Kubernetes" — GDC operators do not automatically know IRSA, VPC CNI quirks, or Karpenter.
 - Migrating workloads before the operating team has run a non-prod EKS cluster end-to-end.
 - Letting the platform team migrate everything in isolation, then handing surprise on-call to app teams.
 - Skipping training budget in the business case "because the team already does Kubernetes."

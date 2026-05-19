@@ -16,7 +16,7 @@ Every agent invocation is reproducible. Prompts live in this repo under version 
 
 ## 4. Source/target adapter decoupling
 
-Source platforms (Anthos on VMware, Anthos on GCP, OpenShift, Rancher, vanilla K8s) and AWS targets (EKS, ECS Fargate, App Runner, ROSA on AWS) live behind narrow interfaces. A new source adapter must not require changes to target adapters and vice versa. Inter-phase artifacts use shared schemas, not adapter-specific shapes.
+Source platforms (GDC for VMware (formerly Anthos on VMware), GKE (with GKE Enterprise license), OpenShift, Rancher, vanilla K8s) and AWS targets (EKS, ECS Fargate, ROSA on AWS) live behind narrow interfaces. A new source adapter must not require changes to target adapters and vice versa. Inter-phase artifacts use shared schemas, not adapter-specific shapes.
 
 ## 5. Evidence over claims
 
@@ -32,7 +32,7 @@ ACMF is not a competing methodology. It plugs into AWS MAP (Assess / Mobilize / 
 
 ## 8. Container-native, not VM-translated
 
-ACMF was built for Kubernetes/container workloads, not retrofitted from VM migration tooling. We do not assume App2Container patterns, MGN replication, or VM-level inventory as primitives. The 7 Rs, decision trees, landing zone patterns, and modernization playbooks here are written for containers first. VM concerns appear only where the source platform (e.g. Anthos on VMware) drags them in.
+ACMF was built for Kubernetes/container workloads, not retrofitted from VM migration tooling. We do not assume App2Container patterns, MGN replication, or VM-level inventory as primitives. The 7 Rs, decision trees, landing zone patterns, and modernization playbooks here are written for containers first. VM concerns appear only where the source platform (e.g. GDC for VMware) drags them in.
 
 ---
 

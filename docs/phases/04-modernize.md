@@ -6,7 +6,7 @@
 
 **Goal:** Post-migration modernization — cost, reliability, security, and the architectural improvements that were deferred from cutover.
 
-For container workloads, modernization is rarely optional. Right-sizing, Karpenter tuning, IRSA cleanup, and GitOps maturity all live here. Refactor decisions deferred from Phase 2 (e.g. moving a service to App Runner or Lambda) are scheduled and executed in this phase.
+For container workloads, modernization is rarely optional. Right-sizing, Karpenter tuning, IRSA cleanup, and GitOps maturity all live here. Refactor decisions deferred from Phase 2 (e.g. moving a service to Lambda or a serverless data pipeline) are scheduled and executed in this phase.
 
 ## Inputs
 - Running workloads on AWS

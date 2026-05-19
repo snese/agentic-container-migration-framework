@@ -16,7 +16,7 @@ metadata:
   name: acme-migration
   namespace: argocd
 spec:
-  description: ACME Corp Anthos→EKS migration project
+  description: ACME Corp GDC for VMware → EKS migration project
   sourceRepos:
     - https://github.com/acme-corp/k8s-manifests-eks
   destinations:

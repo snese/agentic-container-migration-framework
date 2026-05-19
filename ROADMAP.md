@@ -78,7 +78,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 |---|---|---|
 | 1-pager, pitch guide, FAQ | ✅ | `docs/customer-facing/` |
 | AWS Transform vs ACMF positioning | ✅ | `docs/decisions/aws-transform-vs-acmf.md` |
-| Anthos-vs-AWS pricing comparison sheet | 🔜 | |
+| GDC-vs-AWS pricing comparison sheet | 🔜 | |
 
 ## Decisions / open questions
 

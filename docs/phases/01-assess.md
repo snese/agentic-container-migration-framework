@@ -53,7 +53,7 @@ Pick one based on customer constraints. See [`docs/discovery/`](../discovery/) f
 - **Identity** — ServiceAccounts, RBAC, Workload Identity bindings
 - **Dependencies** — external services (DBs, queues, APIs), egress patterns
 - **Operators / CRDs** — non-standard K8s extensions
-- **Anthos-specific** — Config Sync repos, Policy Controller, Service Mesh
+- **GDC-specific** — Anthos Config Sync repos, Anthos Policy Controller, Anthos Service Mesh
 - **VMware layer** — vCenter inventory (if relevant for capacity planning)
 
 ## B. Migration Readiness Assessment (MRA)

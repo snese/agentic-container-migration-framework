@@ -1,10 +1,10 @@
 # manifest-transforms.yaml
 #
-# ACMF v0.3 — Anthos-on-VMware → EKS manifest transformation rules.
+# ACMF v0.3 — GDC for VMware (formerly Anthos on VMware) → EKS manifest transformation rules.
 #
 # Purpose:
 #   Machine-readable rule set describing every K8s manifest mutation needed
-#   to move an Anthos-on-VMware workload to EKS. Consumed by:
+#   to move a GDC for VMware workload to EKS. Consumed by:
 #     - LLM agents (Kiro/Q) as ground-truth mapping
 #     - kustomize/yq automation pipelines
 #     - human reviewers (rationale + before/after diff for each rule)
