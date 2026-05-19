@@ -4,7 +4,7 @@ Five options, ordered from least to most intrusive. Pick based on customer polic
 
 ## Option 1: Manifest-Only
 
-**Mechanism:** Customer ships Helm charts, K8s YAML, Anthos Config Sync repo. We analyze offline.
+**Mechanism:** Customer ships Helm charts, K8s YAML, Anthos Config Sync repo (or other source-of-truth GitOps repo). We analyze offline.
 
 **Pros:**
 - Zero customer environment access

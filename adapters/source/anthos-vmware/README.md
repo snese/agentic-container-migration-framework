@@ -1,6 +1,8 @@
-# Source Adapter: Anthos on VMware
+# Source Adapter: GDC for VMware (formerly Anthos on VMware)
 
 Status: ✅ v0.3 — first reference adapter.
+
+> **Naming.** Google rebranded "Anthos on VMware" / "Anthos on Bare Metal" to **Google Distributed Cloud (software only) for VMware / for Bare Metal** ("GDC" for short). Some technical components (Anthos Config Sync, Anthos Service Mesh, Anthos Policy Controller) retain the legacy `Anthos` prefix in Google docs and are kept as-is in this adapter. The directory name `anthos-vmware/` is preserved as a stable identifier.
 
 ## Artifacts in this adapter
 
@@ -11,16 +13,16 @@ Status: ✅ v0.3 — first reference adapter.
 
 ## Scope
 
-Anthos clusters running on customer-managed VMware vSphere infrastructure (the "Anthos on-prem" / "Anthos clusters on VMware" SKU).
+GDC for VMware clusters (formerly "Anthos on-prem" / "Anthos clusters on VMware") running on customer-managed VMware vSphere infrastructure.
 
 ## What this adapter provides
 
 - Discovery prompt: [prompts/discovery/anthos-vmware.prompt.md](../../prompts/discovery/anthos-vmware.prompt.md)
 - Self-export script: `scripts/discovery/anthos-vmware-export.sh`
-- Anthos-specific mapping rules:
-  - Config Sync → ArgoCD on EKS (primary) / Flux CD (alternative)
+- GDC-specific mapping rules:
+  - Anthos Config Sync → ArgoCD on EKS (primary) / Flux CD (alternative)
   - Anthos Service Mesh → Istio on EKS (full mesh) / ECS Service Connect (lightweight) / Amazon VPC Lattice (service-to-service)
-  - Policy Controller → OPA Gatekeeper (EKS, direct ConstraintTemplate migration) / Kyverno (EKS, simpler policy syntax) / AWS Config + SCPs (ECS)
+  - Anthos Policy Controller → OPA Gatekeeper (EKS, direct ConstraintTemplate migration) / Kyverno (EKS, simpler policy syntax) / AWS Config + SCPs (ECS)
   - Workload Identity → IRSA / EKS Pod Identity (EKS) / Task Role (ECS)
 - Common gotchas (see below)
 
@@ -41,11 +43,11 @@ Anthos clusters running on customer-managed VMware vSphere infrastructure (the "
 ## Known gotchas
 
 - vSphere CSI volumes — no direct equivalent; need data migration plan (DMS / fresh load)
-- Anthos-injected sidecars (mesh, logging) — strip and replace with AWS-native
+- GDC-injected sidecars (mesh, logging) — strip and replace with AWS-native
 - Private container registry (Artifact Registry on-prem mirror) → ECR replication setup needed
 - Multi-cluster Service Mesh — usually simplifies on AWS (single VPC per cluster pattern)
 - Policy Controller ConstraintTemplates using `inventory` data — Gatekeeper supports this but requires audit controller setup on EKS
 
 ## Planned additions
 
-All items previously listed here are tracked in [`ROADMAP.md`](../../../ROADMAP.md) — concrete IaC patterns, Anthos-vs-AWS pricing comparison, mesh-federation live-migration pattern, and Policy Controller migration tooling.
+All items previously listed here are tracked in [`ROADMAP.md`](../../../ROADMAP.md) — concrete IaC patterns, GDC-vs-AWS pricing comparison, mesh-federation live-migration pattern, and Anthos Policy Controller migration tooling.

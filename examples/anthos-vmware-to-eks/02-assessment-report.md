@@ -1,6 +1,6 @@
 # Assessment Report — ACME Corp (fictional)
 
-**Engagement:** Anthos-on-VMware → AWS (EKS + ECS Fargate)
+**Engagement:** GDC for VMware (formerly Anthos on VMware) → AWS (EKS + ECS Fargate)
 **Phase:** 1 — Assess
 **Source data:** [`01-discovery-bundle.json`](./01-discovery-bundle.json) (schema v0.2.0)
 **Date:** 2026-05-19
@@ -11,7 +11,7 @@
 
 ## 1. Executive summary
 
-ACME Corp operates **5 Anthos clusters** (`acme-prod-anthos-1`, `acme-prod-anthos-2`,
+ACME Corp operates **5 GDC for VMware clusters** (`acme-prod-anthos-1`, `acme-prod-anthos-2`,
 `acme-stg-anthos-1`, `acme-dr-anthos-1`, `acme-edge-anthos-1`) hosting **80 workloads**
 across 13 namespaces and four product domains: payments, checkout, inventory,
 orders/fulfillment/search/recs. Two production clusters sit in TPE-DC1 and TPE-DC2,
@@ -39,7 +39,7 @@ Numbers below come directly from `01-discovery-bundle.json`:
 | Clusters | 5 | `clusters` |
 | K8s versions | 1.28.5 (3 clusters), 1.27.10 (2 clusters) | `clusters[].version` |
 | Total worker nodes | 23 | `clusters[].node_pools[].count` |
-| Anthos versions | 1.16.3 / 1.16.2 | `clusters[].anthos_version` |
+| GDC versions | 1.16.3 / 1.16.2 | `clusters[].anthos_version` |
 | Service mesh | ASM 1.20.2 (all clusters) | `clusters[].service_mesh` |
 | Workloads (all kinds) | 80 | `workloads[]` |
 | — Stateless | 54 | `workloads[?classification=='stateless']` |
@@ -79,7 +79,7 @@ assessment of `crds` + `identity` from the bundle. Per-app worksheet lives in
 
 ## 4. Risks and gotchas
 
-Tied to [Anthos source adapter — Known gotchas](../../adapters/source/anthos-vmware/README.md):
+Tied to [GDC for VMware source adapter — Known gotchas](../../adapters/source/anthos-vmware/README.md):
 
 1. **vSphere CSI volumes** — no direct EBS equivalent for snapshot lineage.
    13 stateful workloads (Postgres ×4, Redis ×3, Elasticsearch ×1, plus edge

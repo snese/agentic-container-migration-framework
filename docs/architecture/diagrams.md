@@ -55,8 +55,8 @@ not rewriting the methodology.
 ```mermaid
 flowchart LR
     subgraph SRC["Source adapters (read)"]
-        AV[Anthos<br/>on VMware]:::ready
-        AG[Anthos<br/>on GCP]:::planned
+        AV[GDC<br/>for VMware]:::ready
+        AG[GKE<br/>(GKE Enterprise)]:::planned
         OS[OpenShift]:::planned
         RC[Rancher / vanilla K8s]:::planned
     end
@@ -66,7 +66,7 @@ flowchart LR
     subgraph TGT["Target adapters (write)"]
         EKS[Amazon EKS<br/>+ Auto Mode / Karpenter]:::ready
         ECS[Amazon ECS<br/>Fargate]:::ready
-        APR[AWS App Runner]:::ready
+        APR[AWS App Runner ⛔<br/>maint. 2026-04-30]:::deprecated
     end
 
     AV --> SCH
@@ -79,6 +79,7 @@ flowchart LR
 
     classDef ready fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
     classDef planned fill:#f1f5f9,stroke:#94a3b8,stroke-dasharray:4 3;
+    classDef deprecated fill:#fee2e2,stroke:#991b1b,stroke-dasharray:4 3;
     classDef schema fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
 ```
 
@@ -95,7 +96,7 @@ and exits.
 ```mermaid
 flowchart LR
     subgraph CUST["Customer environment (trust boundary)"]
-        K[Anthos / OCP / Rancher<br/>cluster API + vCenter]
+        K[GDC / OCP / Rancher<br/>cluster API + vCenter]
         TA[Tool allowlist<br/>kubectl/gcloud/govc<br/>read-only]
         AG((Ephemeral agent CLI<br/>Kiro / Claude Code / Bash))
         BUN[discovery-bundle.json]
@@ -134,7 +135,7 @@ declared done. Rollback is "set weight back to 0%."
 flowchart LR
     U((User /<br/>upstream)) --> GW[Edge gateway<br/>Route 53 weighted<br/>or shared mesh]
 
-    subgraph SRC2["Source (Anthos / OCP / on-prem)"]
+    subgraph SRC2["Source (GDC / OCP / on-prem)"]
         SVC1[svc.payments.v1]
         WL1[Workload pods<br/>green]
         SVC1 --> WL1

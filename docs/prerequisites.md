@@ -7,7 +7,7 @@ What a customer or delivery team needs installed to run ACMF, and what to do whe
 | Option | Required tools | Optional |
 |---|---|---|
 | 1. Manifest-only | git (customer-side), `helm template` if charts | `kustomize` |
-| 2. Self-export script | `bash` ≥ 4, `kubectl`, `gcloud` (Anthos), `govc` (VMware), `jq` | `age` for encryption |
+| 2. Self-export script | `bash` ≥ 4, `kubectl`, `gcloud` (GDC for VMware), `govc` (VMware), `jq` | `age` for encryption |
 | 3. Read-only credentials | `kubectl` (delivery side), short-lived ServiceAccount on customer cluster | VPN / network access |
 | 4. Agent-assisted ephemeral run ⭐ | A coding-agent CLI with tool-allowlisting + a recent LLM | An offline-capable model for air-gapped runs |
 | 5. Persistent agent runtime (Phase 4 only) | Same model access + a long-running runtime under customer control | Container image registry to host the agent |

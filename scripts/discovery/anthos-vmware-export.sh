@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # anthos-vmware-export.sh
 #
-# ACMF Phase 1 (Assess) — Anthos-on-VMware self-export discovery script.
+# ACMF Phase 1 (Assess) — GDC for VMware (formerly Anthos on VMware) self-export discovery script.
 #
 # Produces a JSON discovery bundle conforming to:
 #   schemas/discovery-bundle.schema.json (v0.2.0)
@@ -10,9 +10,9 @@
 #
 # Requirements:
 #   - bash 4+
-#   - kubectl (configured for the target Anthos cluster)
+#   - kubectl (configured for the target GDC cluster)
 #   - jq
-#   - Optional: gcloud (Anthos metadata), govc (vSphere layer), kubectl top
+#   - Optional: gcloud (GDC metadata), govc (vSphere layer), kubectl top
 #
 # Usage:
 #   ./anthos-vmware-export.sh [--dry-run] [--output FILE] [--namespaces "ns1,ns2"]

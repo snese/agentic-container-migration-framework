@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/snese/agentic-container-migration-framework/schemas/discovery-bundle.schema.json",
   "title": "ACMF Discovery Bundle",
-  "description": "Structured output of an ACMF Phase 1 (Assess) discovery run for an Anthos-on-VMware (or compatible) source environment. Produced by Discovery Option 2/3/4 runners.",
+  "description": "Structured output of an ACMF Phase 1 (Assess) discovery run for a GDC for VMware (formerly Anthos on VMware) or compatible source environment. Produced by Discovery Option 2/3/4 runners.",
   "type": "object",
   "required": [
     "schema_version",
@@ -495,7 +495,7 @@
     },
     "vmware": {
       "type": "object",
-      "description": "vCenter inventory underlying Anthos clusters. May be empty if Discovery Option excludes govc; document in skipped[].",
+      "description": "vCenter inventory underlying GDC for VMware clusters. May be empty if Discovery Option excludes govc; document in skipped[].",
       "additionalProperties": false,
       "required": ["clusters", "hosts", "datastores", "vm_to_node_mapping"],
       "properties": {

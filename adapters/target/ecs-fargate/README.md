@@ -17,7 +17,7 @@
 - **Logging:** awslogs driver → CloudWatch Logs / Firehose to S3
 - **Deploy:** Blue/Green via CodeDeploy
 
-## What you LOSE coming from Anthos
+## What you LOSE coming from GDC for VMware (or any K8s source)
 
 - Pod-level lifecycle (init containers map fine, but no `preStop` semantic in some cases)
 - DaemonSet equivalent — handled by Fargate platform side

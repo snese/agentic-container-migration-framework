@@ -1,4 +1,4 @@
-# Anthos → AWS Assessment Report
+# GDC for VMware (formerly Anthos on VMware) → AWS Assessment Report
 
 > **Template usage.** Fill every `<placeholder>`. Each section names the
 > [discovery bundle](../prompts/discovery/anthos-vmware.prompt.md) field it
@@ -29,9 +29,9 @@
 - **Scope.** `<N>` clusters / `<N>` namespaces / `<N>` workloads.
   *(from `scope.clusters[]`, `scope.namespaces_included[]`, `len(workloads[])`)*
 - **Recommended target mix.** `<e.g. EKS Auto Mode for system + ECS Fargate for
-  stateless services + App Runner for 2 HTTP APIs>`. Rationale lives in §6.
+  stateless services + ECS Fargate for 2 HTTP APIs>`. Rationale lives in §6.
 - **Headline risks.** `<top 3 from §5>`.
-- **Indicative cost delta.** `<+/- X% vs current Anthos TCO — see §8>`.
+- **Indicative cost delta.** `<+/- X% vs current GDC TCO — see §8>`.
 - **Recommended migration window.** `<weeks>`, gated by §6 dispositions.
 
 > **Example.** *3 clusters, 142 workloads, 11 CRD groups. Recommend EKS Auto Mode
@@ -45,9 +45,9 @@
 
 **Source field:** `clusters[]` (cross-ref `scope.clusters[]`).
 
-| Cluster | Platform | K8s ver | Anthos ver | Nodes | HA control plane | Recommended target |
+| Cluster | Platform | K8s ver | GDC ver | Nodes | HA control plane | Recommended target |
 |---|---|---|---|---|---|---|
-| `<bundle.clusters[i].name>` | `<…platform>` | `<…version>` | `<…anthos_version>` | `<sum(node_pools[].count)>` | `<…control_plane.ha>` | `<EKS Auto / ECS / App Runner>` |
+| `<bundle.clusters[i].name>` | `<…platform>` | `<…version>` | `<…anthos_version>` | `<sum(node_pools[].count)>` | `<…control_plane.ha>` | `<EKS Auto / ECS Fargate>` |
 | **Example: `prod-platform-01`** | `vmware` | `1.28.5-gke.1294` | `1.16.3` | `9 (3 cp + 6 worker)` | `yes` | `EKS Auto Mode` |
 | **Example: `prod-apps-01`** | `vmware` | `1.27.9-gke.1000` | `1.16.3` | `12 worker` | `yes` | `ECS Fargate` |
 
@@ -152,7 +152,7 @@ with `utilization`, `networking`, `crds`. See
 
 | Workload group | Count | Disposition (7R) | Target | Why |
 |---|---|---|---|---|
-| `<group>` | `<n>` | `<Retain / Relocate / Rehost / Replatform / Repurchase / Refactor / Retire>` | `<EKS Auto / ECS Fargate / App Runner / RDS / managed SaaS>` | `<one-line reason>` |
+| `<group>` | `<n>` | `<Retain / Relocate / Rehost / Replatform / Repurchase / Refactor / Retire>` | `<EKS Auto / ECS Fargate / RDS / managed SaaS>` | `<one-line reason>` |
 | **Example: stateless web APIs** | `38` | `Replatform` | `ECS Fargate` | No K8s API usage; HPA is only feature in use |
 | **Example: platform / system pods** | `22` | `Rehost` | `EKS Auto Mode` | Operators + CRDs in active use |
 | **Example: legacy on-prem batch** | `4` | `Retire` | `—` | Owner confirmed deprecated |
@@ -183,17 +183,17 @@ Karpenter / Auto Mode chooses instance types — do not pin SKUs in this report.
 
 ---
 
-## 8. Cost Comparison — Anthos TCO vs AWS
+## 8. Cost Comparison — GDC TCO vs AWS
 
 **Source fields:** `vmware.hosts[]` (compute baseline), §7 sizing, customer-supplied
 license + datacenter costs (out of bundle scope — capture separately).
 
-| Cost line | Current (Anthos / vSphere) | Target (AWS) | Notes |
+| Cost line | Current (GDC / vSphere) | Target (AWS) | Notes |
 |---|---|---|---|
 | Compute | `<USD/mo>` | `<USD/mo>` | EKS Auto / ECS Fargate from §7 |
 | Storage | `<USD/mo>` | `<USD/mo>` | EBS gp3 / EFS / S3 — see migration matrix in [`docs/decisions/data-migration-patterns.md`](../docs/decisions/data-migration-patterns.md) |
 | Network egress | `<USD/mo>` | `<USD/mo>` | Direct Connect, NAT, VPC endpoints |
-| Anthos license | `<USD/mo>` | `0` | — |
+| GDC license | `<USD/mo>` | `0` | — |
 | vSphere / vSAN license | `<USD/mo>` | `0` | If decommissioned |
 | EKS / ECS control plane | `0` | `<USD/mo>` | $0.10/h per EKS cluster; ECS free |
 | **Total / month** | `<…>` | `<…>` | Δ `<+/-%>` |
@@ -201,7 +201,7 @@ license + datacenter costs (out of bundle scope — capture separately).
 
 > Do **not** invent unit prices. Pull from
 > [AWS Pricing Calculator](https://calculator.aws/) and cite the saved estimate URL.
-> Anthos / vSphere costs come from the customer; flag any line you had to estimate.
+> GDC / vSphere costs come from the customer; flag any line you had to estimate.
 
 ---
 

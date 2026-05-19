@@ -9,7 +9,7 @@
 ## Patterns
 
 - **Cluster topology:** EKS Auto Mode for greenfield, managed node groups for migration
-- **GitOps:** Flux or ArgoCD (mirror Anthos Config Sync structure)
+- **GitOps:** Flux or ArgoCD (mirror Anthos Config Sync structure from GDC sources)
 - **Mesh:** Istio (1:1 from Anthos Service Mesh) or App Mesh
 - **Policy:** Kyverno (1:1 from Policy Controller) or OPA Gatekeeper
 - **Identity:** IRSA (Pod Identity for newer setups)

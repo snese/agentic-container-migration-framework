@@ -12,7 +12,7 @@ AWS's classic 7 Rs were articulated for VMs and applications. They still apply t
 | **Relocate** | Move the K8s distribution itself, mostly unchanged | ROSA on AWS, EKS Anywhere → EKS |
 | **Replatform** | Swap infra-adjacent components for AWS managed services | EKS + RDS / ElastiCache / MSK / EFS |
 | **Repurchase** | Replace home-built workload with SaaS or managed AWS service | Managed service (e.g. Bedrock, OpenSearch) |
-| **Refactor** | Re-architect the workload itself (often to serverless) | Lambda, App Runner, Step Functions, Fargate-native |
+| **Refactor** | Re-architect the workload itself (often to serverless) | Lambda, Step Functions, Fargate-native |
 
 ## Retire
 
@@ -42,11 +42,11 @@ AWS's classic 7 Rs were articulated for VMs and applications. They still apply t
 
 **Definition.** Port manifests to AWS Kubernetes (EKS) or ECS with minimal changes. Same container image. Equivalent Deployment / StatefulSet / Service shape. Source-specific bits (Workload Identity → IRSA, OpenShift Routes → ALB Ingress) get translated, but the workload's logical shape doesn't change.
 
-**Container example.** A Java microservice running on Anthos with a Helm chart, talking to an external Postgres. Helm chart → re-tagged image in ECR → IRSA replaces Workload Identity → Postgres endpoint flipped to RDS or stays external. No code change.
+**Container example.** A Java microservice running on GDC for VMware (formerly Anthos on VMware) with a Helm chart, talking to an external Postgres. Helm chart → re-tagged image in ECR → IRSA replaces Workload Identity → Postgres endpoint flipped to RDS or stays external. No code change.
 
 **When to use.** Workload is healthy, stateless or simply stateful, no urgent modernization driver. You want migration speed over architectural purity. The default for most container workloads.
 
-**When NOT to use.** Workload depends on source-specific features that have no clean AWS equivalent (deep OpenShift Operator chains, niche Anthos config). Replatform or Refactor instead.
+**When NOT to use.** Workload depends on source-specific features that have no clean AWS equivalent (deep OpenShift Operator chains, niche GDC config). Replatform or Refactor instead.
 
 **AWS target.** EKS (primary). ECS Fargate when the workload is simple and a customer is reducing K8s ops surface.
 
@@ -71,7 +71,7 @@ Container Relocate is rarer than VM Relocate (which uses VMware Cloud on AWS). F
 
 **Definition.** Keep the workload running in containers, but swap *infrastructure-adjacent components* for AWS managed services. The application code is mostly untouched; the operational footprint shrinks.
 
-**Container example.** Workload running on Anthos with self-hosted Postgres in a StatefulSet → on EKS with RDS Postgres. Self-hosted Kafka StatefulSet → MSK. Self-hosted Redis → ElastiCache. Self-managed cert-manager + Let's Encrypt → ACM + ALB.
+**Container example.** Workload running on GDC for VMware with self-hosted Postgres in a StatefulSet → on EKS with RDS Postgres. Self-hosted Kafka StatefulSet → MSK. Self-hosted Redis → ElastiCache. Self-managed cert-manager + Let's Encrypt → ACM + ALB.
 
 **When to use.** The managed equivalent is materially better (cost, ops burden, security posture). The workload accepts the connection-string change without a redesign. You're already touching the manifests, so the marginal cost is low.
 
@@ -95,13 +95,13 @@ Container Relocate is rarer than VM Relocate (which uses VMware Cloud on AWS). F
 
 **Definition.** Redesign the workload itself for cloud-native AWS — often *out of containers entirely*, into serverless or managed runtimes. This is the highest-cost / highest-value R.
 
-**Container example.** Synchronous Python container behind ALB → Lambda + API Gateway. Long-running container processing queue → Step Functions + Lambda + SQS. Stateful container batch job → AWS Batch or Glue. HTTP container with autoscaling pain → App Runner.
+**Container example.** Synchronous Python container behind ALB → Lambda + API Gateway. Long-running container processing queue → Step Functions + Lambda + SQS. Stateful container batch job → AWS Batch or Glue.
 
 **When to use.** The current architecture is the problem (cost, scale ceiling, ops burden). There is engineering capacity and product appetite for non-trivial change. Modernization ROI is in the business case.
 
 **When NOT to use.** Tight migration deadline. Team isn't ready for serverless / event-driven model. The benefit is purely aesthetic (resume-driven architecture).
 
-**AWS target.** Lambda, App Runner, Step Functions, Fargate-native (no EKS/ECS), AWS Batch, EventBridge, Glue.
+**AWS target.** Lambda, Step Functions, Fargate-native (no EKS/ECS), AWS Batch, EventBridge, Glue.
 
 ## Decision tree
 
@@ -129,7 +129,7 @@ is workload still in use?
             └─ no
                │
                is there budget + appetite to redesign?
-               ├─ yes, big payoff ──────────────────→ Refactor (Lambda / App Runner / SFN)
+               ├─ yes, big payoff ──────────────────→ Refactor (Lambda / Fargate / SFN)
                └─ no, just get it on AWS ────────────→ Rehost (EKS, sometimes ECS)
 ```
 

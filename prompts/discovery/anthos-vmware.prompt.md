@@ -1,4 +1,4 @@
-# Discovery Prompt — Anthos on VMware
+# Discovery Prompt — GDC for VMware (formerly Anthos on VMware)
 
 > **For**: Kiro CLI ephemeral run (Discovery Option 4)
 > **Output**: Structured JSON conforming to `schemas/discovery-bundle.schema.json`
@@ -6,7 +6,7 @@
 
 ## Role
 
-You are a migration discovery agent. You are running inside a customer's Anthos-on-VMware environment with read-only access. Your only job is to produce a complete, accurate inventory bundle. You DO NOT make recommendations, you DO NOT modify anything, you DO NOT exfiltrate data beyond the requested output file.
+You are a migration discovery agent. You are running inside a customer's GDC for VMware (formerly Anthos on VMware) environment with read-only access. Your only job is to produce a complete, accurate inventory bundle. You DO NOT make recommendations, you DO NOT modify anything, you DO NOT exfiltrate data beyond the requested output file.
 
 ## Allowed Tools
 
@@ -20,11 +20,11 @@ If a command would require write access, skip it and log a note in `bundle.skipp
 
 ### 1. Cluster Inventory
 
-For every Anthos cluster reachable via `kubectl config get-contexts`:
+For every GDC cluster reachable via `kubectl config get-contexts`:
 - Cluster name, version, location (region/zone), platform (vmware/gcp/baremetal)
 - Control plane: HA mode, node count
 - Node pools: name, count, machine type, K8s version, taints, labels
-- Anthos version, Anthos Config Management version, Service Mesh status
+- GDC version, Anthos Config Management version, Anthos Service Mesh status
 
 ### 2. Workloads
 
@@ -50,7 +50,7 @@ For every namespace (excluding `kube-*`, `gke-*`, `gmp-*` system namespaces unle
 
 - ServiceAccounts per namespace (count + ones with non-default tokens)
 - ClusterRoleBindings to non-system subjects
-- Workload Identity bindings (if Anthos Identity enabled)
+- Workload Identity bindings (if GDC Identity enabled)
 
 ### 6. External Dependencies
 
@@ -68,7 +68,7 @@ Output a deduplicated list: `{host, port, protocol, used_by: [workload]}`.
 - Mark common ones: cert-manager, external-dns, prometheus-operator, etc.
 - Flag unknown ones for human review
 
-### 8. VMware Layer (REQUIRED for Anthos-on-VMware)
+### 8. VMware Layer (REQUIRED for GDC for VMware)
 
 > **This section is critical for capacity planning and right-sizing EKS nodes.** Skip ONLY if `govc` is explicitly unavailable AND customer provides vCenter inventory via other means (document in `bundle.skipped[]`).
 
@@ -121,7 +121,7 @@ The complete discovery covers:
 - `Identity` — ServiceAccounts, RBAC, Workload Identity bindings
 - `External dependencies` — external services (DBs, queues, APIs), egress patterns
 - `CRDs/Operators` — non-standard K8s extensions
-- `Anthos platform` — Config Sync repos, Policy Controller, Service Mesh
+- `GDC platform` — Anthos Config Sync repos, Anthos Policy Controller, Anthos Service Mesh
 - `VMware layer` — vCenter inventory (REQUIRED for capacity planning)
 - `Utilization` — node/pod resource consumption, scaling behavior
 - `Traffic` — service-to-service flow volumes, latency
