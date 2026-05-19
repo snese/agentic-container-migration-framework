@@ -6,7 +6,8 @@
     { "pattern": "^#" },
     { "pattern": "your-org" },
     { "pattern": "example\\.com" },
-    { "pattern": "PLACEHOLDER" }
+    { "pattern": "PLACEHOLDER" },
+    { "pattern": "multi-cluster-service-mesh-with-istio-on-amazon-eks" }
   ],
   "replacementPatterns": [],
   "httpHeaders": [

@@ -17,7 +17,7 @@ GKE Enterprise on VMware clusters (formerly "Anthos on-prem" / "Anthos clusters 
 
 ## What this adapter provides
 
-- Discovery prompt: [prompts/discovery/gke-enterprise-vmware.prompt.md](../../prompts/discovery/gke-enterprise-vmware.prompt.md)
+- Discovery prompt: [prompts/discovery/gke-enterprise-vmware.prompt.md](../../../prompts/discovery/gke-enterprise-vmware.prompt.md)
 - Self-export script: `scripts/discovery/gke-enterprise-vmware-export.sh`
 - GKE Enterprise-specific mapping rules:
   - Anthos Config Sync → ArgoCD on EKS (primary) / Flux CD (alternative)
