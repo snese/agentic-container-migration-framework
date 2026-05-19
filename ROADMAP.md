@@ -8,10 +8,10 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes / Issue |
 |---|---|---|
-| GDC-for-VMware discovery prompt + JSON Schema | 🚧 | First reference adapter (formerly Anthos on VMware) |
+| GKE Enterprise on VMware discovery prompt + JSON Schema | 🚧 | First reference adapter (formerly Anthos on VMware) |
 | Self-export bash script (`scripts/discovery/anthos-vmware-export.sh`) | ✅ | Option 2 of the discovery menu |
-| OpenShift discovery prompt | 🔜 | After GDC reference is stable |
-| GKE discovery prompt | 🔜 | Formerly "Anthos-on-GCP" — GKE with GKE Enterprise fleet |
+| OpenShift discovery prompt | 🔜 | After GKE Enterprise reference is stable |
+| GKE discovery prompt | 🔜 | Standard GKE (cloud-native) + GKE Enterprise fleet |
 | AKS discovery prompt | 🔜 | Azure AD RBAC, Azure CNI, Azure Disk/File CSI |
 | Discovery-bundle JSON Schema (`schemas/discovery-bundle.schema.json`) | ✅ | v0.2.0 shipped |
 
@@ -46,7 +46,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes / Issue |
 |---|---|---|
-| First case study (GDC for VMware → EKS) | 🔜 | Pending real engagement |
+| First case study (GKE Enterprise on VMware → EKS) | 🔜 | Pending real engagement |
 | Case-study anonymization checklist | 🔜 | |
 
 ## Adapters
@@ -55,9 +55,9 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes |
 |---|---|---|
-| Source: GDC for VMware (formerly Anthos on VMware) | 🚧 | First reference; `adapters/source/anthos-vmware/` |
-| Source: GDC for Bare Metal | ✅ | Shares VMware adapter with `--platform=bare-metal` flag (skips vSphere discovery) |
-| Source: GKE (formerly "Anthos on GCP") | 🔜 | Standard GKE + GKE Enterprise fleet; `adapters/source/gke/` |
+| Source: GKE Enterprise on VMware (formerly Anthos) | 🚧 | First reference; `adapters/source/anthos-vmware/` |
+| Source: GKE Enterprise on Bare Metal (formerly Anthos) | ✅ | Shares VMware adapter with `--platform=bare-metal` flag (skips vSphere discovery) |
+| Source: GKE (cloud-native, on GCP) | 🔜 | Standard GKE + GKE Enterprise fleet; `adapters/source/gke/` |
 | Source: AKS (Azure) | 🔜 | Azure AD, Azure CNI, Azure Disk/File CSI; `adapters/source/aks/` |
 | Source: OpenShift | 🔜 | |
 | Source: Rancher / vanilla K8s | 🔜 | |
@@ -78,7 +78,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 |---|---|---|
 | 1-pager, pitch guide, FAQ | ✅ | `docs/customer-facing/` |
 | AWS Transform vs ACMF positioning | ✅ | `docs/decisions/aws-transform-vs-acmf.md` |
-| GDC-vs-AWS pricing comparison sheet | 🔜 | |
+| GKE Enterprise vs AWS pricing comparison sheet | 🔜 | |
 
 ## Decisions / open questions
 
@@ -87,7 +87,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 | Concrete cost models per ECS-vs-EKS pattern | 🔜 | Need real customer baselines |
 | EKS Auto Mode vs ECS Fargate cost comparison for equivalent workloads | 🔜 | |
 | Multi-region story per target (EKS / ECS) | 🔜 | |
-| Live-migration via mesh federation (GDC ↔ EKS) | 🔜 | Advanced pattern |
+| Live-migration via mesh federation (GKE Enterprise ↔ EKS) | 🔜 | Advanced pattern |
 
 ## Governance
 
