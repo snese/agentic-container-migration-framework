@@ -35,11 +35,25 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 ## Phase 4 — Modernize
 
+### Wave A — shipped (v0.5)
+
 | Item | Status | Notes / Issue |
 |---|---|---|
-| EKS Auto Mode vs ECS Fargate cost-model worksheet | 🔜 | Real workload baselines required |
-| Right-sizing analysis prompt (Compute Optimizer + Prometheus) | 🔜 | |
-| GitOps maturity scorecard | 🔜 | |
+| IRSA → EKS Pod Identity migration playbook | ✅ | `docs/playbooks/irsa-to-pod-identity.md` |
+| Karpenter + right-sizing playbook | ✅ | `docs/playbooks/karpenter-rightsizing.md` |
+| Observability uplift playbook (GCP/Anthos → AWS) | ✅ | `docs/playbooks/observability-uplift.md` |
+| Right-sizing analysis prompt (Compute Optimizer + Prometheus) | ✅ | `prompts/modernize/right-sizing-analysis.prompt.md` |
+
+### Wave B — planned
+
+| Item | Status | Notes / Issue |
+|---|---|---|
+| GitOps maturity scorecard prompt | 🔜 | Prompt scaffolded at `prompts/modernize/gitops-maturity-scorecard.prompt.md`; companion playbook + reference scoring fixtures pending |
+| Service Mesh simplification playbook | 🔜 | Istio → VPC Lattice / Service Connect simplification paths; App Mesh is deprecated (see ECS-vs-EKS decision) |
+| Security hardening playbook | 🔜 | NetworkPolicies, image scanning, admission policies, IMDSv2 enforcement |
+| Decision doc: EKS Auto Mode vs ECS Fargate cost-model worksheet | 🔜 | Real workload baselines required |
+| Decision doc: when to refactor to Lambda / serverless data pipeline | 🔜 | Deferred Refactor (7 Rs) decision template |
+| Templates: optimization-backlog.md, runbook, on-call rotation | 🔜 | Phase 4 outputs |
 | Optional Strands-based ongoing optimization agent recipe | 🔜 | Phase 4 only; opt-in (see CONSTITUTION §1) |
 
 ## Phase 5 — Document
