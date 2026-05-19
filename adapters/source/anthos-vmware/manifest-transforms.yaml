@@ -1,0 +1,353 @@
+# Anthos → AWS Manifest Transformation Rules
+#
+# Source adapter: anthos-vmware
+# Target adapters: eks (primary), ecs-fargate (where K8s manifests don't apply)
+#
+# This file is the canonical map from Anthos / GCP-specific manifest constructs
+# to their AWS equivalents. Each rule includes:
+#   - id            : stable identifier
+#   - applies_to    : K8s kinds the rule operates on
+#   - description   : one-line intent
+#   - before / after: minimal manifest snippet for the test fixture
+#   - automations   : sed / yq / kustomize one-liners that perform the rewrite
+#   - notes         : caveats, references
+#
+# Fixtures live in `examples/anthos-manifests/{before,after}/`. The yq commands
+# below are tested against those fixtures.
+#
+# yq version assumed: yq v4.x (mikefarah/yq). All commands operate in-place
+# with `-i` against single documents; pipe through `yq ea` for multi-doc files.
+
+schema_version: "0.1.0"
+
+rules:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Workload Identity → IRSA / EKS Pod Identity
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: workload-identity-to-pod-identity
+    applies_to: [ServiceAccount]
+    description: >
+      Replace GKE Workload Identity SA annotation
+      (iam.gke.io/gcp-service-account) with EKS Pod Identity association OR
+      IRSA annotation (eks.amazonaws.com/role-arn).
+    before: |
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: payment-api-sa
+        namespace: payments
+        annotations:
+          iam.gke.io/gcp-service-account: payment-api@proj.iam.gserviceaccount.com
+    after: |
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: payment-api-sa
+        namespace: payments
+        annotations:
+          # IRSA path (Pod Identity preferred but requires PodIdentityAssociation
+          # — created out-of-band via eksctl / Terraform; annotation not required).
+          eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/payment-api
+    automations:
+      yq: |
+        yq -i '
+          select(.kind == "ServiceAccount") |=
+            ( del(.metadata.annotations."iam.gke.io/gcp-service-account")
+              | .metadata.annotations."eks.amazonaws.com/role-arn" =
+                  ("arn:aws:iam::" + strenv(AWS_ACCOUNT_ID) + ":role/" + .metadata.name) )
+        ' sa.yaml
+      sed: |
+        # Coarse fallback for repos with one annotation per line.
+        sed -i 's#iam\.gke\.io/gcp-service-account: \(.*\)@\([^.]*\)\..*#eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/\1#' sa.yaml
+    notes: |
+      Pod Identity (EKS Pod Identity Agent) does not need a ServiceAccount
+      annotation — it is a separate `PodIdentityAssociation` resource. Keep
+      the SA annotation only for IRSA-mode clusters. Pick one mode per cluster.
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # GCE Ingress + BackendConfig → AWS ALB Ingress Controller
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: gce-ingress-to-alb
+    applies_to: [Ingress, Service]
+    description: >
+      Replace `kubernetes.io/ingress.class: gce` and `cloud.google.com/neg`
+      annotations with AWS Load Balancer Controller equivalents
+      (`ingressClassName: alb`, `alb.ingress.kubernetes.io/*`). BackendConfig
+      becomes a TargetGroupBinding or inline ALB annotations.
+    before: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: payments-ingress
+        namespace: payments
+        annotations:
+          kubernetes.io/ingress.class: gce
+          networking.gke.io/managed-certificates: pay-cert
+          cloud.google.com/backend-config: '{"default":"payments-bc"}'
+      spec:
+        rules:
+          - host: pay.example.com
+            http:
+              paths:
+                - path: /*
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: payment-api
+                      port: { number: 80 }
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: payment-api
+        namespace: payments
+        annotations:
+          cloud.google.com/neg: '{"ingress": true}'
+          cloud.google.com/backend-config: '{"default":"payments-bc"}'
+      spec:
+        type: ClusterIP
+        ports: [{ name: http, port: 80, targetPort: 8080 }]
+        selector: { app: payment-api }
+    after: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: payments-ingress
+        namespace: payments
+        annotations:
+          alb.ingress.kubernetes.io/scheme: internet-facing
+          alb.ingress.kubernetes.io/target-type: ip
+          alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+          alb.ingress.kubernetes.io/ssl-redirect: '443'
+          alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/REPLACE
+          alb.ingress.kubernetes.io/healthcheck-path: /healthz
+      spec:
+        ingressClassName: alb
+        rules:
+          - host: pay.example.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: payment-api
+                      port: { number: 80 }
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: payment-api
+        namespace: payments
+      spec:
+        type: ClusterIP
+        ports: [{ name: http, port: 80, targetPort: 8080 }]
+        selector: { app: payment-api }
+    automations:
+      yq: |
+        # Strip GCE annotations + class, replace with ALB equivalents.
+        yq -i '
+          select(.kind == "Ingress") |=
+            ( del(.metadata.annotations."kubernetes.io/ingress.class")
+              | del(.metadata.annotations."cloud.google.com/backend-config")
+              | del(.metadata.annotations."networking.gke.io/managed-certificates")
+              | .spec.ingressClassName = "alb"
+              | .metadata.annotations."alb.ingress.kubernetes.io/scheme" = "internet-facing"
+              | .metadata.annotations."alb.ingress.kubernetes.io/target-type" = "ip"
+              | .metadata.annotations."alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
+              | .metadata.annotations."alb.ingress.kubernetes.io/ssl-redirect" = "443"
+              | .metadata.annotations."alb.ingress.kubernetes.io/healthcheck-path" = "/healthz" )
+        ' ingress.yaml
+        # Strip GCE Service annotations.
+        yq -i '
+          select(.kind == "Service") |=
+            ( del(.metadata.annotations."cloud.google.com/neg")
+              | del(.metadata.annotations."cloud.google.com/backend-config") )
+        ' service.yaml
+        # Path glob `/*` is GCE-specific; rewrite to Prefix `/`.
+        yq -i '
+          (select(.kind == "Ingress").spec.rules[].http.paths[] | select(.path == "/*")) |=
+            (.path = "/" | .pathType = "Prefix")
+        ' ingress.yaml
+    notes: |
+      Certificate ARN must be supplied out-of-band (ACM). `BackendConfig` CRDs
+      do not exist on EKS — health-check path moves to the ingress annotation,
+      timeouts/idle move to ALB target-group attributes, and IAP/CDN features
+      need separate AWS services (Cognito, CloudFront).
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # vSphere CSI StorageClass + PVC → EBS / EFS CSI
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: vsphere-csi-to-ebs-or-efs
+    applies_to: [StorageClass, PersistentVolumeClaim]
+    description: >
+      Replace `csi.vsphere.vmware.com` provisioner with `ebs.csi.aws.com`
+      (RWO) or `efs.csi.aws.com` (RWX). The RWX path requires a pre-created
+      EFS file system referenced via `parameters.fileSystemId`.
+    before: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: vsphere-csi-fast
+      provisioner: csi.vsphere.vmware.com
+      parameters:
+        storagepolicyname: gold
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data-inventory-db-0
+        namespace: inventory
+      spec:
+        storageClassName: vsphere-csi-fast
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: { storage: 100Gi }
+    after: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: ebs-gp3-fast
+      provisioner: ebs.csi.aws.com
+      parameters:
+        type: gp3
+        iops: "6000"
+        throughput: "250"
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data-inventory-db-0
+        namespace: inventory
+      spec:
+        storageClassName: ebs-gp3-fast
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: { storage: 100Gi }
+    automations:
+      yq: |
+        # StorageClass: vSphere CSI → EBS gp3.
+        yq -i '
+          select(.kind == "StorageClass" and .provisioner == "csi.vsphere.vmware.com") |=
+            ( .metadata.name = "ebs-gp3-fast"
+              | .provisioner = "ebs.csi.aws.com"
+              | .parameters = {"type":"gp3","iops":"6000","throughput":"250"} )
+        ' sc.yaml
+        # PVC: rewrite storageClassName to the new SC.
+        yq -i '
+          select(.kind == "PersistentVolumeClaim" and .spec.storageClassName == "vsphere-csi-fast")
+            .spec.storageClassName = "ebs-gp3-fast"
+        ' pvc.yaml
+      kustomize: |
+        # Or apply via kustomize patch:
+        # patches:
+        #   - target: { kind: StorageClass, name: vsphere-csi-fast }
+        #     patch: |-
+        #       - op: replace
+        #         path: /provisioner
+        #         value: ebs.csi.aws.com
+    notes: |
+      RWX (ReadWriteMany) PVCs cannot use EBS — switch them to EFS:
+      `provisioner: efs.csi.aws.com`, `parameters.fileSystemId: fs-xxxx`.
+      Existing data must be migrated separately (DMS, restic, AWS DataSync,
+      or app-level dual-write). See `docs/decisions/data-migration-patterns.md`.
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # NetworkPolicy: GKE-specific egress to GCP metadata → drop or rewrite
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: networkpolicy-gcp-metadata-egress
+    applies_to: [NetworkPolicy]
+    description: >
+      Egress rules that target the GCE metadata server (169.254.169.254)
+      should be removed or repointed. On EKS, IMDSv2 is on the same IP but
+      Pod Identity / IRSA usually obviates the need for pod-level metadata.
+    before: |
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-metadata
+        namespace: payments
+      spec:
+        podSelector: {}
+        policyTypes: [Egress]
+        egress:
+          - to:
+              - ipBlock: { cidr: 169.254.169.254/32 }
+            ports:
+              - { port: 80, protocol: TCP }
+    after: |
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-metadata
+        namespace: payments
+      spec:
+        podSelector: {}
+        policyTypes: [Egress]
+        # Removed GCE metadata egress; use Pod Identity / IRSA instead.
+        egress: []
+    automations:
+      yq: |
+        yq -i '
+          select(.kind == "NetworkPolicy") .spec.egress |=
+            map(select((.to // []) | all(.ipBlock.cidr != "169.254.169.254/32")))
+        ' netpol.yaml
+    notes: |
+      If the workload genuinely needs IMDS access on EKS (rare), keep the
+      rule — IMDSv2 on EC2/EKS uses the same 169.254.169.254 IP. Most apps
+      should switch to env-injected credentials via Pod Identity / IRSA.
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Service Mesh: ASM annotation → Istio (no-op on resource, mesh-level)
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: asm-revision-label
+    applies_to: [Namespace, Deployment]
+    description: >
+      ASM injection labels (`istio.io/rev=asm-XYZ`) become standard upstream
+      Istio revision labels on EKS. The label key is the same; the value
+      changes to whatever revision Istio is installed at on the target.
+    before: |
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: payments
+        labels:
+          istio.io/rev: asm-1202-2
+    after: |
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: payments
+        labels:
+          istio.io/rev: 1-22-3
+    automations:
+      yq: |
+        yq -i '
+          .metadata.labels."istio.io/rev" |= sub("^asm-.*$"; strenv(ISTIO_REV))
+        ' ns.yaml
+    notes: |
+      `ISTIO_REV` is the revision label of the upstream Istio install on EKS
+      (e.g. `1-22-3`). Set per environment. VirtualService / DestinationRule
+      / AuthorizationPolicy CRDs migrate as-is — same `networking.istio.io`
+      and `security.istio.io` API groups.
+
+# ─────────────────────────────────────────────────────────────────────────
+# Annotation cheat-sheet
+# ─────────────────────────────────────────────────────────────────────────
+# Strip these on import (no AWS equivalent):
+#   - cloud.google.com/neg
+#   - cloud.google.com/backend-config
+#   - networking.gke.io/managed-certificates
+#   - networking.gke.io/internal-load-balancer-allow-global-access
+#   - container.googleapis.com/instance_id
+# Replace these with AWS-side equivalents:
+#   - iam.gke.io/gcp-service-account → eks.amazonaws.com/role-arn (IRSA)
+#                                    OR PodIdentityAssociation (Pod Identity)
+#   - kubernetes.io/ingress.class: gce → ingressClassName: alb
+#                                    + alb.ingress.kubernetes.io/* annotations
+#   - csi.vsphere.vmware.com           → ebs.csi.aws.com / efs.csi.aws.com

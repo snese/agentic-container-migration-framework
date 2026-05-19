@@ -1,0 +1,38 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: vsphere-csi-fast
+provisioner: csi.vsphere.vmware.com
+parameters:
+  storagepolicyname: gold
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: inventory-db
+  namespace: inventory
+spec:
+  serviceName: inventory-db
+  replicas: 3
+  selector: { matchLabels: { app: inventory-db } }
+  template:
+    metadata:
+      labels: { app: inventory-db }
+    spec:
+      containers:
+        - name: postgres
+          image: registry.acme.local/postgres:15.4
+          ports: [{ containerPort: 5432 }]
+          resources:
+            requests: { cpu: "2", memory: 8Gi }
+            limits:   { cpu: "4", memory: 16Gi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        storageClassName: vsphere-csi-fast
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: 100Gi } }

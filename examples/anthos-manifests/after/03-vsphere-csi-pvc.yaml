@@ -1,0 +1,23 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3-fast
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  iops: "6000"
+  throughput: "250"
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-inventory-db-0
+  namespace: inventory
+spec:
+  storageClassName: ebs-gp3-fast
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 100Gi

@@ -1,0 +1,40 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3-fast
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  iops: "6000"
+  throughput: "250"
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: inventory-db
+  namespace: inventory
+spec:
+  serviceName: inventory-db
+  replicas: 3
+  selector: { matchLabels: { app: inventory-db } }
+  template:
+    metadata:
+      labels: { app: inventory-db }
+    spec:
+      containers:
+        - name: postgres
+          image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/postgres:15.4
+          ports: [{ containerPort: 5432 }]
+          resources:
+            requests: { cpu: "2", memory: 8Gi }
+            limits:   { cpu: "4", memory: 16Gi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        storageClassName: ebs-gp3-fast
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: 100Gi } }

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-api-sa
+  namespace: payments
+  annotations:
+    iam.gke.io/gcp-service-account: payment-api@acme-prod.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+  namespace: payments
+spec:
+  replicas: 4
+  selector: { matchLabels: { app: payment-api } }
+  template:
+    metadata:
+      labels: { app: payment-api }
+    spec:
+      serviceAccountName: payment-api-sa
+      containers:
+        - name: api
+          image: registry.acme.local/payments/api:v1.42.0
+          ports: [{ containerPort: 8080 }]
+          resources:
+            requests: { cpu: 500m, memory: 512Mi }
+            limits:   { cpu: 1000m, memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-api
+  namespace: payments
+spec:
+  type: ClusterIP
+  selector: { app: payment-api }
+  ports: [{ name: http, port: 80, targetPort: 8080 }]

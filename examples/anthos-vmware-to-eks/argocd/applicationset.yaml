@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: acme-prod
+  namespace: argocd
+spec:
+  description: Acme prod migration scope (payments / checkout / inventory)
+  sourceRepos:
+    - https://github.com/acme/migration-target.git
+  destinations:
+    - { server: https://kubernetes.default.svc, namespace: payments }
+    - { server: https://kubernetes.default.svc, namespace: checkout }
+    - { server: https://kubernetes.default.svc, namespace: inventory }
+  clusterResourceWhitelist:
+    - { group: '',                kind: Namespace }
+    - { group: storage.k8s.io,    kind: StorageClass }
+    - { group: networking.k8s.io, kind: NetworkPolicy }
+  namespaceResourceWhitelist:
+    - { group: '*', kind: '*' }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acme-migration
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - { ns: payments,  path: examples/anthos-vmware-to-eks/manifests/after/payments }
+          - { ns: checkout,  path: examples/anthos-vmware-to-eks/manifests/after/checkout }
+          - { ns: inventory, path: examples/anthos-vmware-to-eks/manifests/after/inventory }
+  template:
+    metadata:
+      name: '{{ns}}-app'
+    spec:
+      project: acme-prod
+      source:
+        repoURL: https://github.com/acme/migration-target.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ns}}'
+      syncPolicy:
+        automated: null
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
