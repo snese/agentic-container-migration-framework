@@ -28,6 +28,10 @@
 #
 # Exit codes: 0 = success (bundle written), 2 = usage error, 3 = no kubectl access.
 
+# NOTE: We intentionally do NOT use `set -e`. The script has graceful-degradation
+# by design — each discovery section may fail (network, RBAC, missing tool) and
+# is wrapped to log into `skipped` / `warnings` rather than abort the whole bundle.
+# This satisfies #4 AC: "Graceful failure handling (skip and log)".
 set -uo pipefail
 
 # ------------------------- Config / argv -------------------------
@@ -43,13 +47,21 @@ usage() {
   exit 2
 }
 
+require_value() {
+  local flag="$1" value="${2:-}"
+  if [[ -z "$value" || "$value" == --* ]]; then
+    echo "error: $flag requires a value" >&2
+    usage
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=1; shift ;;
-    --output) OUTPUT="$2"; shift 2 ;;
-    --namespaces) INCLUDE_NS="$2"; shift 2 ;;
-    --exclude) EXCLUDE_NS="$2"; shift 2 ;;
-    --cluster-name) CLUSTER_NAME="$2"; shift 2 ;;
+    --output) require_value "$1" "${2:-}"; OUTPUT="$2"; shift 2 ;;
+    --namespaces) require_value "$1" "${2:-}"; INCLUDE_NS="$2"; shift 2 ;;
+    --exclude) require_value "$1" "${2:-}"; EXCLUDE_NS="$2"; shift 2 ;;
+    --cluster-name) require_value "$1" "${2:-}"; CLUSTER_NAME="$2"; shift 2 ;;
     --no-vmware) SKIP_VMWARE=1; shift ;;
     -h|--help) usage ;;
     *) echo "unknown arg: $1" >&2; usage ;;
@@ -65,10 +77,21 @@ TMPDIR_ROOT="$(mktemp -d -t acmf-export-XXXXXX)"
 trap 'rm -rf "$TMPDIR_ROOT"' EXIT
 SKIPPED_FILE="$TMPDIR_ROOT/skipped.json"; echo "[]" > "$SKIPPED_FILE"
 WARN_FILE="$TMPDIR_ROOT/warnings.json"; echo "[]" > "$WARN_FILE"
+LOCK_FILE="$TMPDIR_ROOT/.lock"
 
 log()  { echo "[acmf-export] $*" >&2; }
-warn() { local m="$1"; jq --arg m "$m" '. += [$m]' "$WARN_FILE" > "$WARN_FILE.tmp" && mv "$WARN_FILE.tmp" "$WARN_FILE"; log "WARN: $m"; }
-skip() { local cmd="$1" reason="$2"; jq --arg c "$cmd" --arg r "$reason" '. += [{command:$c, reason:$r}]' "$SKIPPED_FILE" > "$SKIPPED_FILE.tmp" && mv "$SKIPPED_FILE.tmp" "$SKIPPED_FILE"; log "SKIP [$cmd]: $reason"; }
+
+_with_lock() {
+  local file="$1" filter="$2"; shift 2
+  (
+    flock -x 9
+    local tmp="$file.$$"
+    jq "$@" "$filter" "$file" > "$tmp" && mv "$tmp" "$file"
+  ) 9>"$LOCK_FILE"
+}
+
+warn() { local m="$1"; _with_lock "$WARN_FILE" '. += [$m]' --arg m "$m"; log "WARN: $m"; }
+skip() { local cmd="$1" reason="$2"; _with_lock "$SKIPPED_FILE" '. += [{command:$c, reason:$r}]' --arg c "$cmd" --arg r "$reason"; log "SKIP [$cmd]: $reason"; }
 
 require() { command -v "$1" >/dev/null 2>&1 || return 1; }
 

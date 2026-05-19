@@ -23,10 +23,33 @@ spec:
     - namespace: '*'
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    # Scoped to resources actually managed by the migration project.
+    # Add resource kinds here as new waves require them; do not use wildcards.
+    - group: ''
+      kind: Namespace
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRole
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRoleBinding
+    - group: 'storage.k8s.io'
+      kind: StorageClass
+    - group: 'networking.k8s.io'
+      kind: IngressClass
   namespaceResourceWhitelist:
-    - group: '*'
+    # Workload + config kinds the AppSets sync. Extend per wave.
+    - group: ''
+      kind: '*'
+    - group: 'apps'
+      kind: '*'
+    - group: 'batch'
+      kind: '*'
+    - group: 'networking.k8s.io'
+      kind: '*'
+    - group: 'rbac.authorization.k8s.io'
+      kind: '*'
+    - group: 'autoscaling'
+      kind: '*'
+    - group: 'policy'
       kind: '*'
   roles:
     - name: platform-write
