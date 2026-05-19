@@ -1,5 +1,7 @@
 # ACMF Constitution
 
+> **Last updated:** 2026-05-19 (v0.6 cleanup pass)
+
 The non-negotiable principles of the Agentic Container Migration Framework. Every adapter, prompt, schema, and playbook in this repo must conform. When something here breaks, you don't quietly drift — you propose an amendment.
 
 ## 1. Non-intrusive by default

@@ -57,6 +57,11 @@ Default for **stateless services** that:
 - Don't need GPU, custom AMI, privileged mode, or host networking.
 - Benefit from per-task isolation and zero capacity-planning overhead.
 
+## Fargate-specific gotchas
+
+- **Ephemeral storage.** Fargate tasks ship with **20 GiB** of ephemeral storage by default and can be raised up to **200 GiB** via `ephemeralStorage.sizeInGiB` on the task definition (Linux only). EC2 launch type uses the host's storage. [VERIFICATION-PENDING] [Fargate task storage](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-task-storage.html).
+- **Task-level vs service-level scoping.** `cpu` / `memory` can be set at the **task** level (Fargate requires this) or, on EC2, at the **container** level inside a task. Service-level concerns (desired count, deployment circuit breaker, capacity provider strategy) sit on the ECS service, not the task definition. [Task definition parameters](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html).
+
 ## References
 
 - [Amazon ECS pricing](https://aws.amazon.com/ecs/pricing/) — Fargate vs EC2 vs Fargate Spot pricing model.

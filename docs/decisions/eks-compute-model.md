@@ -87,6 +87,17 @@ A real EKS cluster usually mixes models:
 - **GPU / batch** → Karpenter with a GPU NodePool.
 - **Untrusted / sandbox tenants** → Fargate profile.
 
+## Version-skew gotchas
+
+Mixing compute models means tracking **two upgrade clocks** per cluster:
+
+- **Managed Node Groups** roll AMIs through the EKS managed-node lifecycle; the kubelet version is bound to the node group's `version` field and only moves when you update it.
+- **Karpenter** chooses the AMI per-NodePool via the [`EC2NodeClass`](https://karpenter.sh/docs/concepts/nodeclasses/) resource. With `amiSelectorTerms` you can pin to an alias (e.g. `al2023@latest`) or a specific AMI ID. Karpenter does **not** auto-bump kubelet to match the EKS control-plane minor version — a control-plane upgrade can leave Karpenter-managed nodes one or two minors behind unless you bump the NodeClass.
+- **Auto Mode** manages the node OS (Bottlerocket) and kubelet for you and stays within EKS's supported skew window.
+- **Fargate profiles** track the control-plane version automatically; no node-side action needed.
+
+Keep an explicit checklist per cluster: control-plane minor → Managed NG version → Karpenter NodeClass AMI → add-ons. [VERIFICATION-PENDING] [EKS version skew policy](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html).
+
 ## References
 
 - [Amazon EKS Auto Mode](https://docs.aws.amazon.com/eks/latest/userguide/automode.html)
