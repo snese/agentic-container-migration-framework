@@ -25,7 +25,7 @@ jobs:
         run: |
           npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \
             -s schemas/discovery-bundle.schema.json \
-            -d 'examples/anthos-vmware-to-eks/01-discovery-bundle.json' \
+            -d 'examples/gke-enterprise-vmware-to-eks/01-discovery-bundle.json' \
             -c ajv-formats
 
   shellcheck:
@@ -86,7 +86,7 @@ jobs:
       - name: Verify all required top-level keys present
         run: |
           set -euo pipefail
-          BUNDLE=examples/anthos-vmware-to-eks/01-discovery-bundle.json
+          BUNDLE=examples/gke-enterprise-vmware-to-eks/01-discovery-bundle.json
           SCHEMA=schemas/discovery-bundle.schema.json
           required=$(jq -r '.required[]' "$SCHEMA")
           count=$(echo "$required" | wc -l)
@@ -107,7 +107,7 @@ jobs:
         run: |
           npx --yes -p ajv-cli@5 -p ajv-formats@2 ajv validate \
             -s schemas/discovery-bundle.schema.json \
-            -d 'examples/anthos-vmware-to-eks/01-discovery-bundle.json' \
+            -d 'examples/gke-enterprise-vmware-to-eks/01-discovery-bundle.json' \
             -c ajv-formats
 
   prompt-schema-contract:

@@ -159,7 +159,7 @@ Visual reference for the methodology, source/target adapter model, discovery flo
 
 ## End-to-end example
 
-See [`examples/anthos-vmware-to-eks/`](examples/anthos-vmware-to-eks/) for a fictional but schema-valid 5-cluster / 80-workload walkthrough, including a one-page [executive summary](examples/anthos-vmware-to-eks/00-executive-summary.md) you can hand to a sponsor.
+See [`examples/gke-enterprise-vmware-to-eks/`](examples/gke-enterprise-vmware-to-eks/) for a fictional but schema-valid 5-cluster / 80-workload walkthrough, including a one-page [executive summary](examples/gke-enterprise-vmware-to-eks/00-executive-summary.md) you can hand to a sponsor.
 
 ## License
 
