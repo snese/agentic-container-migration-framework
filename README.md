@@ -102,7 +102,7 @@ Full decision tree with compute-model selection: [`docs/decisions/ecs-vs-eks.md`
 │   │   └── _template/               # Add your own
 │   └── target/
 │       ├── eks/
-│       └── ecs-fargate/
+│       └── ecs/
 ├── prompts/                     # Agent prompts (discovery + modernize)
 ├── schemas/                     # JSON Schema for artifacts
 ├── scripts/                     # Self-export scripts per source
