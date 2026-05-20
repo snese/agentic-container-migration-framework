@@ -26,23 +26,20 @@ Pick one based on customer constraints. See [`docs/discovery/`](../discovery/) f
 | 1. Manifest-only | Lowest | Strict policy / IP-sensitive |
 | 2. Self-export script | Low | Air-gapped, audit-heavy |
 | 3. Read-only creds | Medium | Trusted, online |
-| 4. **Kiro CLI ephemeral** | Medium-low | Default recommended |
-| 5. Strands Agent | Higher | Ongoing optimization only |
+| 4. **Agent-assisted ephemeral** | Medium-low | Default recommended |
+| 5. Persistent agent | Higher | Ongoing optimization only |
 
-### Kiro CLI ephemeral run (recommended path)
+### Agent-assisted ephemeral run (recommended path)
 
-1. Customer installs `kiro` CLI (one-time, can be uninstalled after).
+1. Customer installs [Kiro CLI](https://kiro.dev/docs/cli/) (one-time, can be uninstalled after).
 2. We provide:
-   - `prompts/discovery/gke-enterprise-vmware.prompt.md`
-   - Tool allowlist: `kubectl` (read-only), `gcloud` (read-only), `vmware-govc` (read-only)
-3. Customer runs:
-   ```bash
-   kiro \
-     --prompt-file prompts/discovery/gke-enterprise-vmware.prompt.md \
-     --tools-allow kubectl,gcloud,govc \
-     --output discovery-bundle.json
-   ```
-4. Bundle is encrypted and shared via agreed channel.
+   - The discovery prompt: `prompts/discovery/gke-enterprise-vmware.prompt.md`
+   - Tool allowlist guidance (read-only shell commands only)
+3. Customer runs the agent in headless mode. See [`docs/discovery/README.md`](../discovery/README.md) Option 4 for the exact recipe and flags.
+4. Output: `discovery-bundle.json` conforming to `schemas/discovery-bundle.schema.json`.
+5. Bundle is encrypted and shared via agreed channel.
+
+> The Kiro CLI flag surface evolves quickly. Always verify against your installed version and the [official headless docs](https://kiro.dev/docs/cli/headless/). If the agent CLI cannot be installed, fall back to Option 2 (self-export script) — same output, manual execution.
 
 ### Discovery scope (what we collect)
 
