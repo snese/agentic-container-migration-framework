@@ -1,4 +1,4 @@
-successfully downloaded text file (SHA: 926f0daf4c0c2fef42b85f194f040c75ef7a4dbc)# Agentic Container Migration Framework (ACMF)
+# Agentic Container Migration Framework (ACMF)
 
 > Cut the repetitive parts of a Kubernetes-to-AWS migration — discovery, manifest analysis, wave planning — from days to hours, with auditable AI agents that run in the customer's environment under the customer's control.
 
@@ -12,19 +12,17 @@ It is opinionated about three things: **non-intrusive by default**, **agent-driv
 
 ## Why "Agentic"?
 
-[AWS Transform](https://aws.amazon.com/transform/) is AWS's agentic AI service for enterprise migration and modernization — it handles per-application containerization (Dockerfile generation, IaC, CI/CD pipelines) and VMware workload migration. ACMF operates at a different level:
+Container migrations involve repetitive discovery and analysis work — inventory every cluster, every namespace, every workload's dependencies, storage bindings, identity mappings, and network policies. Traditionally this is done by a senior architect running scripts manually over 5–10 days.
 
-| AWS Transform | ACMF |
-|---|---|
-| Per-application containerization | Portfolio-level K8s platform migration |
-| Source-code analysis → Dockerfile + IaC | K8s manifest translation + architecture decisions |
-| Single workload at a time | Wave-based migration (groups of workloads) |
-| Works when you have source code access | Works when you have K8s API / manifest access |
-| AWS-managed SaaS execution | Ephemeral agent in customer's environment |
+ACMF replaces the manual grind with **ephemeral AI agents** that:
 
-**They are complementary.** For a portfolio that includes both VM-based apps (needing containerization) and already-containerized K8s workloads (needing platform migration), use AWS Transform for the former and ACMF for the latter. See [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
+- Run **inside the customer's environment** (not a cloud-hosted SaaS)
+- Have **read-only access** (no write, no mutate, no exfiltrate)
+- Produce **structured, schema-validated JSON** (not slide decks or tribal knowledge)
+- Are **short-lived** — one run per phase, no persistent collector
+- Keep every prompt, tool call, and output under **version control** (auditable)
 
-ACMF uses **agents as the execution layer** — but agents that are *short-lived, customer-controlled, and auditable*.
+The agent doesn't make migration decisions — it accelerates the data-gathering that humans need to make good decisions. See [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) for the full set of non-negotiable principles.
 
 ## AWS MAP & CAF alignment
 
@@ -32,8 +30,8 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 
 - **Phases** map to MAP's *Assess / Mobilize / Migrate & Modernize*.
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
-- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, **first-class target adapters for EKS and ECS**. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
-- **Relationship to AWS Transform:** ACMF complements [AWS Transform](https://aws.amazon.com/transform/) — Transform handles per-application containerization and VMware migration; ACMF handles container/Kubernetes-native platform migration for workloads that are already running on K8s (GKE Enterprise, GKE, AKS, OpenShift, Rancher). See [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
+- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, first-class target adapters for EKS and ECS. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
+- **Relationship to [AWS Transform](https://aws.amazon.com/transform/):** AWS Transform is a per-application service (Dockerfile generation, IaC scaffolding, code modernization). ACMF is a portfolio-level methodology (K8s platform migration across dozens/hundreds of workloads). They are complementary — ACMF can invoke Transform for workloads that need re-containerization. Details: [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
 Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md).
 
