@@ -1,4 +1,4 @@
-# GDC for VMware (formerly Anthos on VMware) → AWS Assessment Report
+# GKE Enterprise on VMware (formerly Anthos on VMware) → AWS Assessment Report
 
 > **Template usage.** Fill every `<placeholder>`. Each section names the
 > [discovery bundle](../prompts/discovery/gke-enterprise-vmware.prompt.md) field it
@@ -28,14 +28,14 @@
 
 - **Scope.** `<N>` clusters / `<N>` namespaces / `<N>` workloads.
   *(from `scope.clusters[]`, `scope.namespaces_included[]`, `len(workloads[])`)*
-- **Recommended target mix.** `<e.g. EKS Auto Mode for system + ECS Fargate for
-  stateless services + ECS Fargate for 2 HTTP APIs>`. Rationale lives in §6.
+- **Recommended target mix.** `<e.g. EKS Auto Mode for system + ECS for
+  stateless services + ECS for 2 HTTP APIs>`. Rationale lives in §6.
 - **Headline risks.** `<top 3 from §5>`.
-- **Indicative cost delta.** `<+/- X% vs current GDC TCO — see §8>`.
+- **Indicative cost delta.** `<+/- X% vs current GKE Enterprise TCO — see §8>`.
 - **Recommended migration window.** `<weeks>`, gated by §6 dispositions.
 
 > **Example.** *3 clusters, 142 workloads, 11 CRD groups. Recommend EKS Auto Mode
-> for the platform cluster, ECS Fargate for 2 stateless app clusters. Top risks:
+> for the platform cluster, ECS for 2 stateless app clusters. Top risks:
 > 1 unmaintained CRD (`tigera-operator` v1.27), Istio mTLS coupling to internal
 > CA, Oracle DB on vSphere CSI (no AWS-native equivalent).*
 
@@ -45,11 +45,11 @@
 
 **Source field:** `clusters[]` (cross-ref `scope.clusters[]`).
 
-| Cluster | Platform | K8s ver | GDC ver | Nodes | HA control plane | Recommended target |
+| Cluster | Platform | K8s ver | GKE Enterprise ver | Nodes | HA control plane | Recommended target |
 |---|---|---|---|---|---|---|
-| `<bundle.clusters[i].name>` | `<…platform>` | `<…version>` | `<…anthos_version>` | `<sum(node_pools[].count)>` | `<…control_plane.ha>` | `<EKS Auto / ECS Fargate>` |
+| `<bundle.clusters[i].name>` | `<…platform>` | `<…version>` | `<…anthos_version>` | `<sum(node_pools[].count)>` | `<…control_plane.ha>` | `<EKS Auto / ECS>` |
 | **Example: `prod-platform-01`** | `vmware` | `1.28.5-gke.1294` | `1.16.3` | `9 (3 cp + 6 worker)` | `yes` | `EKS Auto Mode` |
-| **Example: `prod-apps-01`** | `vmware` | `1.27.9-gke.1000` | `1.16.3` | `12 worker` | `yes` | `ECS Fargate` |
+| **Example: `prod-apps-01`** | `vmware` | `1.27.9-gke.1000` | `1.16.3` | `12 worker` | `yes` | `ECS` |
 
 Per-cluster node-pool detail, taints, and labels go in **Appendix A** if needed.
 
@@ -152,8 +152,8 @@ with `utilization`, `networking`, `crds`. See
 
 | Workload group | Count | Disposition (7R) | Target | Why |
 |---|---|---|---|---|
-| `<group>` | `<n>` | `<Retain / Relocate / Rehost / Replatform / Repurchase / Refactor / Retire>` | `<EKS Auto / ECS Fargate / RDS / managed SaaS>` | `<one-line reason>` |
-| **Example: stateless web APIs** | `38` | `Replatform` | `ECS Fargate` | No K8s API usage; HPA is only feature in use |
+| `<group>` | `<n>` | `<Retain / Relocate / Rehost / Replatform / Repurchase / Refactor / Retire>` | `<EKS Auto / ECS / RDS / managed SaaS>` | `<one-line reason>` |
+| **Example: stateless web APIs** | `38` | `Replatform` | `ECS` | No K8s API usage; HPA is only feature in use |
 | **Example: platform / system pods** | `22` | `Rehost` | `EKS Auto Mode` | Operators + CRDs in active use |
 | **Example: legacy on-prem batch** | `4` | `Retire` | `—` | Owner confirmed deprecated |
 
@@ -183,17 +183,17 @@ Karpenter / Auto Mode chooses instance types — do not pin SKUs in this report.
 
 ---
 
-## 8. Cost Comparison — GDC TCO vs AWS
+## 8. Cost Comparison — GKE Enterprise TCO vs AWS
 
 **Source fields:** `vmware.hosts[]` (compute baseline), §7 sizing, customer-supplied
 license + datacenter costs (out of bundle scope — capture separately).
 
-| Cost line | Current (GDC / vSphere) | Target (AWS) | Notes |
+| Cost line | Current (GKE Enterprise / vSphere) | Target (AWS) | Notes |
 |---|---|---|---|
-| Compute | `<USD/mo>` | `<USD/mo>` | EKS Auto / ECS Fargate from §7 |
+| Compute | `<USD/mo>` | `<USD/mo>` | EKS Auto / ECS from §7 |
 | Storage | `<USD/mo>` | `<USD/mo>` | EBS gp3 / EFS / S3 — see migration matrix in [`docs/decisions/data-migration-patterns.md`](../docs/decisions/data-migration-patterns.md) |
 | Network egress | `<USD/mo>` | `<USD/mo>` | Direct Connect, NAT, VPC endpoints |
-| GDC license | `<USD/mo>` | `0` | — |
+| GKE Enterprise license | `<USD/mo>` | `0` | — |
 | vSphere / vSAN license | `<USD/mo>` | `0` | If decommissioned |
 | EKS / ECS control plane | `0` | `<USD/mo>` | $0.10/h per EKS cluster; ECS free |
 | **Total / month** | `<…>` | `<…>` | Δ `<+/-%>` |
@@ -201,7 +201,7 @@ license + datacenter costs (out of bundle scope — capture separately).
 
 > Do **not** invent unit prices. Pull from
 > [AWS Pricing Calculator](https://calculator.aws/) and cite the saved estimate URL.
-> GDC / vSphere costs come from the customer; flag any line you had to estimate.
+> GKE Enterprise / vSphere costs come from the customer; flag any line you had to estimate.
 
 ---
 
