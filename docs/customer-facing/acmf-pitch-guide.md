@@ -6,14 +6,14 @@ This is **internal/delivery-side**, but every claim made here can be backed by s
 
 ## When to bring up ACMF
 
-- Customer runs GDC for VMware (formerly Anthos on VMware) / OpenShift / Rancher / self-managed K8s and is evaluating AWS.
+- Customer runs GKE Enterprise on VMware (formerly Anthos) / OpenShift / Rancher / self-managed K8s and is evaluating AWS.
 - They have ≥10 services or ≥1 production cluster — small enough to skip a methodology, but large enough to need one.
-- They have policy constraints (regulated, air-gapped, sovereign) that rule out App2Container / MGN / persistent collectors.
+- They have policy constraints (regulated, air-gapped, sovereign) that rule out persistent collectors or long-running agents.
 - They are already running an AWS MAP engagement and asking "but how do we *actually* do containers?"
 
 ## When **not** to bring up ACMF
 
-- Single Dockerfile, single service, no K8s — point them at AWS Transform's containerization flow and ECS Fargate. ACMF is overkill.
+- Single Dockerfile, single service, no K8s — point them at AWS Transform's containerization flow and ECS. ACMF is overkill.
 - Pure VM lift-and-shift — that is MGN territory. Don't muddy the water.
 - They want a turnkey product. ACMF is a methodology; if they want a SaaS, they want AWS Transform.
 
@@ -24,9 +24,9 @@ This is **internal/delivery-side**, but every claim made here can be backed by s
 ## 5-minute talk track
 
 1. **Frame the problem** (60s). Container migrations are different from VM migrations. The hard part isn't moving the container — it's deciding *what to move where, in what order, with what landing zone*. That is reading manifests, mapping dependencies, sorting waves. Humans do it; it eats weeks.
-2. **Frame the constraint** (30s). Most container customers can't run a persistent collector. GDC for VMware sits behind their firewall; OpenShift is regulated; Rancher is sovereign. So you're back to "send us your YAML" and a Confluence page of decisions.
+2. **Frame the constraint** (30s). Most container customers can't run a persistent collector. GKE Enterprise on VMware sits behind their firewall; OpenShift is regulated; Rancher is sovereign. So you're back to "send us your YAML" and a Confluence page of decisions.
 3. **Introduce the shift** (60s). ACMF replaces the persistent agent with an *ephemeral* one — a coding-agent CLI the customer runs **once**, with a prompt and tool allowlist they can audit. Output is structured JSON; the agent uninstalls. No phone-home, no daemon.
-4. **Tie to AWS standards** (60s). Phases map to MAP. Deliverables hit all six CAF perspectives. Target selection isn't "EKS for everything" — it's a per-workload decision matrix between EKS and ECS Fargate, with the rationale recorded in YAML.
+4. **Tie to AWS standards** (60s). Phases map to MAP. Deliverables hit all six CAF perspectives. Target selection isn't "EKS for everything" — it's a per-workload decision matrix between EKS and ECS, with the rationale recorded in YAML.
 5. **Concrete next step** (30s). Pick a discovery option (we have five, ordered by intrusiveness) and an engagement shape (self-service, SA-assisted, ProServe, or partner — see [`engagement-model.md`](./engagement-model.md)). Walk Phase 1 on a single cluster. You get a discovery bundle, a readiness scorecard, and a draft target-mapping inside one engagement week.
 
 ## Discovery questions
