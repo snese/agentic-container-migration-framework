@@ -10,7 +10,7 @@ If a question here drifts from what the framework currently does, that's a bug �
 
 ### What is ACMF, in one sentence?
 
-A methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (GDC for VMware (formerly Anthos on VMware), OpenShift, Rancher, vanilla K8s) to AWS, using ephemeral AI agents that run under your control rather than persistent collectors.
+A methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (GKE Enterprise on VMware (formerly Anthos), OpenShift, Rancher, vanilla K8s) to AWS, using ephemeral AI agents that run under your control rather than persistent collectors.
 
 ### Is ACMF a product I buy?
 
@@ -141,11 +141,11 @@ ACMF still works. Every analysis prompt doubles as a structured human checklist.
 
 ### Which AWS targets are supported?
 
-Today: **EKS** (including Auto Mode) and **ECS Fargate**. The decision matrix in [`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md) tells you which workload goes where. Hybrid mappings (EKS for system pods, ECS for stateless services) are first-class. (App Runner is in maintenance mode as of 2026-04-30 and is no longer recommended for new workloads.)
+Today: **EKS** (including Auto Mode) and **ECS**. The decision matrix in [`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md) tells you which workload goes where. Hybrid mappings (EKS for system pods, ECS for stateless services) are first-class.
 
 ### Which source platforms are supported?
 
-Today, in priority order: **GDC for VMware** (formerly Anthos on VMware — first reference adapter), then **GDC for Bare Metal** (shares VMware adapter), **GKE** (with GKE Enterprise license, formerly "Anthos on GCP"), OpenShift, Rancher, and vanilla K8s. See [`ROADMAP.md`](../../ROADMAP.md) for status.
+Today, in priority order: **GKE Enterprise on VMware** (formerly Anthos on VMware — first reference adapter), then **GDC for Bare Metal** (shares VMware adapter), **GKE** (with GKE Enterprise license, formerly "Anthos on GCP"), OpenShift, Rancher, and vanilla K8s. See [`ROADMAP.md`](../../ROADMAP.md) for status.
 
 ---
 
@@ -153,15 +153,15 @@ Today, in priority order: **GDC for VMware** (formerly Anthos on VMware — firs
 
 ### …a regulated industry (healthcare, finance, public sector)?
 
-Yes — that is the design center. The five-option discovery menu, evidence-based recommendations, and customer-controlled execution model exist precisely because regulated customers cannot use App2Container or persistent collectors.
+Yes — that is the design center. The five-option discovery menu, evidence-based recommendations, and customer-controlled execution model exist precisely because regulated customers cannot deploy persistent collectors or long-running agents.
 
-### …a multi-cluster GDC for VMware estate?
+### …a multi-cluster GKE Enterprise on VMware estate?
 
-Yes. The GDC for VMware adapter (`adapters/source/gke-enterprise-vmware/`) is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
+Yes. The GKE Enterprise on VMware adapter (`adapters/source/gke-enterprise-vmware/`) is the first reference adapter. Multi-cluster is handled by running discovery per-cluster and aggregating bundles in Phase 2 (Mobilize).
 
 ### …a workload that uses Service Mesh / Operators / CRDs heavily?
 
-Yes — those workloads usually map to EKS. The decision matrix and the GDC for VMware adapter both call this out explicitly. Anthos Service Mesh → Istio on EKS or Amazon VPC Lattice; Anthos Policy Controller → OPA Gatekeeper or Kyverno; Workload Identity → IRSA / EKS Pod Identity.
+Yes — those workloads usually map to EKS. The decision matrix and the GKE Enterprise on VMware adapter both call this out explicitly. Anthos Service Mesh → Istio on EKS or Amazon VPC Lattice; Anthos Policy Controller → OPA Gatekeeper or Kyverno; Workload Identity → IRSA / EKS Pod Identity.
 
 ### …a workload I want to **modernize** (not just migrate)?
 
