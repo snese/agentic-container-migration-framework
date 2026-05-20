@@ -9,11 +9,13 @@
 ## Patterns
 
 - **Cluster topology:** EKS Auto Mode for greenfield, managed node groups for migration
-- **GitOps:** Flux or ArgoCD (mirror Anthos Config Sync structure from GDC sources)
-- **Mesh:** Istio (1:1 from Anthos Service Mesh) or App Mesh
+- **GitOps:** Flux or ArgoCD (mirror Anthos Config Sync structure from GKE Enterprise sources)
+- **Mesh:** Istio (1:1 from GKE Enterprise Service Mesh) or Amazon VPC Lattice (service-to-service)
 - **Policy:** Kyverno (1:1 from Policy Controller) or OPA Gatekeeper
-- **Identity:** IRSA (Pod Identity for newer setups)
+- **Identity:** EKS Pod Identity (preferred) or IRSA (legacy clusters)
 - **Networking:** VPC CNI, NetworkPolicies via Calico
+
+> ⚠️ **AWS App Mesh is deprecated** (maintenance mode 2026-04-30). Do not recommend for new migrations.
 
 ## Planned additions
 
