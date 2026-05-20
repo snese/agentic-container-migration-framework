@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # gke-enterprise-vmware-export.sh
 #
-# ACMF Phase 1 (Assess) — GKE Enterprise on VMware (formerly Anthos) self-export discovery script.
+# ACMF Phase 1 (Assess) — GDC for VMware (formerly Anthos on VMware) self-export discovery script.
 #
 # Produces a JSON discovery bundle conforming to:
 #   schemas/discovery-bundle.schema.json (v0.2.0)
@@ -10,23 +10,30 @@
 #
 # Requirements:
 #   - bash 4+
-#   - kubectl (configured for the target GKE Enterprise cluster)
+#   - kubectl (configured for the target GDC cluster)
 #   - jq
-#   - Optional: gcloud (GKE Enterprise metadata), govc (vSphere layer), kubectl top
+#   - Optional: gcloud (GDC metadata), govc (vSphere layer), kubectl top
 #
 # Usage:
-#   ./gke-enterprise-vmware-export.sh [--dry-run] [--output FILE] [--namespaces "ns1,ns2"]
+#   ./anthos-vmware-export.sh [--dry-run] [--output FILE] [--namespaces "ns1,ns2"]
 #                             [--exclude "kube-system,gke-system,gmp-system"]
 #                             [--cluster-name NAME] [--no-vmware]
 #
 # Examples:
-#   ./gke-enterprise-vmware-export.sh --output bundle.json
-#   ./gke-enterprise-vmware-export.sh --dry-run --output mock.json
+#   ./anthos-vmware-export.sh --output bundle.json
+#   ./anthos-vmware-export.sh --dry-run --output mock.json
 #
 # Validate locally:
 #   npx --yes ajv-cli validate -s schemas/discovery-bundle.schema.json -d bundle.json
 #
 # Exit codes: 0 = success (bundle written), 2 = usage error, 3 = no kubectl access.
+#
+# ─── Validation status ───────────────────────────────────────────────
+# ✅ --dry-run mode: produces schema-valid mock bundle (ajv validated in CI)
+# ⚠️  Real-cluster mode: NOT YET VALIDATED against a live GKE Enterprise cluster.
+#    Expected to work but may need adjustments for specific versions/configs.
+#    Please report issues: https://github.com/snese/agentic-container-migration-framework/issues
+# ─────────────────────────────────────────────────────────────────────
 
 set -uo pipefail
 
