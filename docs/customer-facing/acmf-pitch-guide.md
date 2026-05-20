@@ -14,7 +14,7 @@ This is **internal/delivery-side**, but every claim made here can be backed by s
 ## When **not** to bring up ACMF
 
 - Single Dockerfile, single service, no K8s — point them at AWS Transform's containerization flow and ECS. ACMF is overkill.
-- Pure VM lift-and-shift — that is MGN territory. Don't muddy the water.
+- Pure VM lift-and-shift — that is  territory. Don't muddy the water.
 - They want a turnkey product. ACMF is a methodology; if they want a SaaS, they want AWS Transform.
 
 ## 30-second pitch
