@@ -1,0 +1,51 @@
+# Sample Anthos Deployment with Workload Identity SA + ASM sidecar.
+# Used as test fixture for adapters/source/gke-enterprise-vmware/manifest-transforms.yaml.
+#
+# Apply rules: workload_identity_to_pod_identity, asm_revision_label_strip,
+#              registry_gcr_to_ecr, drop_anthos_managed_labels.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-api-sa
+  namespace: payments
+  annotations:
+    iam.gke.io/gcp-service-account: payment-api@my-project.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+  namespace: payments
+  labels:
+    app: payment-api
+    addons.gke.io/managed: "true"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: payment-api
+  template:
+    metadata:
+      labels:
+        app: payment-api
+        istio.io/rev: asm-1-20-2-asm-2
+      annotations:
+        mesh.cloud.google.com/proxy: '{"managed":"true"}'
+    spec:
+      serviceAccountName: payment-api-sa
+      containers:
+        - name: api
+          image: gcr.io/my-project/payments/api:v1.42.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests: { cpu: 500m, memory: 512Mi }
+            limits:   { cpu: "1",   memory: 1Gi }
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef: { name: db-config, key: host }
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-secret, key: password }
