@@ -11,7 +11,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 | v0.3 | Phase 4 Wave A scaffolding | IRSA→Pod Identity, Karpenter right-sizing, observability uplift drafts |
 | v0.4 | MAP/CAF alignment + discovery option set | Five-option discovery menu, MCP augmentation note, schemas/discovery-bundle.schema.json v0.2.0 |
 | v0.5 | Phase 4 Wave A shipped | IRSA→Pod Identity, Karpenter, observability uplift playbooks under `docs/playbooks/`; right-sizing prompt |
-| v0.6 | Cleanup + compute-model decision docs | App Runner deprecation, ECS/EKS compute-model decision docs, GKE Enterprise naming carve-out, README copy fixes |
+| v0.6 | Cleanup + compute-model decision docs | ECS/EKS compute-model decision docs, GKE Enterprise naming carve-out, README copy fixes |
 
 ## Phase 1 — Assess
 
@@ -35,7 +35,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 |---|---|---|
 | Workload assessment prompt + per-workload report template | 🔜 | |
 | Wave-grouping heuristics doc | 🔜 | |
-| Reference landing-zone Terraform module | 🔜 | EKS Auto Mode + ECS Fargate baseline |
+| Reference landing-zone Terraform module | 🔜 | EKS Auto Mode + ECS baseline |
 | Reference landing-zone CDK alternative | 🔜 | After Terraform reference |
 
 ## Phase 3 — Migrate
@@ -63,9 +63,9 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 | Item | Status | Notes / Issue |
 |---|---|---|
 | GitOps maturity scorecard prompt | 🔜 | Prompt scaffolded at `prompts/modernize/gitops-maturity-scorecard.prompt.md`; companion playbook + reference scoring fixtures pending |
-| Service Mesh simplification playbook | 🔜 | Istio → VPC Lattice / Service Connect simplification paths; App Mesh is deprecated (see ECS-vs-EKS decision) |
+| Service Mesh simplification playbook | 🔜 | Istio → VPC Lattice / Service Connect simplification paths |
 | Security hardening playbook | 🔜 | NetworkPolicies, image scanning, admission policies, IMDSv2 enforcement |
-| Decision doc: EKS Auto Mode vs ECS Fargate cost-model worksheet | 🔜 | Real workload baselines required |
+| Decision doc: EKS Auto Mode vs ECS cost-model worksheet | 🔜 | Real workload baselines required |
 | Decision doc: when to refactor to Lambda / serverless data pipeline | 🔜 | Deferred Refactor (7 Rs) decision template |
 | Templates: optimization-backlog.md, runbook, on-call rotation | 🔜 | Phase 4 outputs |
 | Optional Strands-based ongoing optimization agent recipe | 🔜 | Phase 4 only; opt-in (see CONSTITUTION §1) |
@@ -96,9 +96,8 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 |---|---|---|
 | Target: EKS — reference Terraform module | 🔜 | |
 | Target: EKS — reference Helm umbrella chart | 🔜 | |
-| Target: ECS Fargate — reference Terraform module | 🔜 | |
-| Target: ECS Fargate — Service Connect migration recipe from Istio | 🔜 | |
-| ~~Target: App Runner~~ | ⛔ | Maintenance mode 2026-04-30; no new customers. Use ECS Fargate instead. [#37](https://github.com/snese/agentic-container-migration-framework/issues/37) |
+| Target: ECS — reference Terraform module | 🔜 | |
+| Target: ECS — Service Connect migration recipe from Istio | 🔜 | |
 
 ## Customer-facing
 
@@ -113,7 +112,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 | Item | Status | Notes |
 |---|---|---|
 | Concrete cost models per ECS-vs-EKS pattern | 🔜 | Need real customer baselines |
-| EKS Auto Mode vs ECS Fargate cost comparison for equivalent workloads | 🔜 | |
+| EKS Auto Mode vs ECS cost comparison for equivalent workloads | 🔜 | |
 | Multi-region story per target (EKS / ECS) | 🔜 | |
 | Live-migration via mesh federation (GKE Enterprise ↔ EKS) | 🔜 | Advanced pattern |
 
