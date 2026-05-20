@@ -17,7 +17,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes / Issue |
 |---|---|---|
-| GKE Enterprise on VMware discovery prompt + JSON Schema | 🚧 | First reference adapter (formerly Anthos on VMware) |
+| GKE Enterprise on VMware discovery prompt + JSON Schema | ✅ | First reference adapter (formerly Anthos on VMware) |
 | Self-export bash script (`scripts/discovery/gke-enterprise-vmware-export.sh`) | ✅ | Option 2 of the discovery menu |
 | Self-export bash script (`scripts/discovery/gke-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster GKE specifics (gcloud, Workload Identity) pending |
 | Self-export bash script (`scripts/discovery/aks-export.sh`) | ✅ / 🟡 | Entry + dry-run schema-valid; real-cluster AKS specifics (az, Azure AD, Workload Identity) pending |
@@ -83,7 +83,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes |
 |---|---|---|
-| Source: GKE Enterprise on VMware (formerly Anthos) | 🚧 | First reference; `adapters/source/gke-enterprise-vmware/` |
+| Source: GKE Enterprise on VMware (formerly Anthos) | ✅ | First reference; `adapters/source/gke-enterprise-vmware/` |
 | Source: GKE Enterprise on Bare Metal (formerly Anthos) | ✅ | Shares VMware adapter with `--platform=bare-metal` flag (skips vSphere discovery) |
 | Source: GKE (cloud-native, on GCP) | 🔜 | Standard GKE + GKE Enterprise fleet; `adapters/source/gke/` |
 | Source: AKS (Azure) | 🔜 | Azure AD, Azure CNI, Azure Disk/File CSI; `adapters/source/aks/` |
@@ -121,7 +121,7 @@ Single source of truth for planned-but-not-yet-done work. When you are tempted t
 
 | Item | Status | Notes |
 |---|---|---|
-| License selection for first public release | 🔜 | Apache-2.0 candidate; not finalized |
+| License selection for first public release | ✅ | Apache-2.0 shipped (v0.4, commit fe2ec8d) |
 | `CODEOWNERS` and review policy | 🔜 | |
 | Constitution v0.2 amendment cycle | 🔜 | After first real engagement feedback |
 
