@@ -38,7 +38,6 @@ GKE Enterprise on VMware clusters (formerly "Anthos on-prem" / "Anthos clusters 
 > **Why ArgoCD as default over Flux?**
 > ArgoCD has higher market adoption, more mature multi-cluster support (ApplicationSets), and built-in UI for migration validation.
 
-> ⚠️ **AWS App Mesh is deprecated** (EOL announced 2024, no new features). Do not recommend for new migrations.
 
 ## Known gotchas
 
