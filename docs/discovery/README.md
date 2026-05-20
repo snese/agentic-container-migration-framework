@@ -4,7 +4,7 @@ Five options, ordered from least to most intrusive. Pick based on customer polic
 
 ## Option 1: Manifest-Only
 
-**Mechanism:** Customer ships Helm charts, K8s YAML, Anthos Config Sync repo (or other source-of-truth GitOps repo). We analyze offline.
+**Mechanism:** Customer ships Helm charts, K8s YAML, or GitOps repo (Config Sync, ArgoCD, Flux). We analyze offline.
 
 **Pros:**
 - Zero customer environment access
@@ -21,7 +21,7 @@ Five options, ordered from least to most intrusive. Pick based on customer polic
 
 ## Option 2: Self-Export Script
 
-**Mechanism:** We provide pure bash script using only `kubectl`, `gcloud`, `govc` (all read-only). Customer runs, ships output bundle.
+**Mechanism:** We provide a pure bash script using `kubectl` (and optionally platform-specific CLIs like `gcloud`, `govc`, `az`, or `oc` depending on the source adapter). All commands are read-only. Customer runs the script and ships the output bundle.
 
 **Pros:**
 - Auditable (customer reads every line)
@@ -34,7 +34,12 @@ Five options, ordered from least to most intrusive. Pick based on customer polic
 
 **Use when:** Air-gapped, regulated, or customer needs to vet every command.
 
-See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discovery/gke-enterprise-vmware-export.sh).
+Available scripts:
+- GKE Enterprise on VMware: [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discovery/gke-enterprise-vmware-export.sh)
+- GKE: [`scripts/discovery/gke-export.sh`](../../scripts/discovery/gke-export.sh) (stub)
+- AKS: [`scripts/discovery/aks-export.sh`](../../scripts/discovery/aks-export.sh) (stub)
+- OpenShift: [`scripts/discovery/openshift-export.sh`](../../scripts/discovery/openshift-export.sh) (stub)
+- Rancher: [`scripts/discovery/rancher-export.sh`](../../scripts/discovery/rancher-export.sh) (stub)
 
 ---
 
@@ -52,13 +57,15 @@ See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discover
 
 **Use when:** Online environments, established trust.
 
+> ⚠️ **This is the only discovery option where data leaves the customer's environment.** All other options keep the bundle on-premises until the customer explicitly shares it. Ensure the customer's security and compliance teams approve this approach before proceeding.
+
 ---
 
 ## Option 4: Agent-Assisted Ephemeral Run ⭐ (recommended default)
 
-**Reference runtime:** [Kiro CLI](https://kiro.dev/docs/cli/installation/) in [headless mode](https://kiro.dev/docs/cli/headless/) (publicly available; supports `--no-interactive`, tool trust allowlist via `--trust-tools`, and API-key auth via `KIRO_API_KEY`). Any agent harness with equivalent guarantees works; ACMF does not lock you in.
+**Reference runtime:** [Kiro CLI](https://kiro.dev/docs/cli/) in [headless mode](https://kiro.dev/docs/cli/headless/). Any agent harness with equivalent guarantees (non-interactive execution, tool allowlisting, structured output) works; ACMF does not lock you in.
 
-**Mechanism:** Customer installs the agent CLI temporarily. We provide a prompt file + tool allowlist. Customer runs, gets structured output, can uninstall after.
+**Mechanism:** Customer installs the agent CLI temporarily. We provide a prompt file + tool allowlist guidance. Customer runs, gets structured output, can uninstall after.
 
 **Pros:**
 - Agent-driven (handles edge cases gracefully)
@@ -75,34 +82,31 @@ See [`scripts/discovery/gke-enterprise-vmware-export.sh`](../../scripts/discover
 
 **Recipe:**
 ```bash
-# Customer side. Kiro CLI headless mode reads the prompt as a positional
-# argument (no --prompt-file flag is documented today — inline via $(cat)).
-# The tool allowlist uses --trust-tools (comma-separated). Output is captured
-# from stdout; the prompt itself instructs the agent to emit a JSON bundle
-# conforming to schemas/discovery-bundle.schema.json.
+# Customer side — Kiro CLI headless mode.
+# Verify exact flags against your installed version:
+#   kiro-cli --help
+#   https://kiro.dev/docs/cli/headless/
 
-export KIRO_API_KEY="<customer-issued-key>"
+export KIRO_API_KEY="<customer-provisioned-key>"
 
 kiro-cli chat --no-interactive \
   --trust-tools=read,grep,execute_bash \
-  "$(cat acmf/prompts/discovery/gke-enterprise-vmware.prompt.md)" \
+  "$(cat prompts/discovery/gke-enterprise-vmware.prompt.md)" \
   > discovery-bundle.json
 
-# Encrypt and ship
-age -r <our-pubkey> -o discovery-bundle.json.age discovery-bundle.json
+# Validate output against schema
+npx ajv-cli validate -s schemas/discovery-bundle.schema.json -d discovery-bundle.json
+
+# Encrypt and share via agreed channel (example using age encryption)
+# age: https://github.com/FiloSottile/age — modern file encryption tool
+age -r <recipient-public-key> -o discovery-bundle.json.age discovery-bundle.json
 ```
 
-> **[VERIFICATION-PENDING]** Kiro CLI headless flags above are sourced from
-> <https://kiro.dev/docs/cli/headless/> (binary name `kiro-cli`, `--no-interactive`,
-> `--trust-tools`, `--trust-all-tools`, `KIRO_API_KEY`). Confirm against the
-> version installed in your environment — the public docs render client-side
-> and the flag surface evolves quickly (see issue
-> [kirodotdev/Kiro#5423](https://github.com/kirodotdev/Kiro/issues/5423) for
-> in-flight machine-readable output flags).
+> **Note:** Kiro CLI's flag surface evolves across releases. The recipe above reflects [Kiro CLI 2.x headless mode](https://kiro.dev/docs/cli/headless/). Verify `--trust-tools` categories and authentication method against your installed version. The core pattern (non-interactive + tool allowlist + prompt as input) is stable across versions.
 
-**Optional augmentation:** MCP servers (e.g. AWS Knowledge MCP) can give the
-agent richer context during discovery. This is **opt-in** and disabled by
-default — see [`mcp-augmentation.md`](./mcp-augmentation.md).
+**Skills:** The discovery prompt can also be packaged as a [Kiro Skill](https://kiro.dev/changelog/cli/1-24/) for progressive context loading in complex multi-cluster environments. This is optional — the raw prompt file works standalone.
+
+**Optional MCP augmentation:** MCP servers (e.g. AWS Knowledge MCP) can give the agent richer context during discovery. This is **opt-in** and disabled by default — see [`mcp-augmentation.md`](./mcp-augmentation.md).
 
 See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discovery/gke-enterprise-vmware.prompt.md).
 
@@ -110,13 +114,13 @@ See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discover
 
 ## Option 5: Persistent Agent Runtime (opt-in, optimization phase only)
 
-> **Status: placeholder, no reference implementation in repo today.** Strands Agents SDK is publicly available, but ACMF does not currently ship a reference recipe for Phase 4 persistent-agent runtime. Tracked in [ROADMAP.md](../../ROADMAP.md) under Phase 4.
+> **Status: placeholder — no reference implementation in repo today.** Tracked in [ROADMAP.md](../../ROADMAP.md) under Phase 4.
 
 **Reference runtime:** [Strands Agents SDK](https://strandsagents.com/) ([GitHub](https://github.com/strands-agents/sdk-python)) — open-source, model-agnostic. Any persistent runtime under customer control works.
 
 **Mechanism:** Longer-lived agent running in customer env for ongoing optimization recommendations.
 
-**Use when:** Phase 5 (Optimize) only, with explicit customer opt-in. **Not for discovery.**
+**Use when:** Phase 4 (Modernize) only, with explicit customer opt-in. **Not for discovery.**
 
 ---
 
@@ -125,7 +129,7 @@ See [`prompts/discovery/gke-enterprise-vmware.prompt.md`](../../prompts/discover
 ```
 Air-gapped or extreme policy?              → Option 1 or 2
 Want auditability + automation?            → Option 4 (agent-assisted)
-Online + trusted + want fastest path?      → Option 3
-Phase 5 ongoing optimization?              → Option 5
+Online + trusted + want fastest path?      → Option 3 (data leaves customer env)
+Phase 4 ongoing optimization?              → Option 5
 Default recommendation:                    → Option 4
 ```
