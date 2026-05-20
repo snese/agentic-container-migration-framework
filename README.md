@@ -1,12 +1,12 @@
-# Agentic Container Migration Framework (ACMF)
+successfully downloaded text file (SHA: 926f0daf4c0c2fef42b85f194f040c75ef7a4dbc)# Agentic Container Migration Framework (ACMF)
 
 > Cut the repetitive parts of a Kubernetes-to-AWS migration — discovery, manifest analysis, wave planning — from days to hours, with auditable AI agents that run in the customer's environment under the customer's control.
 
-**Container migrations don't have to be quarter-long swamps.** ACMF is a methodology that uses *ephemeral* AI agents (not persistent collectors) to compress the assessment-and-planning grind that historically takes a senior architect 5–10 days into a 1–2 hour structured run, with every prompt, tool call, and output under version control[^1].
+**Container migrations don't have to be quarter-long swamps.** ACMF is a methodology that uses *ephemeral* AI agents (not persistent collectors) to compress the assessment-and-planning grind that historically takes a senior architect 5–10 days into a 1–2 hour structured run, with every prompt, tool call, and output under version control.
 
 It is opinionated about three things: **non-intrusive by default**, **agent-driven but human-judged**, and **MAP/CAF-aligned** — so it slots into AWS engagements that already speak the standard language.
 
-[^1]: Internal benchmark on multi-cluster GKE Enterprise on VMware engagements (≈100–200 workloads). Manual, SA-led discovery and manifest analysis runs 5–10 working days; the same scope on Discovery Option 4 (agent-assisted, see below) typically completes in 1–2 hours of agent runtime plus human review. Customer-specific results vary; ACMF surfaces a per-engagement baseline as an Assess-phase artifact rather than a marketing claim.
+
 
 **Status:** 🚧 v0.6 draft — GKE Enterprise on VMware → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
 
@@ -32,7 +32,7 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 
 - **Phases** map to MAP's *Assess / Mobilize / Migrate & Modernize*.
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
-- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, **first-class target adapters for EKS and ECS Fargate**. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
+- **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, **first-class target adapters for EKS and ECS**. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
 - **Relationship to AWS Transform:** ACMF complements [AWS Transform](https://aws.amazon.com/transform/) — Transform handles per-application containerization and VMware migration; ACMF handles container/Kubernetes-native platform migration for workloads that are already running on K8s (GKE Enterprise, GKE, AKS, OpenShift, Rancher). See [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
 Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md).
@@ -51,7 +51,7 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 
 ## Source / Target Matrix
 
-| Source ↓ / Target → | EKS | ECS (Fargate) |
+| Source ↓ / Target → | EKS | ECS |
 |---|---|---|
 | **GKE Enterprise on VMware** (formerly Anthos) | ✅ Primary | ✅ Selective |
 | **GKE Enterprise on Bare Metal** (formerly Anthos) | ✅ Shares VMware adapter | ✅ Selective |
@@ -158,7 +158,3 @@ See [`examples/gke-enterprise-vmware-to-eks/`](examples/gke-enterprise-vmware-to
 ## License
 
 This project is licensed under the [Apache License, Version 2.0](./LICENSE). See [`NOTICE`](./NOTICE) for attribution. Contributions are accepted under the same license — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
-
-## Contact
-
-Hung-Che Lo · `hclo@snese.net`
