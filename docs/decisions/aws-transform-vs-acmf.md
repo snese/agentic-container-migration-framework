@@ -21,9 +21,9 @@ Transform is a managed AWS service. The unit of work is **an application**.
 
 ACMF is an open methodology for migrating a **container portfolio** (multiple workloads, often multiple clusters) from a non-AWS Kubernetes platform to AWS. It covers:
 
-- Cluster-level discovery across GDC for VMware (formerly Anthos on VMware), OpenShift, Rancher, vanilla K8s
+- Cluster-level discovery across GKE Enterprise on VMware (formerly Anthos), OpenShift, Rancher, vanilla K8s
 - Migration Readiness Assessment (MRA) across all six AWS CAF perspectives
-- Per-workload target-service selection (EKS vs ECS Fargate)
+- Per-workload target-service selection (EKS vs ECS)
 - Wave planning, landing-zone preparation, cutover/rollback design
 - Modernization (right-sizing, GitOps, SRE) post-cutover
 - Anonymized case-study production
@@ -36,9 +36,9 @@ The unit of work is **a cluster, an estate, or a migration wave**.
 |---|---|---|---|
 | 1 | Single Java/.NET app on a VM, customer wants it containerized and deployed on AWS | **AWS Transform** | Single-application containerization is exactly Transform's sweet spot. ACMF would be heavyweight overhead. |
 | 2 | Single legacy app already in a container, just needs to land on ECS | **AWS Transform** | Per-app deploy automation, no portfolio decisions needed. |
-| 3 | A 50-workload GDC for VMware cluster moving to AWS | **ACMF** | Portfolio-level decisions (EKS vs ECS per workload, wave plan, landing zone) dominate. Transform doesn't address those. |
+| 3 | A 50-workload GKE Enterprise on VMware cluster moving to AWS | **ACMF** | Portfolio-level decisions (EKS vs ECS per workload, wave plan, landing zone) dominate. Transform doesn't address those. |
 | 4 | A regulated/air-gapped OpenShift estate moving to AWS | **ACMF** | Discovery options 1–2 (manifest-only / self-export) are required by policy; persistent agents are non-starters. ACMF's non-intrusive defaults match. |
-| 5 | A multi-cluster mixed estate (GDC + Rancher + a few VMs) | **ACMF**, with Transform invoked inside the Migrate phase for individual apps that need containerization rework | Portfolio shape requires methodology; per-app rework benefits from Transform. |
+| 5 | A multi-cluster mixed estate (GKE Enterprise + Rancher + a few VMs) | **ACMF**, with Transform invoked inside the Migrate phase for individual apps that need containerization rework | Portfolio shape requires methodology; per-app rework benefits from Transform. |
 | 6 | A customer who has already shipped manifests and just needs them deployed on AWS | **ACMF (lightweight)** — Phase 2 (Mobilize) onwards | No source-platform discovery needed; Transform doesn't add value if the manifests are ready. |
 | 7 | A customer running a single application on a single small K8s cluster, mostly stateless | **AWS Transform** for the application; ACMF only if cluster-level concerns (mesh, networking) actually exist | One workload, one decision — Transform's scope is enough. |
 
@@ -50,7 +50,7 @@ ACMF and Transform compose cleanly:
 
 ```
 ACMF Phase 1 (Assess)        ──→  Discover + score the portfolio
-ACMF Phase 2 (Mobilize)      ──→  Per-workload target decision (EKS/ECS Fargate) + landing zone
+ACMF Phase 2 (Mobilize)      ──→  Per-workload target decision (EKS/ECS) + landing zone
 ACMF Phase 3 (Migrate)       ──→  For each workload that needs containerization or per-app refactoring,
                                   invoke AWS Transform here. ACMF treats Transform as one of the tools
                                   available inside the Migrate phase.
@@ -62,10 +62,10 @@ Specifically, Transform is most useful inside ACMF Phase 3 in these cases:
 
 - A workload's 7 Rs decision is **Replatform** or **Refactor** at the application level (not just a manifest port)
 - An application needs a Dockerfile generated or modernized as part of the move
-- A specific service is being relocated to ECS Fargate from a custom container build
+- A specific service is being relocated to ECS from a custom container build
 - Per-app CI/CD scaffolding is needed and the customer doesn't have an existing pipeline
 
-If the workload's 7 Rs decision is **Rehost** (manifest port — GDC manifest → EKS manifest), Transform is usually unnecessary. The work is at the K8s manifest layer, which is ACMF's home turf.
+If the workload's 7 Rs decision is **Rehost** (manifest port — GKE Enterprise manifest → EKS manifest), Transform is usually unnecessary. The work is at the K8s manifest layer, which is ACMF's home turf.
 
 ## Anti-patterns
 
