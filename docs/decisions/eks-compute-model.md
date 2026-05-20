@@ -96,7 +96,7 @@ Mixing compute models means tracking **two upgrade clocks** per cluster:
 - **Auto Mode** manages the node OS (Bottlerocket) and kubelet for you and stays within EKS's supported skew window.
 - **Fargate profiles** track the control-plane version automatically; no node-side action needed.
 
-Keep an explicit checklist per cluster: control-plane minor → Managed NG version → Karpenter NodeClass AMI → add-ons. [VERIFICATION-PENDING] [EKS version skew policy](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html).
+Keep an explicit checklist per cluster: control-plane minor → Managed NG version → Karpenter NodeClass AMI → add-ons. [EKS version skew policy](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html). See also upstream [Kubernetes version skew policy](https://kubernetes.io/docs/setup/version-skew-policy/) (kubelet may be up to 3 minor versions behind kube-apiserver as of K8s ≥ 1.28).
 
 ## References
 
