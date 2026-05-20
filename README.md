@@ -1,4 +1,4 @@
-# Agentic Container Migration Framework (ACMF)
+successfully downloaded text file (SHA: 5da2c9702fd7fd319898613753ef4f2e37551883)# Agentic Container Migration Framework (ACMF)
 
 > Cut the repetitive parts of a Kubernetes-to-AWS migration — discovery, manifest analysis, wave planning — from days to hours, with auditable AI agents that run in the customer’s environment under the customer’s control.
 
@@ -10,23 +10,19 @@ It is opinionated about three things: **non-intrusive by default**, **agent-driv
 
 **Status:** 🚧 v0.6 draft — GKE Enterprise on VMware → AWS as the first reference scenario. See [ROADMAP.md](./ROADMAP.md).
 
-## Why “Agentic”?
+## Why "Agentic"?
 
-**Traditional AWS migration tooling — App2Container, AWS MGN, and Migration Evaluator** — assumes one of:
-- You can install a long-running agent in the customer environment, **or**
-- The workload is VM-based, **or**
-- A consultant runs scripts manually.
+[AWS Transform](https://aws.amazon.com/transform/) is AWS's agentic AI service for enterprise migration and modernization — it excels at per-application containerization (Dockerfile generation, IaC scaffolding, CI/CD pipeline creation). ACMF operates at a different altitude: **portfolio-level Kubernetes platform migration** — architecture decisions, manifest translation, wave planning, and traffic shifting across dozens or hundreds of workloads.
 
-These work well for VM-shaped estates. They are a poor fit for K8s-native, regulated, or customer-controlled container workloads.
-
-Container workloads — especially in regulated, air-gapped, or customer-sensitive environments — need a different shape:
-
-| Traditional | ACMF |
+| AWS Transform | ACMF |
 |---|---|
-| Persistent agent (App2Container, MGN replication agent) | Ephemeral agent run |
-| VM-centric tooling | Container/K8s-native |
-| Manual discovery scripts | LLM-assisted analysis with auditable prompts |
-| One-shot lift-and-shift | Decision-tree-based target selection (EKS vs ECS) |
+| Per-application containerization | Portfolio-level K8s platform migration |
+| Source code analysis → Dockerfile + IaC | Cluster inventory → architecture decisions + wave plan |
+| Long-running workspace (collaborative) | Ephemeral agent run (customer-controlled, read-only) |
+| VM / source-code → container | Container → container (cross-platform K8s) |
+| Generates infrastructure | Links to infrastructure (EKS Blueprints, CDK) |
+
+They are **complementary**: ACMF can invoke AWS Transform inside Phase 3 for workloads that need re-containerization. For workloads already running on Kubernetes (the primary ACMF scenario), manifest translation replaces Dockerfile generation.
 
 ACMF uses **agents as the execution layer** — but agents that are *short-lived, customer-controlled, and auditable*.
 
@@ -37,9 +33,9 @@ ACMF is designed to plug into customer engagements that already speak AWS [Migra
 - **Phases** map to MAP’s *Assess / Mobilize / Migrate & Modernize*.
 - **Deliverables** cover all six AWS CAF perspectives (Business / People / Governance / Platform / Security / Operations).
 - **Where ACMF extends MAP:** container-native 7 Rs, agentic discovery for hybrid / air-gapped sources, **first-class target adapters for EKS and ECS Fargate**. Non-AWS source adapters currently include GKE Enterprise on VMware (reference implementation); GKE, AKS, OpenShift, and Rancher / vanilla K8s are on the [roadmap](./ROADMAP.md).
-- **Relationship to MAP's bundled discovery tooling:** ACMF complements (does not replace) [App2Container](https://docs.aws.amazon.com/app2container/latest/UserGuide/what-is-a2c.html), [AWS MGN](https://docs.aws.amazon.com/mgn/latest/ug/what-is-application-migration-service.html), and [AWS Migration Evaluator](https://aws.amazon.com/migration-evaluator/) — each of which is an AWS-native service rather than a partner tool. ACMF picks up where these stop: container/Kubernetes-native discovery for sources those tools don't cover (GKE Enterprise, GKE, AKS, OpenShift, Rancher).
+- **Relationship to AWS Transform:** ACMF complements [AWS Transform](https://aws.amazon.com/transform/) — Transform handles per-application containerization and code modernization; ACMF handles cross-platform K8s discovery, architecture decisions, and portfolio-level migration orchestration for sources that are already containerized (GKE Enterprise, GKE, AKS, OpenShift, Rancher). See [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
-Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md). For the relationship with [AWS Transform](https://aws.amazon.com/transform/), see [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
+Full mapping: [`docs/methodology/00-overview.md`](docs/methodology/00-overview.md). Non-negotiable principles: [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md).
 
 ## Framework Phases
 
@@ -72,8 +68,6 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 > - **GDC (Google Distributed Cloud)** = Hardware + software bundle; Google ships and maintains physical racks at customer site. Air-gapped/sovereignty/edge use cases
 >
 > ACMF primarily targets **GKE Enterprise** (on VMware/Bare Metal) migrations, which represent the vast majority of “Anthos to AWS” customer scenarios.
-
-> Deprecated targets (e.g. AWS App Runner — maintenance mode 2026-04-30) are tracked in [ROADMAP.md](./ROADMAP.md).
 
 ## Non-Intrusive Discovery Options
 
@@ -140,7 +134,7 @@ Compute-model selection (Fargate vs EC2 vs Auto Mode vs Karpenter vs Managed Nod
 └── examples/                              # End-to-end walkthroughs
 ```
 
-Planned source adapters (see [ROADMAP.md](./ROADMAP.md)) will land under `adapters/source/` with these directory names: `gke/`, `aks/`, `openshift/`, `rancher/`. Deprecated adapters (e.g. App Runner, see ROADMAP) live under `adapters/target/_deprecated/` and are not part of the supported public structure.
+Planned source adapters (see [ROADMAP.md](./ROADMAP.md)) will land under `adapters/source/` with these directory names: `gke/`, `aks/`, `openshift/`, `rancher/`.
 
 ## Getting Started
 
@@ -159,7 +153,7 @@ Visual reference for the methodology, source/target adapter model, discovery flo
 
 ## End-to-end example
 
-See [`examples/anthos-vmware-to-eks/`](examples/anthos-vmware-to-eks/) for a fictional but schema-valid 5-cluster / 80-workload walkthrough, including a one-page [executive summary](examples/anthos-vmware-to-eks/00-executive-summary.md) you can hand to a sponsor.
+See [`examples/gke-enterprise-vmware-to-eks/`](examples/gke-enterprise-vmware-to-eks/) for a fictional but schema-valid 5-cluster / 80-workload walkthrough, including a one-page [executive summary](examples/gke-enterprise-vmware-to-eks/00-executive-summary.md) you can hand to a sponsor.
 
 ## License
 
