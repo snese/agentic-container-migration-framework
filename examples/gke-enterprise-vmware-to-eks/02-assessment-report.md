@@ -1,6 +1,6 @@
 # Assessment Report — ACME Corp (fictional)
 
-**Engagement:** GKE Enterprise on VMware (formerly Anthos on VMware) → AWS (EKS + ECS Fargate)
+**Engagement:** GKE Enterprise on VMware (formerly Anthos on VMware) → AWS (EKS + ECS)
 **Phase:** 1 — Assess
 **Source data:** [`01-discovery-bundle.json`](./01-discovery-bundle.json) (schema v0.2.0)
 **Date:** 2026-05-19
@@ -22,9 +22,9 @@ but ACME wants to exit VMware and consolidate on AWS within 16 weeks.
 **Recommended target:** Amazon EKS (us-east-1 primary, ap-east-2 DR) with the AWS
 Load Balancer Controller, EBS CSI (gp3 default, io2 for stateful), Pod Identity,
 and Istio (open-source) replacing Anthos Service Mesh. Batch CronJobs/Jobs move
-to ECS Fargate (see [`docs/decisions/ecs-vs-eks.md`](../../docs/decisions/ecs-vs-eks.md)).
+to ECS (see [`docs/decisions/ecs-vs-eks.md`](../../docs/decisions/ecs-vs-eks.md)).
 Edge cluster is a candidate for **EKS Hybrid Nodes** or AWS Outposts — keep
-local-path storage, replace ASM with App Mesh-lite or single-cluster Istio.
+local-path storage, replace ASM with Amazon VPC Lattice or single-cluster Istio.
 
 **Confidence:** High for stateless workloads (54 / 80). Medium for stateful
 (13 / 80) due to data-migration coupling. Three workloads need human review
@@ -114,7 +114,7 @@ Based on `utilization.summary` and `node_pools`:
 - Target sizing (with 25% headroom on p95):
   - vCPU: `96 × 0.78 / 0.75 ≈ 100` → **2× managed node group** (one per AZ pair),
     e.g. **10× `m6i.2xlarge` (80 vCPU / 320 GiB)** + Karpenter for overflow.
-  - For batch (12 CronJobs/Jobs): **ECS Fargate** (no idle cost).
+  - For batch (12 CronJobs/Jobs): **ECS** (no idle cost).
   - For DR (us-west-2): **3× `m6i.2xlarge`** warm-pool, scale on cutover.
   - For edge (KHH POP): **EKS Hybrid Nodes**, 3× existing baremetal hosts.
   - For stateful: **RDS PostgreSQL Multi-AZ** (4 instances), **ElastiCache**
