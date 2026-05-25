@@ -1,6 +1,6 @@
 # Wave Plan — ACME Corp
 
-**Engagement:** GKE Enterprise on VMware (formerly Anthos on VMware) → AWS (EKS + ECS Fargate)
+**Engagement:** GKE Enterprise on VMware (formerly Anthos on VMware) → AWS (EKS + ECS)
 **Phase:** 2 — Mobilize
 **Inputs:** [`02-assessment-report.md`](./02-assessment-report.md)
 
@@ -24,7 +24,7 @@ Wave selection criteria (in priority order):
 - Goal: prove EKS + ArgoCD + ALB Ingress + Pod Identity end-to-end on
   non-critical workloads.
 - Cutover style: blue/green via DNS, 24h soak.
-- Exit criteria: zero rollbacks, p95 latency parity with GDC baseline.
+- Exit criteria: zero rollbacks, p95 latency parity with source baseline.
 
 ## Wave 2 — Stateless production (week 3–6)
 
@@ -35,7 +35,7 @@ Wave selection criteria (in priority order):
 - Cutover style: traffic shifting via Route 53 weighted records (10% → 50%
   → 100%). See [traffic-shifting playbook](../../docs/playbooks/traffic-shifting.md).
 - ASM → Istio (open source) installed at start of wave. ASM remains
-  authoritative on GDC until shift complete.
+  authoritative on source until shift complete.
 - Image registry: ECR pull-through cache pointed at GCR; no image rebuilds.
 - Exit criteria: ALB error rate < 0.1%, no HPA thrash, ECR replication caught up.
 
@@ -92,6 +92,6 @@ Per [`docs/methodology/caf-perspectives/people.md`](../../docs/methodology/caf-p
 ## Rollback budget
 
 - Each wave has a **24h rollback window** during which DNS can be flipped
-  back to GDC with no data loss for stateless waves.
+  back to source with no data loss for stateless waves.
 - Stateful waves use staged DMS replication; rollback is supported up to the
   point at which the source DB is taken out of replication.
