@@ -1,12 +1,12 @@
 # ACMF — One-Pager
 
-> **Container migrations shouldn't take quarters.** ACMF is a methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (GDC for VMware (formerly Anthos on VMware), OpenShift, Rancher, vanilla K8s) to AWS — using *ephemeral* AI agents that run under the customer's control, with auditable inputs, prompts, and outputs.
+> **Container migrations shouldn't take quarters.** ACMF is a methodology for migrating Kubernetes workloads from on-prem and hybrid platforms (GKE Enterprise on VMware (formerly Anthos), OpenShift, Rancher, vanilla K8s) to AWS — using *ephemeral* AI agents that run under the customer's control, with auditable inputs, prompts, and outputs.
 
 ## The problem
 
-Container estates are large, opinionated, and stitched into the customer's network. Traditional migration tooling assumes either a long-running collector agent (App2Container, MGN) or VM-shaped workloads. That doesn't fit GDC for VMware, regulated OpenShift, or air-gapped Rancher. Senior architects end up doing manifest-by-manifest analysis by hand — typically 5–10 working days for a 100-workload cluster — before any decision can be made.[^1]
+Container estates are large, opinionated, and stitched into the customer's network. Traditional migration tooling assumes either a long-running collector agent or VM-shaped workloads. That doesn't fit GKE Enterprise on VMware, regulated OpenShift, or air-gapped Rancher. Senior architects end up doing manifest-by-manifest analysis by hand — typically 5–10 working days for a 100-workload cluster — before any decision can be made.[^1]
 
-[^1]: Internal ACMF benchmark across multi-cluster GDC for VMware (formerly Anthos on VMware) engagements; per-customer baseline is captured as an Assess-phase artifact, not promised up-front.
+[^1]: Internal ACMF benchmark across multi-cluster GKE Enterprise on VMware (formerly Anthos) engagements; per-customer baseline is captured as an Assess-phase artifact, not promised up-front.
 
 ## What ACMF does
 
