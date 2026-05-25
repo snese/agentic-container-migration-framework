@@ -42,13 +42,13 @@ AWS's classic 7 Rs were articulated for VMs and applications. They still apply t
 
 **Definition.** Port manifests to AWS Kubernetes (EKS) or ECS with minimal changes. Same container image. Equivalent Deployment / StatefulSet / Service shape. Source-specific bits (Workload Identity → IRSA, OpenShift Routes → ALB Ingress) get translated, but the workload's logical shape doesn't change.
 
-**Container example.** A Java microservice running on GDC for VMware (formerly Anthos on VMware) with a Helm chart, talking to an external Postgres. Helm chart → re-tagged image in ECR → IRSA replaces Workload Identity → Postgres endpoint flipped to RDS or stays external. No code change.
+**Container example.** A Java microservice running on GKE Enterprise on VMware (formerly Anthos) with a Helm chart, talking to an external Postgres. Helm chart → re-tagged image in ECR → IRSA replaces Workload Identity → Postgres endpoint flipped to RDS or stays external. No code change.
 
 **When to use.** Workload is healthy, stateless or simply stateful, no urgent modernization driver. You want migration speed over architectural purity. The default for most container workloads.
 
-**When NOT to use.** Workload depends on source-specific features that have no clean AWS equivalent (deep OpenShift Operator chains, niche GDC config). Replatform or Refactor instead.
+**When NOT to use.** Workload depends on source-specific features that have no clean AWS equivalent (deep OpenShift Operator chains, niche GKE Enterprise config). Replatform or Refactor instead.
 
-**AWS target.** EKS (primary). ECS Fargate when the workload is simple and a customer is reducing K8s ops surface.
+**AWS target.** EKS (primary). ECS when the workload is simple and a customer is reducing K8s ops surface.
 
 ## Relocate
 
@@ -71,7 +71,7 @@ Container Relocate is rarer than VM Relocate (which uses VMware Cloud on AWS). F
 
 **Definition.** Keep the workload running in containers, but swap *infrastructure-adjacent components* for AWS managed services. The application code is mostly untouched; the operational footprint shrinks.
 
-**Container example.** Workload running on GDC for VMware with self-hosted Postgres in a StatefulSet → on EKS with RDS Postgres. Self-hosted Kafka StatefulSet → MSK. Self-hosted Redis → ElastiCache. Self-managed cert-manager + Let's Encrypt → ACM + ALB.
+**Container example.** Workload running on GKE Enterprise on VMware with self-hosted Postgres in a StatefulSet → on EKS with RDS Postgres. Self-hosted Kafka StatefulSet → MSK. Self-hosted Redis → ElastiCache. Self-managed cert-manager + Let's Encrypt → ACM + ALB.
 
 **When to use.** The managed equivalent is materially better (cost, ops burden, security posture). The workload accepts the connection-string change without a redesign. You're already touching the manifests, so the marginal cost is low.
 
