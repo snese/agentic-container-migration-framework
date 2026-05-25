@@ -1,4 +1,4 @@
-# Traffic Shifting Playbook — GDC for VMware (formerly Anthos on VMware) → AWS Cutover
+# Traffic Shifting Playbook — GKE Enterprise on VMware (formerly Anthos) → AWS Cutover
 
 > **Scope.** Methodology-level guidance: when to shift progressively vs
 > big-bang, the numbered cutover sequence, and rollback trigger thresholds.
@@ -43,7 +43,7 @@ and continue".
      multi-primary) with shared trust root, **or**
    - Non-mesh path → [VPC peering / Transit Gateway + Route 53 Private
      Hosted Zone][vpc-r53] for service discovery.
-   - **Gate B:** Synthetic probe from AWS-side reaches GDC-side service
+   - **Gate B:** Synthetic probe from AWS-side reaches source-side service
      and vice versa; mTLS handshake (if mesh) succeeds.
 3. **Mirror traffic (shadow).** Route 100% to source, mirror a copy to AWS
    target. With Istio: `VirtualService.http.mirror`
@@ -100,12 +100,10 @@ re-enter shadow (step 3).
   [multi-cluster install][istio-multi]
 - AWS: [Route 53 weighted routing][r53-weighted] ·
   [ALB weighted target groups][alb-weighted] ·
-  [App Mesh is deprecated][app-mesh-deprecation] (do not adopt) ·
   [VPC Lattice service-to-service][vpc-lattice]
 - AWS blog: [Multi-cluster service mesh on EKS with Istio][aws-blog-istio]
 - ACMF: [`docs/decisions/data-migration-patterns.md`](../decisions/data-migration-patterns.md)
   for the stateful side · [`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md)
-  notes that App Mesh is deprecated.
 
 [istio-tm]: https://istio.io/latest/docs/concepts/traffic-management/
 [istio-shift]: https://istio.io/latest/docs/tasks/traffic-management/traffic-shifting/
@@ -115,5 +113,4 @@ re-enter shadow (step 3).
 [alb-weighted]: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#target-group-weights
 [vpc-r53]: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html
 [vpc-lattice]: https://docs.aws.amazon.com/vpc-lattice/latest/ug/what-is-vpc-lattice.html
-[app-mesh-deprecation]: https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html
 [aws-blog-istio]: https://aws.amazon.com/blogs/containers/multi-cluster-service-mesh-with-istio-on-amazon-eks/
