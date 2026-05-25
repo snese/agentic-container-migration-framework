@@ -36,7 +36,7 @@ There is no single canonical "Kubernetes MCP server"; the ecosystem has multiple
 | [`mcp-kubernetes-server`](https://pypi.org/project/mcp-kubernetes-server/) | Independent (PyPI) | Python-based; bridges natural-language requests to kubectl-like operations. |
 | [`siddjoshi/kube-mcp`](https://mcpservers.org/servers/siddjoshi/kube-mcp) | Independent | Go, supports chunked HTTP streaming and bundled troubleshooting prompts. |
 
-> **[VERIFICATION-PENDING]** ACMF does not yet endorse any single Kubernetes MCP server as the reference. Customers should review each implementation's RBAC model, kubeconfig handling, and update cadence before allowlisting it for an engagement.
+> **** ACMF does not yet endorse any single Kubernetes MCP server as the reference. Customers should review each implementation's RBAC model, kubeconfig handling, and update cadence before allowlisting it for an engagement.
 
 ## Threat model implications (Constitution §1)
 
@@ -90,7 +90,7 @@ kiro-cli chat --no-interactive \
   > discovery-bundle.json
 ```
 
-> **[VERIFICATION-PENDING]** Kiro CLI's exact MCP CLI flag surface is not in the
+> **** Kiro CLI's exact MCP CLI flag surface is not in the
 > public headless docs at <https://kiro.dev/docs/cli/headless/> (only `--no-interactive`,
 > `--trust-tools`, `--trust-all-tools`, and `KIRO_API_KEY` are documented). The
 > `--mcp-server` flag above is illustrative — in practice MCP servers are usually
