@@ -2,7 +2,7 @@
 
 > **Customer:** ACME Corp (fictional)
 > **Source:** 5× GKE Enterprise on VMware clusters (4× VMware + 1× baremetal edge), 80 workloads across 13 namespaces, ASM-enabled
-> **Target:** Amazon EKS (us-east-1 + ap-east-2) + ECS Fargate for batch jobs + EKS Hybrid Nodes for edge
+> **Target:** Amazon EKS (us-east-1 + ap-east-2) + ECS for batch jobs + EKS Hybrid Nodes for edge
 > **Timeline:** 16 weeks (Phase 1 → Phase 5 per ACMF Constitution)
 > **Status:** Reference example — **not** a real customer engagement.
 
@@ -46,7 +46,7 @@ produces, end-to-end, for one anonymized fictional customer.
 Every quantified claim in this walkthrough cites either:
 
 - **The ACME discovery bundle** in this folder (fictional but schema-valid)
-- **AWS / GDC public docs** — linked inline
+- **AWS / GKE Enterprise public docs** — linked inline
 
 No external benchmarks are fabricated. Where ACMF would normally cite a
 customer-specific finding (e.g. "p95 latency 18 ms"), the value is taken
