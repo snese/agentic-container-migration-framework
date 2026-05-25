@@ -14,7 +14,7 @@ do not start optimization until parity is proven.
 |---|---|---|
 | HTTP path coverage | `make api-contract-tests` (all wave apps) | 100% pass |
 | gRPC path coverage | `grpcurl` smoke against each Service | 100% pass |
-| Event-driven | Kafka consumer lag (GDC vs EKS, same topic) | EKS lag ≤ GDC lag (24h window) |
+| Event-driven | Kafka consumer lag (source vs EKS, same topic) | EKS lag ≤ source lag (24h window) |
 | Cron / batch | Compare last 7 daily-run outputs | Byte-for-byte match (or doc'd intentional drift) |
 
 ## 2. Non-functional parity
@@ -22,13 +22,13 @@ do not start optimization until parity is proven.
 Compare 7-day rolling windows pre- and post-cutover. Use Bundle's
 `utilization.summary` as the pre-cut baseline.
 
-| Metric | Source on GDC | Source on EKS | Pass criteria |
+| Metric | Source (pre-migration) | Source on EKS | Pass criteria |
 |---|---|---|---|
 | p50 latency | Istio (ASM) telemetry | Istio (OSS) on EKS / ALB CloudWatch | EKS within ±10% |
 | p95 latency | same | same | EKS within ±15% |
-| Error rate (5xx + gRPC ≥ 13) | same | same | EKS ≤ GDC baseline |
-| CPU usage / pod | metrics-server | metrics-server | EKS ≤ 110% of GDC |
-| Memory usage / pod | metrics-server | metrics-server | EKS ≤ 110% of GDC |
+| Error rate (5xx + gRPC ≥ 13) | same | same | EKS ≤ source baseline |
+| CPU usage / pod | metrics-server | metrics-server | EKS ≤ 110% of source baseline |
+| Memory usage / pod | metrics-server | metrics-server | EKS ≤ 110% of source baseline |
 | HPA scale-up time | `kube-state-metrics` | same | EKS ≤ 60s for stateless |
 
 ## 3. Security & compliance
@@ -60,7 +60,7 @@ After 14 days of EKS-only operation:
 | Updated platform runbooks | Platform | Reviewed by SRE on-call rota |
 | ArgoCD ownership transferred to ACME | Platform | ACME admins log in, deploy a no-op app |
 | AWS field "as-built" diagram | AWS field | Submitted to engagement record |
-| Decommission ticket for GDC namespace(s) | Platform | Filed, scheduled |
+| Decommission ticket for source namespace(s) | Platform | Filed, scheduled |
 
 ## Sign-off
 
