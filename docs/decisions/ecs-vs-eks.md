@@ -166,7 +166,7 @@ ECS service/task defined
 | 8 | 16–60 GB | Linux |
 | 16 | 32–120 GB | Linux |
 
-**Source**: [ECS Fargate task definition differences](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html)
+**Source**: [ECS task sizing (Fargate launch type)](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html)
 
 ### When EC2 Launch Type Wins
 
@@ -278,7 +278,7 @@ START: Workload migrating from K8s platform to AWS
 | 2 | AWS Decision Guide — Containers | https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html | Service selection framework |
 | 3 | EKS Auto Mode Best Practices | https://docs.aws.amazon.com/eks/latest/best-practices/automode.html | Auto Mode architecture + limitations |
 | 4 | EKS Pricing | https://aws.amazon.com/eks/pricing/ | Cluster fee ($0.10/hr) |
-| 5 | ECS Fargate Task Sizes | https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html | vCPU/memory matrix |
+| 5 | ECS Task Sizes (Fargate) | https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html | vCPU/memory matrix |
 | 6 | EKS Fargate Considerations | https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html | Fargate profile limitations |
 | 7 | EKS Data Plane Scaling | https://docs.aws.amazon.com/eks/latest/best-practices/scale-data-plane.html | MNG + Karpenter recommendation |
 | 8 | ECS Launch Types | https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html | Fargate vs EC2 feature comparison |
