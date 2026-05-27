@@ -5,6 +5,9 @@
 *.swp
 *~
 
+# Codegraph local index (per-machine artefact)
+.codegraph/
+
 # Outputs (never commit real customer data)
 discovery-bundle*.json
 *.bundle

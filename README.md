@@ -48,12 +48,17 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 
 | Source ↓ / Target → | EKS | ECS (Fargate) | App Runner |
 |---|---|---|---|
-| **Anthos on VMware** | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
-| **Anthos on GCP** | 🔜 | 🔜 | 🔜 |
-| **OpenShift** | 🔜 | 🔜 | — |
-| **Rancher / vanilla K8s** | 🔜 | 🔜 | 🔜 |
+| **Anthos on VMware** ⭐ | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
+| **Anthos on GCP** (GKE) | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
+| **Anthos on Bare Metal** | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Single-service only |
+| **OpenShift** (OCP 4.x) | 🚧 v0.7-rc | ⚠️ Stateless only | — |
+| **Rancher** (RKE / RKE2 / K3s) | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Stateless only |
+| **Vanilla / self-managed K8s** | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Stateless only |
 
-✅ = supported · 🔜 = planned · ⚠️ = with caveats
+✅ = supported · ⚠️ = with caveats · 🚧 v0.7-rc = basic flow works, SME review pending
+
+Each source has a dedicated adapter under [`adapters/source/<platform>/`](adapters/source/) with
+README + mapping table + gotchas + Kiro CLI discovery prompt + offline fixtures.
 
 ## Non-Intrusive Discovery Options
 
@@ -94,19 +99,55 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 │   └── case-studies/               # Real customer stories (anonymized)
 ├── adapters/
 │   ├── source/
-│   │   ├── anthos-vmware/          # First reference adapter
-│   │   ├── anthos-gcp/             # Planned
-│   │   ├── openshift/              # Planned
+│   │   ├── anthos-vmware/          # ⭐ Reference adapter
+│   │   ├── anthos-gcp/             # 🚧 v0.7-rc
+│   │   ├── anthos-baremetal/       # 🚧 v0.7-rc
+│   │   ├── openshift/              # 🚧 v0.7-rc
+│   │   ├── rancher/                # 🚧 v0.7-rc
+│   │   ├── vanilla-k8s/            # 🚧 v0.7-rc (catch-all)
 │   │   └── _template/              # How to add a new source
 │   └── target/
 │       ├── eks/
 │       ├── ecs-fargate/
 │       └── app-runner/
-├── prompts/                        # Kiro CLI prompts (discovery, analysis, planning)
-├── schemas/                        # JSON schemas for inter-phase artifacts
-├── scripts/                        # Self-export bash scripts
+├── prompts/
+│   └── discovery/                  # Kiro CLI discovery prompts (one per source)
+├── schemas/
+│   └── discovery-bundle.schema.json  # Phase 1 output schema (v1.0.0)
+├── scripts/
+│   └── discovery/                  # Self-export scripts + simulator + validator
 └── examples/                       # End-to-end walkthroughs
 ```
+
+## Phase 1 testing — discovery scripts & fixtures
+
+Every source adapter ships with **two fixtures** under
+`adapters/source/<platform>/fixtures/`:
+
+| Fixture | Shape |
+|---|---|
+| `<platform>-small.json` | 1 cluster, ~10 services, monolithic-ish |
+| `<platform>-realistic.json` | 2 clusters, 50+ services, mesh + stateful + custom CRDs |
+
+You can exercise the Phase 1 layer end-to-end without touching a real cluster:
+
+```bash
+# 1. Dry-run any platform's export script — produces a schema-valid stub
+scripts/discovery/anthos-vmware-export.sh --dry-run --output /tmp/v.json
+
+# 2. Generate a fake-but-realistic bundle from a fixture
+scripts/discovery/simulate-discovery.sh openshift --size realistic \
+    --output /tmp/openshift.json
+
+# 3. Validate against the schema
+scripts/discovery/validate-bundle.sh /tmp/v.json /tmp/openshift.json
+
+# 4. Or validate ALL committed fixtures at once
+scripts/discovery/validate-bundle.sh --all-fixtures
+```
+
+Validator dependency: `python3` + `jsonschema` (Debian/Ubuntu:
+`sudo apt-get install python3-jsonschema`; pip: `pip install jsonschema`).
 
 ## Getting Started
 
@@ -115,12 +156,14 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 ## Roadmap
 
 - [x] Repo skeleton
-- [ ] Anthos-on-VMware discovery prompt + schema
+- [x] Anthos-on-VMware discovery prompt + schema
+- [x] All 6 source adapters (anthos-vmware ⭐, anthos-gcp, anthos-baremetal, openshift, rancher, vanilla-k8s)
+- [x] Self-export scripts + dry-run mode + simulator + validator (v0.7)
 - [ ] EKS target adapter (ADRs, IaC patterns)
 - [ ] ECS Fargate target adapter
 - [ ] First case study (Anthos → EKS)
 - [ ] Kiro CLI integration guide
-- [ ] OpenShift adapter
+- [ ] SME review of v0.7-rc adapters (operator mappings, hardware-bound workloads)
 
 ## License
 

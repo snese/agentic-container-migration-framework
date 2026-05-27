@@ -1,0 +1,434 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-27T06:52:51Z",
+  "generated_by": "self-export-script",
+  "source_platform": "vanilla-k8s",
+  "scope": {
+    "clusters": [
+      "vanilla-k8s-small-cluster-1"
+    ],
+    "namespaces_included": [
+      "default",
+      "shop"
+    ],
+    "namespaces_excluded": [
+      "kube-system"
+    ]
+  },
+  "clusters": [
+    {
+      "name": "vanilla-k8s-small-cluster-1",
+      "version": "v1.30.4",
+      "platform": "vanilla-k8s",
+      "location": "self-managed-dc1",
+      "control_plane": {
+        "ha": true
+      },
+      "node_pools": [
+        {
+          "name": "default",
+          "count": 3,
+          "k8s_version": "v1.30.4",
+          "os_image": "Ubuntu 22.04"
+        }
+      ],
+      "bootstrap": "kubeadm"
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "frontend",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 3,
+        "current": 3
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "nginx:1.27",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "frontend"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "api-gateway",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/api-gw:2.4",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "api-gateway"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "catalog",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/catalog:1.8",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "catalog"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "orders",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/orders:1.5",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "orders"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "payments",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/payments:1.2",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "payments"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "StatefulSet",
+      "name": "postgres",
+      "classification": "stateful",
+      "replicas": {
+        "desired": 1,
+        "current": 1
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "postgres:16",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "postgres"
+      },
+      "volumes": [
+        {
+          "name": "postgres-data"
+        }
+      ]
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "shop",
+      "kind": "StatefulSet",
+      "name": "redis",
+      "classification": "stateful",
+      "replicas": {
+        "desired": 1,
+        "current": 1
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "redis:7",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "redis"
+      },
+      "volumes": [
+        {
+          "name": "redis-data"
+        }
+      ]
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "default",
+      "kind": "CronJob",
+      "name": "cron-pricing",
+      "classification": "batch",
+      "replicas": {
+        "desired": 1,
+        "current": 1
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/pricing:1.0",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "cron-pricing"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "default",
+      "kind": "DaemonSet",
+      "name": "log-shipper",
+      "classification": "system",
+      "replicas": {
+        "desired": 1,
+        "current": 1
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "fluent/fluent-bit:3.1",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "log-shipper"
+      },
+      "volumes": []
+    },
+    {
+      "cluster": "vanilla-k8s-small-cluster-1",
+      "namespace": "default",
+      "kind": "Job",
+      "name": "backup-job",
+      "classification": "batch",
+      "replicas": {
+        "desired": 1,
+        "current": 1
+      },
+      "containers": [
+        {
+          "name": "main",
+          "image": "registry.example.com/backup:1.0",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "cpu": "500m",
+              "memory": "512Mi"
+            }
+          }
+        }
+      ],
+      "labels": {
+        "app": "backup-job"
+      },
+      "volumes": []
+    }
+  ],
+  "networking": {
+    "services_total": 10,
+    "services_by_type": {
+      "ClusterIP": 8,
+      "LoadBalancer": 2
+    },
+    "ingress_total": 1,
+    "network_policies_total": 0,
+    "cni": "calico",
+    "ingress_controller": "ingress-nginx"
+  },
+  "storage": {
+    "storage_classes": [
+      {
+        "name": "local-path",
+        "provisioner": "rancher.io/local-path"
+      }
+    ],
+    "pv_count": 2,
+    "pvc_count": 2,
+    "provisioners_in_use": [
+      "rancher.io/local-path"
+    ]
+  },
+  "identity": {
+    "service_accounts_total": 12,
+    "cluster_role_bindings_total": 8
+  },
+  "external_dependencies": [
+    {
+      "host": "smtp.sendgrid.net",
+      "port": 587,
+      "protocol": "tcp",
+      "used_by": [
+        "payments"
+      ]
+    },
+    {
+      "host": "stripe.com",
+      "port": 443,
+      "protocol": "https",
+      "used_by": [
+        "payments"
+      ]
+    }
+  ],
+  "crds": [
+    {
+      "name": "certificates.cert-manager.io",
+      "group": "cert-manager.io",
+      "versions": [
+        "v1"
+      ],
+      "scope": "Namespaced"
+    },
+    {
+      "name": "issuers.cert-manager.io",
+      "group": "cert-manager.io",
+      "versions": [
+        "v1"
+      ],
+      "scope": "Namespaced"
+    },
+    {
+      "name": "servicemonitors.monitoring.coreos.com",
+      "group": "monitoring.coreos.com",
+      "versions": [
+        "v1"
+      ],
+      "scope": "Namespaced"
+    }
+  ],
+  "skipped": [],
+  "warnings": [
+    "fixture: vanilla-k8s-small \u2014 synthetic data, not derived from a live cluster"
+  ]
+}
