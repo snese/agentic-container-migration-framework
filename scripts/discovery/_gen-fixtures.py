@@ -17,7 +17,7 @@ import datetime as _dt
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 NOW = _dt.datetime.now(tz=_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 PLATFORMS = [
     "anthos-vmware",
@@ -292,51 +292,205 @@ def _extended_crds(platform: str) -> list[dict]:
 def _platform_overlay(bundle: dict, platform: str, *, size: str) -> None:
     """Inject platform-specific top-level metadata blocks."""
     if platform == "anthos-vmware":
-        bundle["vmware"] = {"hosts_count": 6, "datastores_count": 3,
-                            "vcenter_version": "8.0u2"}
+        bundle["vmware"] = {
+            "hosts_count": 6,
+            "datastores_count": 3,
+            "vcenter_version": "8.0u2",
+            "vsphere_csi_pv_count": (4 if size == "realistic" else 1),
+        }
+        # also reflect CSI PV count into storage block (script behaviour)
+        bundle["storage"]["vsphere_csi_pv_count"] = bundle["vmware"]["vsphere_csi_pv_count"]
         bundle["clusters"][0]["anthos"] = {"version": "1.16.5",
                                            "service_mesh": {"istio_version": "1.22"}}
         if size == "realistic":
             bundle["clusters"][1]["anthos"] = {"version": "1.16.5",
                                                "service_mesh": {"istio_version": "1.22"}}
     elif platform == "anthos-gcp":
-        bundle["clusters"][0]["anthos"] = {"version": "1.30.4-gke.1147",
-                                           "release_channel": "REGULAR"}
+        bundle["clusters"][0]["anthos"] = {
+            "version": "1.30.4-gke.1147",
+            "release_channel": "REGULAR",
+            "workload_identity_pool": "my-project.svc.id.goog",
+            "config_connector": {
+                "installed": (size == "realistic"),
+                "crd_count": (84 if size == "realistic" else 0),
+                "managed_resource_kinds": (
+                    ["StorageBucket", "PubSubTopic", "BigQueryDataset",
+                     "ComputeFirewall", "IAMServiceAccount"]
+                    if size == "realistic" else []
+                ),
+            },
+        }
         if size == "realistic":
-            bundle["clusters"][1]["anthos"] = {"version": "1.30.4-gke.1147",
-                                               "release_channel": "REGULAR"}
+            bundle["clusters"][1]["anthos"] = {
+                "version": "1.30.4-gke.1147",
+                "release_channel": "REGULAR",
+                "workload_identity_pool": "my-project.svc.id.goog",
+                "config_connector": {
+                    "installed": True,
+                    "crd_count": 84,
+                    "managed_resource_kinds": [
+                        "StorageBucket", "PubSubTopic", "BigQueryDataset",
+                        "ComputeFirewall", "IAMServiceAccount"
+                    ],
+                },
+            }
+        # Workload Identity bindings (always populated for anthos-gcp fixtures)
+        wi_count = 6 if size == "realistic" else 2
+        bundle["identity"]["workload_identity_bindings"] = [
+            {
+                "service_account_namespace": ["frontend", "backend", "data",
+                                              "platform", "observability", "shop"][i % 6],
+                "service_account_name": f"app-{i+1}",
+                "gcp_service_account": f"app-{i+1}@my-project.iam.gserviceaccount.com",
+            }
+            for i in range(wi_count)
+        ]
+        bundle["identity"]["workload_identity_enabled"] = True
     elif platform == "anthos-baremetal":
-        bundle["clusters"][0]["anthos"] = {"version": "1.16.4",
-                                           "baremetal_cluster_count": 1}
+        bundle["clusters"][0]["anthos"] = {
+            "version": "1.16.4",
+            "baremetal_cluster_count": 1,
+            "baremetal_cluster_names": ["onprem-bm-1"],
+        }
         if size == "realistic":
-            bundle["clusters"][1]["anthos"] = {"version": "1.16.4",
-                                               "baremetal_cluster_count": 1}
+            bundle["clusters"][1]["anthos"] = {
+                "version": "1.16.4",
+                "baremetal_cluster_count": 1,
+                "baremetal_cluster_names": ["onprem-bm-2"],
+            }
+        # Hardware-bound workloads — small: 1; realistic: 4
+        if size == "small":
+            bundle["workloads_hardware_bound"] = [
+                {"namespace": "default", "name": "log-shipper", "kind": "DaemonSet",
+                 "reasons": ["hostPath", "privileged"],
+                 "detail": "Detected: hostPath, privileged"},
+            ]
+        else:
+            bundle["workloads_hardware_bound"] = [
+                {"namespace": "platform", "name": "calico-node", "kind": "DaemonSet",
+                 "reasons": ["hostNetwork", "privileged"],
+                 "detail": "Detected: hostNetwork, privileged"},
+                {"namespace": "observability", "name": "fluent-bit", "kind": "DaemonSet",
+                 "reasons": ["hostPath"], "detail": "Detected: hostPath"},
+                {"namespace": "data", "name": "ml-inference", "kind": "Deployment",
+                 "reasons": ["gpu"], "detail": "Detected: gpu"},
+                {"namespace": "platform", "name": "node-exporter", "kind": "DaemonSet",
+                 "reasons": ["hostNetwork", "hostPID"],
+                 "detail": "Detected: hostNetwork, hostPID"},
+            ]
     elif platform == "openshift":
         for c in bundle["clusters"]:
             c["openshift"] = {"current_version": "4.15.10", "channel": "stable-4.15"}
+        # Subscriptions with v0.8 migration_rating embedded — drawn from the
+        # rating table in adapters/source/openshift/mapping.md.
+        if size == "realistic":
+            subs = [
+                ("openshift-operators", "cert-manager-operator", "cert-manager-operator",
+                 "stable-v1", "redhat-operators", "easy",
+                 "AWS Certificate Manager (ACM) for public certs; cert-manager-on-EKS for in-cluster",
+                 "cert-manager runs on EKS unchanged; ACM replaces public-facing TLS issuance"),
+                ("openshift-operators", "openshift-pipelines-operator-rh",
+                 "openshift-pipelines-operator-rh", "latest", "redhat-operators", "easy",
+                 "AWS CodePipeline + CodeBuild, or Tekton on EKS",
+                 "Tekton CRDs portable to EKS; AWS-native CI is the typical move"),
+                ("openshift-operators", "openshift-gitops-operator",
+                 "openshift-gitops-operator", "latest", "redhat-operators", "easy",
+                 "Argo CD on EKS", "Drop-in; manifests portable"),
+                ("openshift-operators", "strimzi-kafka-operator",
+                 "strimzi-kafka-operator", "stable", "community-operators", "hard",
+                 "Amazon MSK, or Strimzi on EKS",
+                 "Topic/ACL replication via MirrorMaker2; broker-to-MSK semantics differ"),
+                ("openshift-operators", "metallb-operator",
+                 "metallb-operator", "stable", "redhat-operators", "blocker",
+                 "AWS Load Balancer Controller (ALB/NLB)",
+                 "MetalLB BGP/L2 model has no AWS equivalent"),
+                ("openshift-operators", "acme-custom-operator",
+                 "acme-custom-operator", "stable", "custom-catalog", "unknown",
+                 "",
+                 "Operator 'acme-custom-operator' not in built-in rating table; SME review required."),
+            ]
+        else:
+            subs = [
+                ("openshift-operators", "cert-manager-operator", "cert-manager-operator",
+                 "stable-v1", "redhat-operators", "easy",
+                 "AWS Certificate Manager (ACM) for public certs; cert-manager-on-EKS for in-cluster",
+                 "cert-manager runs on EKS unchanged; ACM replaces public-facing TLS issuance"),
+                ("openshift-operators", "openshift-pipelines-operator-rh",
+                 "openshift-pipelines-operator-rh", "latest", "redhat-operators", "easy",
+                 "AWS CodePipeline + CodeBuild, or Tekton on EKS",
+                 "Tekton CRDs portable to EKS; AWS-native CI is the typical move"),
+            ]
         bundle["openshift"] = {
+            "is_rosa": False,
+            "infrastructure_provider": "BareMetal",
             "image_streams_total": 24,
             "build_configs_total": 11 if size == "realistic" else 3,
             "subscriptions": [
-                {"namespace": "openshift-operators", "name": "cert-manager-operator",
-                 "package": "cert-manager-operator", "channel": "stable-v1", "source": "redhat-operators"},
-                {"namespace": "openshift-operators", "name": "openshift-pipelines-operator-rh",
-                 "package": "openshift-pipelines-operator-rh", "channel": "latest", "source": "redhat-operators"},
+                {
+                    "namespace": ns, "name": name, "package": pkg,
+                    "channel": ch, "source": src,
+                    "migration_rating": {
+                        "rating": rating, "aws_target": aws_target,
+                        "rationale": rationale,
+                    },
+                }
+                for (ns, name, pkg, ch, src, rating, aws_target, rationale) in subs
             ],
             "machine_config_pools": [
                 {"name": "master", "ready": 3, "total": 3},
                 {"name": "worker", "ready": 6 if size == "realistic" else 3,
                  "total": 6 if size == "realistic" else 3},
             ],
+            "scc_usage": (
+                [
+                    {"scc": "anyuid", "namespace": "shop",
+                     "binding_name": "shop-anyuid",
+                     "subjects": [{"kind": "ServiceAccount", "name": "default",
+                                   "namespace": "shop"}]},
+                ]
+                if size == "small"
+                else [
+                    {"scc": "anyuid", "namespace": "data",
+                     "binding_name": "data-anyuid",
+                     "subjects": [{"kind": "ServiceAccount", "name": "kafka",
+                                   "namespace": "data"}]},
+                    {"scc": "privileged", "namespace": "platform",
+                     "binding_name": "platform-priv",
+                     "subjects": [{"kind": "ServiceAccount", "name": "calico-node",
+                                   "namespace": "platform"}]},
+                    {"scc": "hostnetwork-v2", "namespace": "observability",
+                     "binding_name": "obs-hostnet",
+                     "subjects": [{"kind": "ServiceAccount", "name": "node-exporter",
+                                   "namespace": "observability"}]},
+                ]
+            ),
+            "scc_total": 8,
         }
     elif platform == "rancher":
         for c in bundle["clusters"]:
-            c["rancher"] = {"distribution": "rke2",
-                            "fleet_clusters_total": 2 if size == "realistic" else 1,
-                            "fleet_bundles_total": 18 if size == "realistic" else 4}
+            c["rancher"] = {
+                "distribution": "rke2",
+                "server_version": "v1.29.4+rke2r1",
+                "is_management_cluster": False,
+                "fleet_clusters_total": 2 if size == "realistic" else 1,
+                "fleet_bundles_total": 18 if size == "realistic" else 4,
+            }
     elif platform == "vanilla-k8s":
         for c in bundle["clusters"]:
             c["bootstrap"] = "kubeadm"
+            c["vanilla"] = {
+                "cni": "calico",
+                "ingress_controller": "ingress-nginx",
+                "os_images": [
+                    {"os_image": "Ubuntu 22.04", "count": 3 if size == "small" else 6}
+                ],
+                "kubelet_versions": ["v1.30.4"],
+                "kubelet_skew_detected": False,
+                "admission_webhooks_total": 5 if size == "realistic" else 2,
+                "admission_webhooks_validating": 3 if size == "realistic" else 1,
+                "admission_webhooks_mutating": 2 if size == "realistic" else 1,
+            }
+        bundle["vanilla"] = {"bootstrapper": "kubeadm"}
         bundle["networking"]["cni"] = "calico"
         bundle["networking"]["ingress_controller"] = "ingress-nginx"
 

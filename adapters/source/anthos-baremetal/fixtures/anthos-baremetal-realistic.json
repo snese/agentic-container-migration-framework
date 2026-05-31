@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "anthos-baremetal",
   "scope": {
@@ -39,7 +39,10 @@
       ],
       "anthos": {
         "version": "1.16.4",
-        "baremetal_cluster_count": 1
+        "baremetal_cluster_count": 1,
+        "baremetal_cluster_names": [
+          "onprem-bm-1"
+        ]
       }
     },
     {
@@ -60,7 +63,10 @@
       ],
       "anthos": {
         "version": "1.16.4",
-        "baremetal_cluster_count": 1
+        "baremetal_cluster_count": 1,
+        "baremetal_cluster_names": [
+          "onprem-bm-2"
+        ]
       }
     }
   ],
@@ -1817,5 +1823,45 @@
   "skipped": [],
   "warnings": [
     "fixture: anthos-baremetal-realistic \u2014 synthetic data, two clusters, mesh + stateful + custom CRDs"
+  ],
+  "workloads_hardware_bound": [
+    {
+      "namespace": "platform",
+      "name": "calico-node",
+      "kind": "DaemonSet",
+      "reasons": [
+        "hostNetwork",
+        "privileged"
+      ],
+      "detail": "Detected: hostNetwork, privileged"
+    },
+    {
+      "namespace": "observability",
+      "name": "fluent-bit",
+      "kind": "DaemonSet",
+      "reasons": [
+        "hostPath"
+      ],
+      "detail": "Detected: hostPath"
+    },
+    {
+      "namespace": "data",
+      "name": "ml-inference",
+      "kind": "Deployment",
+      "reasons": [
+        "gpu"
+      ],
+      "detail": "Detected: gpu"
+    },
+    {
+      "namespace": "platform",
+      "name": "node-exporter",
+      "kind": "DaemonSet",
+      "reasons": [
+        "hostNetwork",
+        "hostPID"
+      ],
+      "detail": "Detected: hostNetwork, hostPID"
+    }
   ]
 }

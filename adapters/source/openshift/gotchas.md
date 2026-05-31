@@ -66,10 +66,10 @@ If the source is **ROSA** (Red Hat OpenShift on AWS), the underlying cloud is al
 compute mostly stay. This is a much smaller migration than ROSA-from-scratch and should be scoped
 differently.
 
-## 🚧 v0.7-rc: Not yet covered
+## 🚧 v0.8: Not yet covered (true SME items)
 
-- Operator-by-operator migration playbook with `easy / hard / blocker` rating
-- KubeVirt → EC2 / Nitro System workload extraction
+- KubeVirt → EC2 / Nitro System workload extraction (handled as `blocker` rating only — actual extraction is a separate workstream)
 - HyperShift hosted-cluster cutover patterns
-- Custom OAuth IdP → Cognito / IAM Identity Center mapping
-- ODF → AWS storage tiering decision tree
+- Custom OAuth IdP (LDAP, custom OIDC) → Cognito / IAM Identity Center mapping
+- ODF (Ceph) → AWS storage tiering decision tree (block/file/object split)
+- Operators not in the rating table — `unknown` items must be SME-triaged per engagement

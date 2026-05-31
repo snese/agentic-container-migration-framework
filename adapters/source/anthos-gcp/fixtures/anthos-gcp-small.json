@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "anthos-gcp",
   "scope": {
@@ -34,7 +34,13 @@
       ],
       "anthos": {
         "version": "1.30.4-gke.1147",
-        "release_channel": "REGULAR"
+        "release_channel": "REGULAR",
+        "workload_identity_pool": "my-project.svc.id.goog",
+        "config_connector": {
+          "installed": false,
+          "crd_count": 0,
+          "managed_resource_kinds": []
+        }
       }
     }
   ],
@@ -387,7 +393,20 @@
   },
   "identity": {
     "service_accounts_total": 12,
-    "cluster_role_bindings_total": 8
+    "cluster_role_bindings_total": 8,
+    "workload_identity_bindings": [
+      {
+        "service_account_namespace": "frontend",
+        "service_account_name": "app-1",
+        "gcp_service_account": "app-1@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "backend",
+        "service_account_name": "app-2",
+        "gcp_service_account": "app-2@my-project.iam.gserviceaccount.com"
+      }
+    ],
+    "workload_identity_enabled": true
   },
   "external_dependencies": [
     {

@@ -6,6 +6,7 @@
 | GKE Autopilot | EKS Auto Mode | ECS Fargate | Auto Mode is the closest equivalent; pod-level resource model translates directly |
 | Workload Identity (KSA→GSA) | IRSA (IAM Roles for Service Accounts) | Task Role | Annotation-driven mapping; needs OIDC trust setup |
 | Config Sync (RootSync/RepoSync) | Flux v2 / ArgoCD | — | Config Sync is GitOps; on AWS Flux is the standard; ArgoCD if customer prefers |
+| Config Connector (KCC) | AWS Controllers for Kubernetes (ACK) / Terraform / CDK | — | KCC declares GCP resources in K8s; ACK does the same for AWS but kind coverage is partial. Many teams move to Terraform/CDK during migration. The export script lists installed KCC CRD kinds in `.clusters[0].anthos.config_connector` |
 | Anthos Service Mesh (managed Istio) | EKS + Istio (self-managed) | App Mesh / ECS Service Connect | App Mesh is GA but App Mesh successor strategy is in flux — recommend Istio on EKS for like-for-like |
 | Multi-cluster Service Mesh | EKS w/ Istio multi-cluster | — | Cross-cluster trust + DNS = significant rebuild |
 | Policy Controller (Gatekeeper) | Kyverno on EKS | — | OPA Gatekeeper on EKS works too; Kyverno is more idiomatic on AWS |

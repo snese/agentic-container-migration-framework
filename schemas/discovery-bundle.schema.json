@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/snese/agentic-container-migration-framework/schemas/discovery-bundle.schema.json",
+  "title": "ACMF Discovery Bundle",
+  "description": "Output of Phase 1 discovery. Source-platform agnostic at the top; platform-specific blocks nested. Schema is intentionally permissive (no additionalProperties:false at the root) so adapters can innovate without breaking the contract — but the documented properties below are the stable surface area.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "generated_by", "scope", "clusters", "workloads"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "generated_by": { "type": "string", "enum": ["kiro-cli", "self-export-script", "manual", "strands-agent"] },
+    "source_platform": { "type": "string", "enum": ["anthos-vmware", "anthos-gcp", "anthos-baremetal", "openshift", "rancher", "vanilla-k8s"] },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "clusters": { "type": "array", "items": { "type": "string" } },
+        "namespaces_included": { "type": "array", "items": { "type": "string" } },
+        "namespaces_excluded": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "version"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "platform": { "type": "string" },
+          "location": { "type": "string" },
+          "control_plane": { "type": "object" },
+          "node_pools": { "type": "array" },
+          "bootstrap": { "type": "string" },
+          "anthos": {
+            "type": "object",
+            "properties": {
+              "version": { "type": "string" },
+              "release_channel": { "type": "string" },
+              "config_sync": { "type": "object" },
+              "service_mesh": { "type": "object" },
+              "policy_controller": { "type": "object" },
+              "config_connector": {
+                "type": "object",
+                "description": "GKE Config Connector (KCC) presence + managed-resource counts.",
+                "properties": {
+                  "installed": { "type": "boolean" },
+                  "crd_count": { "type": "integer" },
+                  "managed_resource_kinds": { "type": "array", "items": { "type": "string" } }
+                }
+              },
+              "workload_identity_pool": { "type": ["string", "null"] },
+              "baremetal_cluster_count": { "type": "integer" },
+              "baremetal_cluster_names": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "openshift": {
+            "type": "object",
+            "properties": {
+              "current_version": { "type": "string" },
+              "channel": { "type": "string" }
+            }
+          },
+          "rancher": {
+            "type": "object",
+            "properties": {
+              "distribution": { "type": "string" },
+              "server_version": { "type": "string" },
+              "is_management_cluster": { "type": "boolean" },
+              "fleet_clusters_total": { "type": "integer" },
+              "fleet_bundles_total": { "type": "integer" }
+            }
+          },
+          "vanilla": {
+            "type": "object",
+            "properties": {
+              "cni": { "type": "string" },
+              "ingress_controller": { "type": "string" },
+              "os_images": { "type": "array", "items": { "type": "object" } },
+              "kubelet_versions": { "type": "array", "items": { "type": "string" } },
+              "kubelet_skew_detected": { "type": "boolean" },
+              "admission_webhooks_total": { "type": "integer" },
+              "admission_webhooks_validating": { "type": "integer" },
+              "admission_webhooks_mutating": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "workloads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cluster", "namespace", "kind", "name"],
+        "properties": {
+          "cluster": { "type": "string" },
+          "namespace": { "type": "string" },
+          "kind": { "type": "string", "enum": ["Deployment", "StatefulSet", "DaemonSet", "Job", "CronJob", "ReplicaSet", "Other"] },
+          "name": { "type": "string" },
+          "classification": { "type": "string", "enum": ["stateless", "stateful", "batch", "system", "unknown"] },
+          "replicas": { "type": "object", "properties": { "desired": { "type": "integer" }, "current": { "type": "integer" } } },
+          "containers": { "type": "array" },
+          "volumes": { "type": "array" },
+          "labels": { "type": "object" }
+        }
+      }
+    },
+    "workloads_hardware_bound": {
+      "type": "array",
+      "description": "Workloads that depend on host or hardware-specific features (hostNetwork, privileged, GPU, SR-IOV, Multus, hostPath). Surfaced by anthos-baremetal/vanilla-k8s adapters; SME triage required.",
+      "items": {
+        "type": "object",
+        "required": ["namespace", "name", "kind", "reasons"],
+        "properties": {
+          "namespace": { "type": "string" },
+          "name": { "type": "string" },
+          "kind": { "type": "string" },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["hostNetwork", "privileged", "gpu", "sriov", "multus_annotation", "hostPath", "hostPID", "hostIPC", "rdma", "fpga", "huge_pages"]
+            }
+          },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "networking": { "type": "object" },
+    "storage": { "type": "object" },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "service_accounts_total": { "type": "integer" },
+        "cluster_role_bindings_total": { "type": "integer" },
+        "workload_identity_enabled": { "type": "boolean" },
+        "workload_identity_bindings": {
+          "type": "array",
+          "description": "GKE Workload Identity (KSA → GCP SA) bindings; equivalent translation target on AWS is IRSA + IAM role per binding.",
+          "items": {
+            "type": "object",
+            "required": ["service_account_namespace", "service_account_name", "gcp_service_account"],
+            "properties": {
+              "service_account_namespace": { "type": "string" },
+              "service_account_name": { "type": "string" },
+              "gcp_service_account": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "external_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["host"],
+        "properties": {
+          "host": { "type": "string" },
+          "port": { "type": "integer" },
+          "protocol": { "type": "string" },
+          "used_by": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "crds": { "type": "array" },
+    "vmware": {
+      "type": "object",
+      "description": "vSphere infrastructure metadata (Anthos-on-VMware adapter).",
+      "properties": {
+        "hosts_count": { "type": "integer" },
+        "datastores_count": { "type": "integer" },
+        "vcenter_version": { "type": "string" },
+        "vsphere_csi_pv_count": { "type": "integer" }
+      }
+    },
+    "openshift": {
+      "type": "object",
+      "description": "OpenShift Container Platform metadata (OCP-only block).",
+      "properties": {
+        "is_rosa": { "type": "boolean" },
+        "infrastructure_provider": { "type": "string" },
+        "image_streams_total": { "type": "integer" },
+        "build_configs_total": { "type": "integer" },
+        "subscriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "namespace": { "type": "string" },
+              "name": { "type": "string" },
+              "package": { "type": "string" },
+              "channel": { "type": "string" },
+              "source": { "type": "string" },
+              "migration_rating": {
+                "type": "object",
+                "description": "AWS migration difficulty rating for this Operator. See adapters/source/openshift/mapping.md for the full table.",
+                "properties": {
+                  "rating": { "type": "string", "enum": ["easy", "hard", "blocker", "unknown"] },
+                  "aws_target": { "type": "string" },
+                  "rationale": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "machine_config_pools": { "type": "array" },
+        "scc_usage": {
+          "type": "array",
+          "description": "Effective SecurityContextConstraints granted via system:openshift:scc:* RoleBindings — used to plan PodSecurity Admission migration on EKS.",
+          "items": {
+            "type": "object",
+            "required": ["scc"],
+            "properties": {
+              "scc": { "type": "string" },
+              "namespace": { "type": ["string", "null"] },
+              "subjects": { "type": "array" },
+              "binding_name": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "rancher": {
+      "type": "object",
+      "description": "Top-level Rancher metadata (management-cluster scope, separate from per-cluster .clusters[].rancher).",
+      "properties": {
+        "is_management_cluster": { "type": "boolean" },
+        "downstream_clusters_total": { "type": "integer" }
+      }
+    },
+    "vanilla": {
+      "type": "object",
+      "description": "Top-level vanilla / self-managed metadata (cluster-bootstrapper signals shared across clusters).",
+      "properties": {
+        "bootstrapper": { "type": "string" }
+      }
+    },
+    "skipped": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "reason"],
+        "properties": {
+          "command": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  }
+}

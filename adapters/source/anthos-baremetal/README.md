@@ -1,6 +1,6 @@
 # Source Adapter: Anthos on Bare Metal
 
-**Status:** 🚧 v0.7-rc — K8s + Anthos software layer covered. Hardware-bound features (BMC, GPU passthrough, DPDK, SR-IOV) are stubbed; bring an SME for those workloads.
+**Status:** ✅ v0.8 — discovery complete for the K8s + Anthos software layers. Hardware-bound workloads (`hostNetwork`, `privileged`, GPU, SR-IOV, Multus annotations, hostPath, hugepages, RDMA, FPGA) are now auto-detected and surfaced in `.workloads_hardware_bound[]` with a single SME-triage warning. BMC-level hardware inventory (Redfish/IPMI) and driver-version compatibility matrices remain true SME items — bring rack/chassis docs to architecture review.
 
 ## Scope
 

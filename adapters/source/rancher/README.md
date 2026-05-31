@@ -1,6 +1,6 @@
 # Source Adapter: Rancher (RKE / RKE2 / K3s / imported)
 
-**Status:** 🚧 v0.7-rc — downstream cluster discovery covered. Management-cluster Fleet bundles + cluster-template ↔ AWS IaC translation are stubbed.
+**Status:** ✅ v0.8 — discovery complete. Distribution detection (k3s/rke2/rke/rancher-managed/imported), server version, and management vs downstream cluster classification are auto-collected. Fleet inventory + Longhorn probe still require running against the management cluster context for the full picture (the script emits a warning when run downstream-only).
 
 ## Scope
 

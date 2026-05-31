@@ -62,7 +62,7 @@ Flux source/Kustomization.
 each workload needs a corresponding IAM role + IRSA trust policy. Bulk-rewrite tooling exists
 but the IAM trust policy must be customer-specific.
 
-## 🚧 v0.7-rc: Not yet covered
+## 🚧 v0.8: Not yet covered (true SME items)
 
 - vSphere fault-domain → AWS AZ topology mapping
 - F5 BIG-IP / SeeSaw → AWS Load Balancer Controller migration playbook

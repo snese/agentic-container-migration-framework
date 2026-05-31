@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "openshift",
   "scope": {
@@ -433,6 +433,8 @@
     "fixture: openshift-small \u2014 synthetic data, not derived from a live cluster"
   ],
   "openshift": {
+    "is_rosa": false,
+    "infrastructure_provider": "BareMetal",
     "image_streams_total": 24,
     "build_configs_total": 3,
     "subscriptions": [
@@ -441,14 +443,24 @@
         "name": "cert-manager-operator",
         "package": "cert-manager-operator",
         "channel": "stable-v1",
-        "source": "redhat-operators"
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "AWS Certificate Manager (ACM) for public certs; cert-manager-on-EKS for in-cluster",
+          "rationale": "cert-manager runs on EKS unchanged; ACM replaces public-facing TLS issuance"
+        }
       },
       {
         "namespace": "openshift-operators",
         "name": "openshift-pipelines-operator-rh",
         "package": "openshift-pipelines-operator-rh",
         "channel": "latest",
-        "source": "redhat-operators"
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "AWS CodePipeline + CodeBuild, or Tekton on EKS",
+          "rationale": "Tekton CRDs portable to EKS; AWS-native CI is the typical move"
+        }
       }
     ],
     "machine_config_pools": [
@@ -462,6 +474,21 @@
         "ready": 3,
         "total": 3
       }
-    ]
+    ],
+    "scc_usage": [
+      {
+        "scc": "anyuid",
+        "namespace": "shop",
+        "binding_name": "shop-anyuid",
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "default",
+            "namespace": "shop"
+          }
+        ]
+      }
+    ],
+    "scc_total": 8
   }
 }

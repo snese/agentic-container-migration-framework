@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "rancher",
   "scope": {
@@ -39,6 +39,8 @@
       ],
       "rancher": {
         "distribution": "rke2",
+        "server_version": "v1.29.4+rke2r1",
+        "is_management_cluster": false,
         "fleet_clusters_total": 2,
         "fleet_bundles_total": 18
       }
@@ -61,6 +63,8 @@
       ],
       "rancher": {
         "distribution": "rke2",
+        "server_version": "v1.29.4+rke2r1",
+        "is_management_cluster": false,
         "fleet_clusters_total": 2,
         "fleet_bundles_total": 18
       }

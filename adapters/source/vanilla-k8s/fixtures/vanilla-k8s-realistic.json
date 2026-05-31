@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "vanilla-k8s",
   "scope": {
@@ -37,7 +37,24 @@
           "os_image": "Ubuntu 22.04"
         }
       ],
-      "bootstrap": "kubeadm"
+      "bootstrap": "kubeadm",
+      "vanilla": {
+        "cni": "calico",
+        "ingress_controller": "ingress-nginx",
+        "os_images": [
+          {
+            "os_image": "Ubuntu 22.04",
+            "count": 6
+          }
+        ],
+        "kubelet_versions": [
+          "v1.30.4"
+        ],
+        "kubelet_skew_detected": false,
+        "admission_webhooks_total": 5,
+        "admission_webhooks_validating": 3,
+        "admission_webhooks_mutating": 2
+      }
     },
     {
       "name": "vanilla-k8s-prod-west",
@@ -55,7 +72,24 @@
           "os_image": "Ubuntu 22.04"
         }
       ],
-      "bootstrap": "kubeadm"
+      "bootstrap": "kubeadm",
+      "vanilla": {
+        "cni": "calico",
+        "ingress_controller": "ingress-nginx",
+        "os_images": [
+          {
+            "os_image": "Ubuntu 22.04",
+            "count": 6
+          }
+        ],
+        "kubelet_versions": [
+          "v1.30.4"
+        ],
+        "kubelet_skew_detected": false,
+        "admission_webhooks_total": 5,
+        "admission_webhooks_validating": 3,
+        "admission_webhooks_mutating": 2
+      }
     }
   ],
   "workloads": [
@@ -1805,5 +1839,8 @@
   "skipped": [],
   "warnings": [
     "fixture: vanilla-k8s-realistic \u2014 synthetic data, two clusters, mesh + stateful + custom CRDs"
-  ]
+  ],
+  "vanilla": {
+    "bootstrapper": "kubeadm"
+  }
 }

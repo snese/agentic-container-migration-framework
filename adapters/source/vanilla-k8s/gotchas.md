@@ -73,8 +73,9 @@ On AWS, this becomes ECR with VPC endpoints. Migration requires:
 - Pull credentials updated in workloads (often hardcoded `imagePullSecrets`)
 - Air-gap → public AWS may not be acceptable; surface as a constraint early
 
-## 🚧 v0.7-rc: Not yet covered
+## 🚧 v0.8: Not yet covered (true SME items)
 
 - Talos-specific configuration (`machineconfig`) → AMI translation
 - CAPI-managed cluster → CAPI-managed EKS migration playbook
 - Hand-rolled GitOps (yamls in a repo + `kubectl apply` cron) → Flux/ArgoCD onboarding
+- node-level kubelet config (e.g. `--system-reserved`, custom CRI flags) — only visible from on-node access

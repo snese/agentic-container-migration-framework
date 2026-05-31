@@ -29,7 +29,11 @@ log_error() { printf '%s[ERROR]%s %s\n' "${__C_RED}" "${__C_RST}" "$*" >&2; }
 log_dim()   { printf '%s%s%s\n'         "${__C_DIM}" "$*" "${__C_RST}" >&2; }
 
 # Schema constant — bump when the bundle schema changes.
-ACMF_SCHEMA_VERSION="${ACMF_SCHEMA_VERSION:-1.0.0}"
+# 1.0.0 → 1.1.0 (v0.8): added top-level openshift / rancher / vanilla blocks,
+# clusters[].anthos.config_connector, identity.workload_identity_bindings,
+# workloads_hardware_bound, openshift.scc_usage, openshift.subscriptions[].migration_rating.
+# Backwards compatible: only additive properties; no required-field changes.
+ACMF_SCHEMA_VERSION="${ACMF_SCHEMA_VERSION:-1.1.0}"
 
 # ----- preflight -----
 

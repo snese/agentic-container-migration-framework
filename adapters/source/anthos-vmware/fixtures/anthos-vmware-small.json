@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "anthos-vmware",
   "scope": {
@@ -380,7 +380,8 @@
     "pvc_count": 2,
     "provisioners_in_use": [
       "csi.vsphere.vmware.com"
-    ]
+    ],
+    "vsphere_csi_pv_count": 1
   },
   "identity": {
     "service_accounts_total": 12,
@@ -437,6 +438,7 @@
   "vmware": {
     "hosts_count": 6,
     "datastores_count": 3,
-    "vcenter_version": "8.0u2"
+    "vcenter_version": "8.0u2",
+    "vsphere_csi_pv_count": 1
   }
 }

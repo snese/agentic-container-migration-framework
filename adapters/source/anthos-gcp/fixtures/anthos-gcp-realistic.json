@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "anthos-gcp",
   "scope": {
@@ -39,7 +39,19 @@
       ],
       "anthos": {
         "version": "1.30.4-gke.1147",
-        "release_channel": "REGULAR"
+        "release_channel": "REGULAR",
+        "workload_identity_pool": "my-project.svc.id.goog",
+        "config_connector": {
+          "installed": true,
+          "crd_count": 84,
+          "managed_resource_kinds": [
+            "StorageBucket",
+            "PubSubTopic",
+            "BigQueryDataset",
+            "ComputeFirewall",
+            "IAMServiceAccount"
+          ]
+        }
       }
     },
     {
@@ -60,7 +72,19 @@
       ],
       "anthos": {
         "version": "1.30.4-gke.1147",
-        "release_channel": "REGULAR"
+        "release_channel": "REGULAR",
+        "workload_identity_pool": "my-project.svc.id.goog",
+        "config_connector": {
+          "installed": true,
+          "crd_count": 84,
+          "managed_resource_kinds": [
+            "StorageBucket",
+            "PubSubTopic",
+            "BigQueryDataset",
+            "ComputeFirewall",
+            "IAMServiceAccount"
+          ]
+        }
       }
     }
   ],
@@ -1707,7 +1731,39 @@
   "identity": {
     "service_accounts_total": 65,
     "cluster_role_bindings_total": 27,
-    "workload_identity_enabled": true
+    "workload_identity_enabled": true,
+    "workload_identity_bindings": [
+      {
+        "service_account_namespace": "frontend",
+        "service_account_name": "app-1",
+        "gcp_service_account": "app-1@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "backend",
+        "service_account_name": "app-2",
+        "gcp_service_account": "app-2@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "data",
+        "service_account_name": "app-3",
+        "gcp_service_account": "app-3@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "platform",
+        "service_account_name": "app-4",
+        "gcp_service_account": "app-4@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "observability",
+        "service_account_name": "app-5",
+        "gcp_service_account": "app-5@my-project.iam.gserviceaccount.com"
+      },
+      {
+        "service_account_namespace": "shop",
+        "service_account_name": "app-6",
+        "gcp_service_account": "app-6@my-project.iam.gserviceaccount.com"
+      }
+    ]
   },
   "external_dependencies": [
     {

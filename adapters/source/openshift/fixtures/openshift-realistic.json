@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "openshift",
   "scope": {
@@ -1835,6 +1835,8 @@
     "fixture: openshift-realistic \u2014 synthetic data, two clusters, mesh + stateful + custom CRDs"
   ],
   "openshift": {
+    "is_rosa": false,
+    "infrastructure_provider": "BareMetal",
     "image_streams_total": 24,
     "build_configs_total": 11,
     "subscriptions": [
@@ -1843,14 +1845,72 @@
         "name": "cert-manager-operator",
         "package": "cert-manager-operator",
         "channel": "stable-v1",
-        "source": "redhat-operators"
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "AWS Certificate Manager (ACM) for public certs; cert-manager-on-EKS for in-cluster",
+          "rationale": "cert-manager runs on EKS unchanged; ACM replaces public-facing TLS issuance"
+        }
       },
       {
         "namespace": "openshift-operators",
         "name": "openshift-pipelines-operator-rh",
         "package": "openshift-pipelines-operator-rh",
         "channel": "latest",
-        "source": "redhat-operators"
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "AWS CodePipeline + CodeBuild, or Tekton on EKS",
+          "rationale": "Tekton CRDs portable to EKS; AWS-native CI is the typical move"
+        }
+      },
+      {
+        "namespace": "openshift-operators",
+        "name": "openshift-gitops-operator",
+        "package": "openshift-gitops-operator",
+        "channel": "latest",
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "Argo CD on EKS",
+          "rationale": "Drop-in; manifests portable"
+        }
+      },
+      {
+        "namespace": "openshift-operators",
+        "name": "strimzi-kafka-operator",
+        "package": "strimzi-kafka-operator",
+        "channel": "stable",
+        "source": "community-operators",
+        "migration_rating": {
+          "rating": "hard",
+          "aws_target": "Amazon MSK, or Strimzi on EKS",
+          "rationale": "Topic/ACL replication via MirrorMaker2; broker-to-MSK semantics differ"
+        }
+      },
+      {
+        "namespace": "openshift-operators",
+        "name": "metallb-operator",
+        "package": "metallb-operator",
+        "channel": "stable",
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "blocker",
+          "aws_target": "AWS Load Balancer Controller (ALB/NLB)",
+          "rationale": "MetalLB BGP/L2 model has no AWS equivalent"
+        }
+      },
+      {
+        "namespace": "openshift-operators",
+        "name": "acme-custom-operator",
+        "package": "acme-custom-operator",
+        "channel": "stable",
+        "source": "custom-catalog",
+        "migration_rating": {
+          "rating": "unknown",
+          "aws_target": "",
+          "rationale": "Operator 'acme-custom-operator' not in built-in rating table; SME review required."
+        }
       }
     ],
     "machine_config_pools": [
@@ -1864,6 +1924,45 @@
         "ready": 6,
         "total": 6
       }
-    ]
+    ],
+    "scc_usage": [
+      {
+        "scc": "anyuid",
+        "namespace": "data",
+        "binding_name": "data-anyuid",
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "kafka",
+            "namespace": "data"
+          }
+        ]
+      },
+      {
+        "scc": "privileged",
+        "namespace": "platform",
+        "binding_name": "platform-priv",
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "calico-node",
+            "namespace": "platform"
+          }
+        ]
+      },
+      {
+        "scc": "hostnetwork-v2",
+        "namespace": "observability",
+        "binding_name": "obs-hostnet",
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "node-exporter",
+            "namespace": "observability"
+          }
+        ]
+      }
+    ],
+    "scc_total": 8
   }
 }

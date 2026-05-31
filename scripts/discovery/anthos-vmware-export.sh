@@ -236,7 +236,8 @@ main() {
        storage_classes: [(($sc.items // [])[] | { name: .metadata.name, provisioner: .provisioner })],
        pv_count: (($pv.items // []) | length),
        pvc_count: (($pvc.items // []) | length),
-       provisioners_in_use: [(($pv.items // [])[].spec.csi.driver // ($pv.items // [])[].spec.storageClassName // "unknown")] | unique
+       provisioners_in_use: [(($pv.items // [])[].spec.csi.driver // ($pv.items // [])[].spec.storageClassName // "unknown")] | unique,
+       vsphere_csi_pv_count: [(($pv.items // [])[] | select(.spec.csi.driver == "csi.vsphere.vmware.com"))] | length
      }')"
 
   jq --argjson s "$storage_block" '.storage = $s' \
@@ -299,6 +300,14 @@ main() {
     fi
   else
     bundle_add_skipped "$bundle" "govc ls / vm.info" "govc CLI not installed"
+  fi
+
+  # 11. Precise warnings (only when actionable)
+  local csi_pv_count
+  csi_pv_count="$(jq -r '.storage.vsphere_csi_pv_count // 0' "$bundle")"
+  if [ "$csi_pv_count" -gt 0 ]; then
+    bundle_add_warning "$bundle" \
+      "Anthos-vmware: ${csi_pv_count} vSphere CSI PV(s) detected — each block volume needs a data-migration plan (DMS for DBs, fresh-load + replay for caches; EBS/EFS targeting depends on access mode)."
   fi
 
   log_info "Bundle written: $bundle"

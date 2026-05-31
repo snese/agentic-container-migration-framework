@@ -1,6 +1,6 @@
 # Source Adapter: Anthos on GCP (GKE)
 
-**Status:** 🚧 v0.7-rc — basic mapping in place; SME review needed for Workload Identity Federation patterns and Anthos-specific KCC (Config Connector) coverage.
+**Status:** ✅ v0.8 — discovery complete. GKE control-plane metadata, Workload Identity bindings (KSA→GSA mapping), and Config Connector (KCC) presence + managed-CRD-kind list are all collected automatically. Workload Identity Federation cross-project trust + GKE Sandbox / gVisor remain SME items.
 
 ## Scope
 

@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-05-27T06:52:51Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-31T23:52:46Z",
   "generated_by": "self-export-script",
   "source_platform": "anthos-baremetal",
   "scope": {
@@ -34,7 +34,10 @@
       ],
       "anthos": {
         "version": "1.16.4",
-        "baremetal_cluster_count": 1
+        "baremetal_cluster_count": 1,
+        "baremetal_cluster_names": [
+          "onprem-bm-1"
+        ]
       }
     }
   ],
@@ -431,5 +434,17 @@
   "skipped": [],
   "warnings": [
     "fixture: anthos-baremetal-small \u2014 synthetic data, not derived from a live cluster"
+  ],
+  "workloads_hardware_bound": [
+    {
+      "namespace": "default",
+      "name": "log-shipper",
+      "kind": "DaemonSet",
+      "reasons": [
+        "hostPath",
+        "privileged"
+      ],
+      "detail": "Detected: hostPath, privileged"
+    }
   ]
 }

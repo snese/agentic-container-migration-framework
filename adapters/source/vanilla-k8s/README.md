@@ -1,6 +1,6 @@
 # Source Adapter: Vanilla / Self-Managed Kubernetes
 
-**Status:** ✅ Stable for the K8s-core layer; bootstrapper-specific quirks (kubeadm vs kops vs Talos vs kubespray) are surfaced via warnings rather than custom blocks.
+**Status:** ✅ v0.8 — discovery complete. CNI plugin, ingress controller, OS image distribution, kubelet version skew, and admission webhook counts are now auto-collected. Bootstrapper-specific quirks (kubeadm vs kops vs Talos vs kubespray) are surfaced via warnings rather than custom blocks.
 
 ## Scope
 

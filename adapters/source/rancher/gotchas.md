@@ -69,10 +69,9 @@ K3s defaults to embedded etcd, but can also use external (PostgreSQL, MySQL, etc
 control plane is fully managed — you don't pick a datastore. Surface the K3s datastore choice
 in `warnings[]` so the team knows whether the migration breaks any external-DB-based DR setup.
 
-## 🚧 v0.7-rc: Not yet covered
+## 🚧 v0.8: Not yet covered (true SME items)
 
-- Management-cluster Fleet bundle enumeration (separate prompt needed)
-- Cluster Template → Terraform/CDK auto-translation
-- Harvester (HCI) workload extraction
+- Cluster Template → Terraform/CDK auto-translation (re-author IaC during migration)
+- Harvester (HCI) workload extraction (separate from K8s migration scope)
 - Rancher Monitoring (Project-scoped Prometheus) → AMP namespace mapping
-- Cattle agent + impersonation TLS chain replacement
+- Cattle agent + impersonation TLS chain replacement (per-engagement)

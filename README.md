@@ -2,7 +2,7 @@
 
 > Agent-driven methodology for migrating container workloads from on-premises / hybrid platforms (Anthos, OpenShift, Rancher, vanilla K8s) to AWS (EKS, ECS, App Runner).
 
-**Status:** 🚧 Early draft — Anthos on VMware → AWS as the first reference scenario.
+**Status:** v0.8 — Phase 1 (Assess) discovery scripts complete for all 6 source platforms. Anthos on VMware → AWS remains the reference scenario for end-to-end Phase 2/3 work.
 
 ## Why "Agentic"?
 
@@ -50,12 +50,12 @@ Detailed phase docs: see [`docs/phases/`](docs/phases/). Methodology layer (CAF 
 |---|---|---|---|
 | **Anthos on VMware** ⭐ | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
 | **Anthos on GCP** (GKE) | ✅ Primary | ✅ Selective | ⚠️ Stateless only |
-| **Anthos on Bare Metal** | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Single-service only |
-| **OpenShift** (OCP 4.x) | 🚧 v0.7-rc | ⚠️ Stateless only | — |
-| **Rancher** (RKE / RKE2 / K3s) | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Stateless only |
-| **Vanilla / self-managed K8s** | 🚧 v0.7-rc | ⚠️ Stateless only | ⚠️ Stateless only |
+| **Anthos on Bare Metal** | ✅ v0.8 (HW workloads need SME) | ⚠️ Stateless only | ⚠️ Single-service only |
+| **OpenShift** (OCP 4.x) | ✅ v0.8 (operator rating built-in) | ⚠️ Stateless only | — |
+| **Rancher** (RKE / RKE2 / K3s) | ✅ v0.8 | ⚠️ Stateless only | ⚠️ Stateless only |
+| **Vanilla / self-managed K8s** | ✅ v0.8 | ⚠️ Stateless only | ⚠️ Stateless only |
 
-✅ = supported · ⚠️ = with caveats · 🚧 v0.7-rc = basic flow works, SME review pending
+✅ = Phase 1 (Assess) discovery complete · ⚠️ = with caveats · "needs SME" = some sub-domain still requires expert review (KubeVirt extraction, BMC inventory, custom Operator rating)
 
 Each source has a dedicated adapter under [`adapters/source/<platform>/`](adapters/source/) with
 README + mapping table + gotchas + Kiro CLI discovery prompt + offline fixtures.
@@ -99,12 +99,12 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 │   └── case-studies/               # Real customer stories (anonymized)
 ├── adapters/
 │   ├── source/
-│   │   ├── anthos-vmware/          # ⭐ Reference adapter
-│   │   ├── anthos-gcp/             # 🚧 v0.7-rc
-│   │   ├── anthos-baremetal/       # 🚧 v0.7-rc
-│   │   ├── openshift/              # 🚧 v0.7-rc
-│   │   ├── rancher/                # 🚧 v0.7-rc
-│   │   ├── vanilla-k8s/            # 🚧 v0.7-rc (catch-all)
+│   │   ├── anthos-vmware/          # ✅ v0.8 Reference
+│   │   ├── anthos-gcp/             # ✅ v0.8
+│   │   ├── anthos-baremetal/       # ✅ v0.8
+│   │   ├── openshift/              # ✅ v0.8
+│   │   ├── rancher/                # ✅ v0.8
+│   │   ├── vanilla-k8s/            # ✅ v0.8 (catch-all)
 │   │   └── _template/              # How to add a new source
 │   └── target/
 │       ├── eks/
@@ -113,7 +113,7 @@ Full decision matrix in [`docs/decisions/ecs-vs-eks.md`](docs/decisions/ecs-vs-e
 ├── prompts/
 │   └── discovery/                  # Kiro CLI discovery prompts (one per source)
 ├── schemas/
-│   └── discovery-bundle.schema.json  # Phase 1 output schema (v1.0.0)
+│   └── discovery-bundle.schema.json  # Phase 1 output schema (v1.1.0)
 ├── scripts/
 │   └── discovery/                  # Self-export scripts + simulator + validator
 └── examples/                       # End-to-end walkthroughs
@@ -159,11 +159,12 @@ Validator dependency: `python3` + `jsonschema` (Debian/Ubuntu:
 - [x] Anthos-on-VMware discovery prompt + schema
 - [x] All 6 source adapters (anthos-vmware ⭐, anthos-gcp, anthos-baremetal, openshift, rancher, vanilla-k8s)
 - [x] Self-export scripts + dry-run mode + simulator + validator (v0.7)
+- [x] **v0.8: Phase 1 Assess complete for all 6 platforms** — schema 1.1.0, OpenShift Operator→AWS rating table (easy/hard/blocker), SCC effective bindings, ROSA detection, Workload Identity bindings, Config Connector probe, hardware-bound workload mining, Rancher distro/server-version + management-cluster classification, vanilla-k8s CNI + admission webhooks + kubelet skew, vSphere CSI PV count
 - [ ] EKS target adapter (ADRs, IaC patterns)
 - [ ] ECS Fargate target adapter
 - [ ] First case study (Anthos → EKS)
 - [ ] Kiro CLI integration guide
-- [ ] SME review of v0.7-rc adapters (operator mappings, hardware-bound workloads)
+- [ ] SME tasks remaining (per-engagement): KubeVirt extraction, BMC/Redfish inventory, Operators not in rating table, GKE Sandbox triage, Cluster Templates → IaC re-author
 
 ## License
 

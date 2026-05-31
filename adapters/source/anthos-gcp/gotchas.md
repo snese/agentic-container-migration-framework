@@ -48,9 +48,8 @@ re-baselined: customers consistently underestimate by ~10-15% when only the app 
 - **Cloud DNS for GKE** — DNS is solved by the GCP project. On AWS, every cluster needs CoreDNS sized + Route 53 patterns picked.
 - **Private GKE cluster** — control-plane endpoint is private. Equivalent on EKS is "Private Endpoint" + VPC peering / Transit Gateway; review jump-box / IDE access.
 
-## 🚧 v0.7-rc: Not yet covered
+## 🚧 v0.8: Not yet covered (true SME items)
 
-- Config Connector (KCC) → AWS Controllers for Kubernetes (ACK) translation table
 - Backup-for-GKE-encrypted-with-CMEK → AWS Backup-equivalent KMS migration
-- GKE Sandbox (gVisor) → no direct AWS equivalent; needs SME triage
-- Workload Identity Federation (cross-project) → IAM Identity Center / SAML federation
+- GKE Sandbox (gVisor) → no direct AWS equivalent; needs SME triage per workload
+- Workload Identity Federation **cross-project** trust → IAM Identity Center / SAML federation
