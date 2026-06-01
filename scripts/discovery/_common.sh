@@ -128,10 +128,16 @@ kc() {
   [ -n "$KUBECONFIG_FILE" ] && args+=(--kubeconfig "$KUBECONFIG_FILE")
   [ -n "$KUBE_CONTEXT" ]    && args+=(--context "$KUBE_CONTEXT")
   if [ "$DRY_RUN" = "1" ]; then
-    printf 'DRY-RUN: kubectl %s %s\n' "${args[*]:-}" "$*" >&2
+    # ${args[@]+...} guards against "unbound variable" on empty arrays under
+    # `set -o nounset` (bash <4.4). %q-printing keeps a copy-pasteable, quoted
+    # representation that never word-splits even with spaces in the values.
+    printf 'DRY-RUN: kubectl %s %s\n' \
+      "$(printf '%q ' ${args[@]+"${args[@]}"})" "$*" >&2
     return 0
   fi
-  kubectl "${args[@]}" "$@"
+  # Quoted array expansion guarded for empty-array + nounset; each element was
+  # pushed pre-quoted above so no word-splitting / injection is possible.
+  kubectl ${args[@]+"${args[@]}"} "$@"
 }
 
 # Run a command (or echo it if --dry-run); used for non-kubectl tools.
