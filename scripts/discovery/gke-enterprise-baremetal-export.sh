@@ -97,8 +97,9 @@ NODE_COUNT="$(kubectl get nodes -o json 2>/dev/null | jq '.items | length')"
 ANTHOS_BM_JSON="{}"
 if kubectl get crd cluster.baremetal.cluster.gke.io >/dev/null 2>&1; then
   BM_JSON="$(kubectl get cluster.baremetal.cluster.gke.io -A -o json 2>/dev/null || echo '{"items":[]}')"
-  BM_COUNT="$(echo "$BM_JSON" | jq '(.items // []) | length')"
-  BM_NAMES_JSON="$(echo "$BM_JSON" | jq '[(.items // [])[] | .metadata.name]')"
+  # Default to valid JSON so --argjson below can never get empty/non-JSON input.
+  BM_COUNT="$(echo "$BM_JSON" | jq '(.items // []) | length')"; BM_COUNT="${BM_COUNT:-0}"
+  BM_NAMES_JSON="$(echo "$BM_JSON" | jq -c '[(.items // [])[] | .metadata.name]')"; BM_NAMES_JSON="${BM_NAMES_JSON:-[]}"
   ANTHOS_BM_JSON="$(jq -n --argjson c "$BM_COUNT" --argjson names "$BM_NAMES_JSON" \
     '{baremetal_cluster_count:$c, baremetal_cluster_names:$names}')"
 else
