@@ -1,0 +1,181 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "generated_by": "self-export-script",
+  "scope": {
+    "clusters": [
+      "gke-enterprise-bm-cluster-1"
+    ],
+    "namespaces_included": [
+      "telco"
+    ],
+    "namespaces_excluded": [
+      "kube-system"
+    ]
+  },
+  "clusters": [
+    {
+      "name": "gke-enterprise-bm-cluster-1",
+      "version": "v1.30.4",
+      "location": "on-prem-baremetal",
+      "platform": "baremetal",
+      "control_plane": {
+        "ha_mode": "unknown",
+        "node_count": 3
+      },
+      "node_pools": [
+        {
+          "name": "default",
+          "count": 3,
+          "k8s_version": "v1.30.4"
+        }
+      ],
+      "anthos_version": null,
+      "anthos_config_management_version": null,
+      "service_mesh": {
+        "enabled": false,
+        "type": "none",
+        "version": null
+      },
+      "anthos": {
+        "baremetal_cluster_count": 1,
+        "baremetal_cluster_names": [
+          "gke-enterprise-bm-cluster-1"
+        ]
+      }
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "gke-enterprise-bm-cluster-1",
+      "namespace": "telco",
+      "kind": "Deployment",
+      "name": "edge-gateway",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/edge-gateway:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    },
+    {
+      "cluster": "gke-enterprise-bm-cluster-1",
+      "namespace": "telco",
+      "kind": "DaemonSet",
+      "name": "sriov-cni",
+      "classification": "system",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/sriov-cni:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    }
+  ],
+  "networking": {
+    "services": [],
+    "ingress": [],
+    "network_policies": {
+      "count": 0,
+      "samples": []
+    },
+    "service_mesh": {
+      "virtual_services": {
+        "count": 0,
+        "samples": []
+      },
+      "destination_rules": {
+        "count": 0,
+        "samples": []
+      },
+      "authorization_policies": {
+        "count": 0,
+        "samples": []
+      }
+    }
+  },
+  "storage": {
+    "storage_classes": [],
+    "persistent_volumes": [],
+    "persistent_volume_claims": []
+  },
+  "identity": {
+    "service_accounts": {
+      "total_count": 0,
+      "with_non_default_tokens": []
+    },
+    "cluster_role_bindings": [],
+    "workload_identity_bindings": []
+  },
+  "external_dependencies": [],
+  "crds": [],
+  "vmware": {
+    "clusters": [],
+    "hosts": [],
+    "datastores": [],
+    "vm_to_node_mapping": []
+  },
+  "utilization": {
+    "nodes": [],
+    "pods": [],
+    "summary": {
+      "cluster_cpu_utilization_pct": 0.0,
+      "cluster_memory_utilization_pct": 0.0,
+      "over_provisioning_ratio": 0.0,
+      "metrics_source": null
+    }
+  },
+  "traffic": {
+    "pairs": [],
+    "summary": {
+      "east_west_bytes_per_sec": 0,
+      "north_south_bytes_per_sec": 0,
+      "total_service_pairs": 0,
+      "telemetry_source": null
+    }
+  },
+  "skipped": [],
+  "warnings": [
+    "fixture: synthetic data, not derived from a live cluster",
+    "GKE Enterprise on Bare Metal: 1 hardware-bound workload(s) detected \u2014 each needs SME triage for AWS placement."
+  ],
+  "workloads_hardware_bound": [
+    {
+      "namespace": "telco",
+      "name": "edge-gateway",
+      "kind": "Deployment",
+      "reasons": [
+        "hostNetwork",
+        "sriov"
+      ],
+      "detail": "Detected: hostNetwork, sriov"
+    }
+  ]
+}
