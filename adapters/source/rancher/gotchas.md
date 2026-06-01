@@ -69,7 +69,7 @@ K3s defaults to embedded etcd, but can also use external (PostgreSQL, MySQL, etc
 control plane is fully managed — you don't pick a datastore. Surface the K3s datastore choice
 in `warnings[]` so the team knows whether the migration breaks any external-DB-based DR setup.
 
-## 🚧 v0.8: Not yet covered (true SME items)
+## Beyond v0.8 scope (true SME items)
 
 - Cluster Template → Terraform/CDK auto-translation (re-author IaC during migration)
 - Harvester (HCI) workload extraction (separate from K8s migration scope)

@@ -53,7 +53,7 @@ DC). Pure on-prem bare-metal Anthos → public-cloud EKS can fail the air-gap re
 🚧 If air-gap is a hard requirement, EKS Anywhere is a likely target instead — but ACMF doesn't
 yet have an EKS Anywhere target adapter.
 
-## 🚧 v0.8: Not yet covered (true SME items)
+## Beyond v0.8 scope (true SME items)
 
 - BMC-level inventory (Redfish, IPMI) — not collected by the export script (out-of-band channel)
 - Full SR-IOV / DPDK migration playbook (script flags the workloads; design review is the next step)

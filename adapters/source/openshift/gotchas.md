@@ -66,7 +66,7 @@ If the source is **ROSA** (Red Hat OpenShift on AWS), the underlying cloud is al
 compute mostly stay. This is a much smaller migration than ROSA-from-scratch and should be scoped
 differently.
 
-## 🚧 v0.8: Not yet covered (true SME items)
+## Beyond v0.8 scope (true SME items)
 
 - KubeVirt → EC2 / Nitro System workload extraction (handled as `blocker` rating only — actual extraction is a separate workstream)
 - HyperShift hosted-cluster cutover patterns

@@ -151,7 +151,7 @@ Validator dependency: `python3` + `jsonschema` (Debian/Ubuntu:
 
 ## Getting Started
 
-> 🚧 Tooling is still being built. For now, see [`docs/phases/01-assess.md`](docs/phases/01-assess.md) for the manual flow.
+**Phase 1 (Assess) tooling is ready** for all 6 source platforms — run the self-export script for your platform (see the Quick Start above), validate the bundle against the schema, then follow [`docs/phases/01-assess.md`](docs/phases/01-assess.md) to interpret the results. Phases 2–5 (Mobilize → Document) currently follow the manual playbooks under [`docs/phases/`](docs/phases/); target-adapter tooling (EKS / ECS Fargate) is on the roadmap below.
 
 ## Roadmap
 
