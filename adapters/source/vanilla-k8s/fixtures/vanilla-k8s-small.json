@@ -1,0 +1,158 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "generated_by": "self-export-script",
+  "scope": {
+    "clusters": [
+      "vanilla-kubeadm-cluster-1"
+    ],
+    "namespaces_included": [
+      "app-a"
+    ],
+    "namespaces_excluded": [
+      "kube-system"
+    ]
+  },
+  "clusters": [
+    {
+      "name": "vanilla-kubeadm-cluster-1",
+      "version": "v1.30.4",
+      "location": "on-prem-dc",
+      "platform": "other",
+      "control_plane": {
+        "ha_mode": "unknown",
+        "node_count": 3
+      },
+      "node_pools": [
+        {
+          "name": "default",
+          "count": 3,
+          "k8s_version": "v1.30.4"
+        }
+      ],
+      "anthos_version": null,
+      "anthos_config_management_version": null,
+      "service_mesh": {
+        "enabled": false,
+        "type": "none",
+        "version": null
+      },
+      "bootstrap": "kubeadm",
+      "vanilla": {
+        "cni": "calico",
+        "ingress_controller": "ingress-nginx",
+        "os_images": [
+          {
+            "os_image": "Ubuntu 22.04",
+            "count": 3
+          }
+        ],
+        "kubelet_versions": [
+          "v1.30.4"
+        ],
+        "kubelet_skew_detected": false,
+        "admission_webhooks_total": 2,
+        "admission_webhooks_validating": 1,
+        "admission_webhooks_mutating": 1
+      }
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "vanilla-kubeadm-cluster-1",
+      "namespace": "app-a",
+      "kind": "Deployment",
+      "name": "web",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/web:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    }
+  ],
+  "networking": {
+    "services": [],
+    "ingress": [],
+    "network_policies": {
+      "count": 0,
+      "samples": []
+    },
+    "service_mesh": {
+      "virtual_services": {
+        "count": 0,
+        "samples": []
+      },
+      "destination_rules": {
+        "count": 0,
+        "samples": []
+      },
+      "authorization_policies": {
+        "count": 0,
+        "samples": []
+      }
+    }
+  },
+  "storage": {
+    "storage_classes": [],
+    "persistent_volumes": [],
+    "persistent_volume_claims": []
+  },
+  "identity": {
+    "service_accounts": {
+      "total_count": 0,
+      "with_non_default_tokens": []
+    },
+    "cluster_role_bindings": [],
+    "workload_identity_bindings": []
+  },
+  "external_dependencies": [],
+  "crds": [],
+  "vmware": {
+    "clusters": [],
+    "hosts": [],
+    "datastores": [],
+    "vm_to_node_mapping": []
+  },
+  "utilization": {
+    "nodes": [],
+    "pods": [],
+    "summary": {
+      "cluster_cpu_utilization_pct": 0.0,
+      "cluster_memory_utilization_pct": 0.0,
+      "over_provisioning_ratio": 0.0,
+      "metrics_source": null
+    }
+  },
+  "traffic": {
+    "pairs": [],
+    "summary": {
+      "east_west_bytes_per_sec": 0,
+      "north_south_bytes_per_sec": 0,
+      "total_service_pairs": 0,
+      "telemetry_source": null
+    }
+  },
+  "skipped": [],
+  "warnings": [
+    "fixture: synthetic data, not derived from a live cluster",
+    "Vanilla-k8s: 2 admission webhook(s) \u2014 each must be redeployed on EKS."
+  ],
+  "vanilla": {
+    "bootstrapper": "kubeadm"
+  }
+}
