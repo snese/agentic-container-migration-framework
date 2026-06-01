@@ -1,0 +1,227 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "generated_by": "self-export-script",
+  "scope": {
+    "clusters": [
+      "ocp-small-cluster-1"
+    ],
+    "namespaces_included": [
+      "shop"
+    ],
+    "namespaces_excluded": [
+      "kube-system"
+    ]
+  },
+  "clusters": [
+    {
+      "name": "ocp-small-cluster-1",
+      "version": "v1.30.4",
+      "location": "on-prem-ocp-dc1",
+      "platform": "other",
+      "control_plane": {
+        "ha_mode": "unknown",
+        "node_count": 3
+      },
+      "node_pools": [
+        {
+          "name": "default",
+          "count": 3,
+          "k8s_version": "v1.30.4"
+        }
+      ],
+      "anthos_version": null,
+      "anthos_config_management_version": null,
+      "service_mesh": {
+        "enabled": false,
+        "type": "none",
+        "version": null
+      },
+      "openshift": {
+        "current_version": "4.15.10",
+        "channel": "stable-4.15"
+      }
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "ocp-small-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "frontend",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/frontend:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    },
+    {
+      "cluster": "ocp-small-cluster-1",
+      "namespace": "shop",
+      "kind": "StatefulSet",
+      "name": "postgres",
+      "classification": "stateful",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/postgres:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    }
+  ],
+  "networking": {
+    "services": [],
+    "ingress": [],
+    "network_policies": {
+      "count": 0,
+      "samples": []
+    },
+    "service_mesh": {
+      "virtual_services": {
+        "count": 0,
+        "samples": []
+      },
+      "destination_rules": {
+        "count": 0,
+        "samples": []
+      },
+      "authorization_policies": {
+        "count": 0,
+        "samples": []
+      }
+    }
+  },
+  "storage": {
+    "storage_classes": [],
+    "persistent_volumes": [],
+    "persistent_volume_claims": []
+  },
+  "identity": {
+    "service_accounts": {
+      "total_count": 0,
+      "with_non_default_tokens": []
+    },
+    "cluster_role_bindings": [],
+    "workload_identity_bindings": []
+  },
+  "external_dependencies": [],
+  "crds": [],
+  "vmware": {
+    "clusters": [],
+    "hosts": [],
+    "datastores": [],
+    "vm_to_node_mapping": []
+  },
+  "utilization": {
+    "nodes": [],
+    "pods": [],
+    "summary": {
+      "cluster_cpu_utilization_pct": 0.0,
+      "cluster_memory_utilization_pct": 0.0,
+      "over_provisioning_ratio": 0.0,
+      "metrics_source": null
+    }
+  },
+  "traffic": {
+    "pairs": [],
+    "summary": {
+      "east_west_bytes_per_sec": 0,
+      "north_south_bytes_per_sec": 0,
+      "total_service_pairs": 0,
+      "telemetry_source": null
+    }
+  },
+  "skipped": [],
+  "warnings": [
+    "fixture: synthetic data, not derived from a live cluster",
+    "OpenShift: 1 effective SCC binding(s) detected \u2014 each must map to PodSecurity Admission (PSA) label on EKS."
+  ],
+  "openshift": {
+    "is_rosa": false,
+    "infrastructure_provider": "BareMetal",
+    "image_streams_total": 24,
+    "build_configs_total": 3,
+    "openshift_routes_total": 4,
+    "scc_total": 8,
+    "subscriptions": [
+      {
+        "namespace": "openshift-operators",
+        "name": "cert-manager-operator",
+        "package": "cert-manager-operator",
+        "channel": "stable-v1",
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "easy",
+          "aws_target": "AWS Certificate Manager (ACM) for public certs; cert-manager-on-EKS for in-cluster",
+          "rationale": "cert-manager runs on EKS unchanged; ACM replaces public-facing TLS issuance"
+        }
+      },
+      {
+        "namespace": "openshift-operators",
+        "name": "ocs-operator",
+        "package": "ocs-operator",
+        "channel": "stable",
+        "source": "redhat-operators",
+        "migration_rating": {
+          "rating": "blocker",
+          "aws_target": "Amazon EBS / EFS / FSx for Lustre / Amazon S3 (per-tier redesign)",
+          "rationale": "Ceph/ODF is converged storage; AWS splits block/file/object \u2014 storage tiering must be redesigned"
+        }
+      }
+    ],
+    "machine_config_pools": [
+      {
+        "name": "master",
+        "ready": 3,
+        "total": 3
+      },
+      {
+        "name": "worker",
+        "ready": 3,
+        "total": 3
+      }
+    ],
+    "scc_usage": [
+      {
+        "scc": "anyuid",
+        "namespace": "shop",
+        "binding_name": "shop-anyuid",
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "default",
+            "namespace": "shop"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "schema_version": "0.2.0",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "generated_by": "self-export-script",
+  "scope": {
+    "clusters": [
+      "rancher-rke2-cluster-1"
+    ],
+    "namespaces_included": [
+      "shop"
+    ],
+    "namespaces_excluded": [
+      "kube-system"
+    ]
+  },
+  "clusters": [
+    {
+      "name": "rancher-rke2-cluster-1",
+      "version": "v1.30.4",
+      "location": "on-prem-rancher",
+      "platform": "other",
+      "control_plane": {
+        "ha_mode": "unknown",
+        "node_count": 3
+      },
+      "node_pools": [
+        {
+          "name": "default",
+          "count": 3,
+          "k8s_version": "v1.30.4"
+        }
+      ],
+      "anthos_version": null,
+      "anthos_config_management_version": null,
+      "service_mesh": {
+        "enabled": false,
+        "type": "none",
+        "version": null
+      },
+      "rancher": {
+        "distribution": "rke2",
+        "server_version": "v1.30.4+rke2r1",
+        "is_management_cluster": true,
+        "fleet_clusters_total": 4,
+        "fleet_bundles_total": 12
+      }
+    }
+  ],
+  "workloads": [
+    {
+      "cluster": "rancher-rke2-cluster-1",
+      "namespace": "shop",
+      "kind": "Deployment",
+      "name": "frontend",
+      "classification": "stateless",
+      "replicas": {
+        "desired": 2,
+        "current": 2
+      },
+      "images": [
+        "registry.example.com/frontend:1.0"
+      ],
+      "resources": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      },
+      "env_summary": [],
+      "volume_mounts": []
+    }
+  ],
+  "networking": {
+    "services": [],
+    "ingress": [],
+    "network_policies": {
+      "count": 0,
+      "samples": []
+    },
+    "service_mesh": {
+      "virtual_services": {
+        "count": 0,
+        "samples": []
+      },
+      "destination_rules": {
+        "count": 0,
+        "samples": []
+      },
+      "authorization_policies": {
+        "count": 0,
+        "samples": []
+      }
+    }
+  },
+  "storage": {
+    "storage_classes": [],
+    "persistent_volumes": [],
+    "persistent_volume_claims": []
+  },
+  "identity": {
+    "service_accounts": {
+      "total_count": 0,
+      "with_non_default_tokens": []
+    },
+    "cluster_role_bindings": [],
+    "workload_identity_bindings": []
+  },
+  "external_dependencies": [],
+  "crds": [],
+  "vmware": {
+    "clusters": [],
+    "hosts": [],
+    "datastores": [],
+    "vm_to_node_mapping": []
+  },
+  "utilization": {
+    "nodes": [],
+    "pods": [],
+    "summary": {
+      "cluster_cpu_utilization_pct": 0.0,
+      "cluster_memory_utilization_pct": 0.0,
+      "over_provisioning_ratio": 0.0,
+      "metrics_source": null
+    }
+  },
+  "traffic": {
+    "pairs": [],
+    "summary": {
+      "east_west_bytes_per_sec": 0,
+      "north_south_bytes_per_sec": 0,
+      "total_service_pairs": 0,
+      "telemetry_source": null
+    }
+  },
+  "skipped": [],
+  "warnings": [
+    "fixture: synthetic data, not derived from a live cluster",
+    "Rancher: this is the management cluster \u2014 Fleet bundles and cluster templates are visible here."
+  ],
+  "rancher": {
+    "is_management_cluster": true,
+    "downstream_clusters_total": 4
+  }
+}
