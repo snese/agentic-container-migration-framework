@@ -24,3 +24,6 @@ cdk.out/
 node_modules/
 __pycache__/
 *.pyc
+
+# Local indexes (not part of the repo)
+.codegraph/
