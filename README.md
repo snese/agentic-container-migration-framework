@@ -2,9 +2,9 @@
 
 > Compress Kubernetes-to-AWS migration discovery from days to hours — with ephemeral AI agents that run read-only in your environment.
 
-ACMF is an open methodology for migrating container workloads from GKE Enterprise, AKS, OpenShift, or Rancher to AWS (EKS / ECS). You get structured prompts, schema-validated outputs, and decision frameworks — not another IaC library.
+ACMF is an open methodology for migrating container workloads from GKE Enterprise, OpenShift, Rancher, or vanilla Kubernetes to AWS (EKS / ECS). You get structured prompts, schema-validated outputs, and decision frameworks — not another IaC library.
 
-**Status:** v0.6 draft · GKE Enterprise on VMware → EKS is the first reference scenario · [ROADMAP.md](./ROADMAP.md)
+**Status:** v0.6 draft · GKE Enterprise on VMware → EKS is the reference scenario · [ROADMAP.md](./ROADMAP.md)
 
 ---
 
@@ -36,6 +36,8 @@ Assess  →  Mobilize  →  Migrate  →  Modernize  →  Document
 | 4. Modernize | Right-sizing, Pod Identity, observability | [`docs/phases/04-modernize.md`](docs/phases/04-modernize.md) |
 | 5. Document | Case study + lessons learned | [`docs/phases/05-document.md`](docs/phases/05-document.md) |
 
+Visual overview of the full flow: [`docs/architecture/diagrams.md`](docs/architecture/diagrams.md).
+
 Detailed methodology (MAP/CAF alignment, container-native 7 Rs): [`docs/methodology/`](docs/methodology/).
 
 ---
@@ -44,12 +46,13 @@ Detailed methodology (MAP/CAF alignment, container-native 7 Rs): [`docs/methodol
 
 | Source platform | → EKS | → ECS |
 |---|---|---|
-| **GKE Enterprise on VMware** (formerly Anthos) | ✅ Primary | ✅ Selective |
-| **GKE Enterprise on Bare Metal** (formerly Anthos) | ✅ Shares VMware adapter | ✅ Selective |
-| **GKE** (cloud-native) | 🔜 Planned | 🔜 Planned |
+| **GKE Enterprise on VMware** (formerly Anthos) | ✅ Reference | ✅ Selective |
+| **GKE Enterprise on Bare Metal** (formerly Anthos) | ✅ Shipped | ✅ Selective |
+| **GKE Enterprise on GCP** | ✅ Shipped | ✅ Selective |
+| **OpenShift** (incl. ROSA detection) | ✅ Shipped | ✅ Selective |
+| **Rancher** (k3s / RKE2 / Fleet) | ✅ Shipped | ✅ Selective |
+| **Vanilla K8s** (kubeadm / CAPI) | ✅ Shipped | ✅ Selective |
 | **AKS** (Azure) | 🔜 Planned | 🔜 Planned |
-| **OpenShift** | 🔜 Planned | 🔜 Planned |
-| **Rancher / vanilla K8s** | 🔜 Planned | 🔜 Planned |
 
 ACMF complements [AWS Transform](https://aws.amazon.com/transform/) — Transform containerizes individual apps from source code; ACMF migrates workloads that are *already* on Kubernetes. Details: [`docs/decisions/aws-transform-vs-acmf.md`](docs/decisions/aws-transform-vs-acmf.md).
 
@@ -88,26 +91,42 @@ Full decision tree with compute-model selection: [`docs/decisions/ecs-vs-eks.md`
 ```
 .
 ├── docs/
-│   ├── CONSTITUTION.md          # Non-negotiable principles
-│   ├── prerequisites.md         # Tool requirements per adapter
-│   ├── methodology/             # MAP/CAF alignment
-│   ├── phases/                  # Phase 1–5 playbooks
-│   ├── discovery/               # Discovery option details
-│   ├── decisions/               # ECS vs EKS, compute models, AWS Transform
-│   ├── playbooks/               # Modernize-phase playbooks
-│   └── customer-facing/         # 1-pager, pitch guide, FAQ
+│   ├── CONSTITUTION.md              # Non-negotiable principles
+│   ├── prerequisites.md             # Tool requirements per adapter
+│   ├── methodology/                 # MAP/CAF alignment
+│   ├── phases/                      # Phase 1–5 playbooks
+│   ├── discovery/                   # Discovery option details
+│   ├── decisions/                   # ECS vs EKS, compute models, data migration
+│   │   ├── ecs-vs-eks.md            # 3-level decision tree
+│   │   ├── eks-compute-model.md     # Auto Mode vs Karpenter vs MNG
+│   │   ├── ecs-compute-model.md     # Fargate vs EC2 vs Spot
+│   │   ├── aws-transform-vs-acmf.md # Complementary positioning
+│   │   └── data-migration-patterns.md
+│   ├── playbooks/                   # Modernize-phase playbooks
+│   │   ├── config-sync-to-argocd.md
+│   │   ├── irsa-to-pod-identity.md
+│   │   ├── karpenter-rightsizing.md
+│   │   ├── observability-uplift.md
+│   │   └── traffic-shifting.md
+│   ├── architecture/                # Reference diagrams (Mermaid)
+│   └── customer-facing/             # 1-pager, pitch guide, FAQ
 ├── adapters/
 │   ├── source/
-│   │   ├── gke-enterprise-vmware/   # Reference adapter
-│   │   └── _template/               # Add your own
+│   │   ├── gke-enterprise-vmware/   # Reference adapter (most complete)
+│   │   ├── gke-enterprise-baremetal/
+│   │   ├── gke-enterprise-gcp/
+│   │   ├── openshift/
+│   │   ├── rancher/
+│   │   ├── vanilla-k8s/
+│   │   └── _template/              # Add your own
 │   └── target/
 │       ├── eks/
 │       └── ecs/
-├── prompts/                     # Agent prompts (discovery + modernize)
-├── schemas/                     # JSON Schema for artifacts
-├── scripts/                     # Self-export scripts per source
-├── templates/                   # Engagement document templates
-└── examples/                    # End-to-end walkthroughs
+├── prompts/                         # Agent prompts (discovery + modernize)
+├── schemas/                         # JSON Schema for artifacts
+├── scripts/                         # Self-export scripts per source
+├── templates/                       # Engagement document templates
+└── examples/                        # End-to-end walkthroughs
 ```
 
 ---
