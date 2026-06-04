@@ -16,24 +16,27 @@ decision or deliverable.
 ```mermaid
 flowchart LR
     subgraph P1["Phase 1 · Assess"]
-        D[Discovery prompt<br/>+ tool allowlist] --> A1((Ephemeral<br/>agent run))
+        D[Discovery] --> A1((Agent run))
         A1 --> B[discovery-bundle.json]
-        B --> R1[readiness-scorecard.md<br/>assessment-report.md]
+        B --> R1[Assessment Report]
     end
     subgraph P2["Phase 2 · Mobilize"]
-        R1 --> W[wave-plan.md<br/>target-mapping.yaml]
-        W --> LZ[Landing-zone IaC<br/>Terraform/CDK]
+        R1 --> W[Wave Plan]
+        W --> LZ[Landing Zone IaC]
     end
     subgraph P3["Phase 3 · Migrate"]
-        LZ --> CO[Per-wave cutovers<br/>blue/green + rollback]
-        CO --> CL[cutover-log.md]
+        LZ --> CO[Per-wave Cutover]
+        CO --> V[Validate SLOs]
+        V --> GO{Go / No-Go}
+        GO -->|rollback| CO
+        GO -->|next wave| CO
     end
     subgraph P4["Phase 4 · Modernize"]
-        CL --> OPT[Right-size · IRSA cleanup<br/>GitOps · SRE handoff]
-        OPT -.optional.-> A2((Long-lived<br/>opt-in agent))
+        GO -->|all done| OPT[Right-size · GitOps · Pod Identity]
+        OPT -.optional.-> A2((Persistent agent))
     end
     subgraph P5["Phase 5 · Document"]
-        OPT --> CS[Case study<br/>framework feedback]
+        OPT --> CS[Case Study + Lessons Learned]
     end
 
     classDef agent fill:#fff4e6,stroke:#d97706,stroke-width:2px;
@@ -54,35 +57,41 @@ not rewriting the methodology.
 
 ```mermaid
 flowchart LR
-    subgraph SRC["Source adapters (read)"]
-        AV[GKE Enterprise<br/>on VMware]:::ready
-        AG[GKE<br/>(GKE Enterprise)]:::planned
-        OS[OpenShift]:::planned
-        RC[Rancher / vanilla K8s]:::planned
+    subgraph SRC["Source Adapters"]
+        AV[GKE Enterprise on VMware]
+        AB[GKE Enterprise on Bare Metal]
+        AG[GKE Enterprise on GCP]
+        OS[OpenShift]
+        RC[Rancher]
+        VK[Vanilla K8s]
     end
 
     SCH[(discovery-bundle.json<br/>schema v0.2.0)]:::schema
 
-    subgraph TGT["Target adapters (write)"]
-        EKS[Amazon EKS<br/>+ Auto Mode / Karpenter]:::ready
-        ECS[Amazon ECS]:::ready
+    subgraph TGT["Target Adapters"]
+        EKS[Amazon EKS]
+        ECS[Amazon ECS]
     end
 
     AV --> SCH
-    AG -.-> SCH
-    OS -.-> SCH
-    RC -.-> SCH
+    AB --> SCH
+    AG --> SCH
+    OS --> SCH
+    RC --> SCH
+    VK --> SCH
     SCH --> EKS
     SCH --> ECS
 
-    classDef ready fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
-    classDef planned fill:#f1f5f9,stroke:#94a3b8,stroke-dasharray:4 3;
+    classDef default fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
     classDef schema fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+    classDef target fill:#fef9c3,stroke:#ca8a04,stroke-width:2px;
+    class EKS,ECS target;
 ```
 
-**Reading guide:** Solid green = shipped today. Dashed grey = on the roadmap
-([`ROADMAP.md`](../../ROADMAP.md)). The schema in the centre is the contract
-— adapters change independently as long as they read or write the schema.
+**Reading guide:** All 6 source adapters and both target adapters are shipped.
+The schema in the centre is the contract — adapters change independently as
+long as they read or write the schema. See [`ROADMAP.md`](../../ROADMAP.md)
+for future adapters (AKS, Nomad).
 
 ## 3. Discovery architecture (Phase 1 detail)
 
@@ -91,25 +100,18 @@ environment unless they ship it. The agent runs once, writes a JSON file,
 and exits.
 
 ```mermaid
-flowchart LR
-    subgraph CUST["Customer environment (trust boundary)"]
-        K[GKE Enterprise / OCP / Rancher<br/>cluster API + vCenter]
-        TA[Tool allowlist<br/>kubectl/gcloud/govc<br/>read-only]
-        AG((Ephemeral agent CLI<br/>Kiro / Claude Code / Bash))
-        BUN[discovery-bundle.json]
-        H[Customer reviewer]
-
-        TA --> AG
-        K --> AG
-        AG --> BUN
-        BUN --> H
+flowchart TB
+    subgraph CUST["Customer Environment"]
+        K[Source Cluster] --> AG((Agent / Script))
+        AG --> BUN[discovery-bundle.json]
+        BUN --> H[Customer Reviews + Approves]
     end
 
-    LLM{{LLM endpoint<br/>customer-chosen<br/>Bedrock / self-hosted}}
+    LLM{{LLM Endpoint<br/>Bedrock / self-hosted}}
     AG <-.prompt + structured output.-> LLM
 
-    DEL[Delivery side<br/>SA / partner / ProServe]
-    H -.encrypted, out-of-band, customer-initiated.-> DEL
+    DEL[Delivery Side]
+    H -.encrypted, customer-initiated.-> DEL
 
     classDef trust fill:#fef3c7,stroke:#b45309;
     classDef ext fill:#fee2e2,stroke:#991b1b,stroke-dasharray:4 3;
@@ -130,24 +132,24 @@ declared done. Rollback is "set weight back to 0%."
 
 ```mermaid
 flowchart LR
-    U((User /<br/>upstream)) --> GW[Edge gateway<br/>Route 53 weighted<br/>or shared mesh]
+    U((User)) --> GW[Edge Gateway<br/>Route 53 weighted / mesh]
 
-    subgraph SRC2["Source (GKE Enterprise / OCP / on-prem)"]
+    subgraph SRC2["Source"]
         SVC1[svc.payments.v1]
-        WL1[Workload pods<br/>green]
+        WL1[Workload pods]
         SVC1 --> WL1
     end
 
     subgraph TGT2["Target (EKS / ECS)"]
         SVC2[svc.payments.v1]
-        WL2[Workload pods<br/>blue]
+        WL2[Workload pods]
         SVC2 --> WL2
     end
 
-    GW -- "weight: 90% → 50% → 0%" --> SVC1
-    GW -- "weight: 10% → 50% → 100%" --> SVC2
+    GW -- "90% → 50% → 0%" --> SVC1
+    GW -- "10% → 50% → 100%" --> SVC2
 
-    DB[(Shared data plane<br/>RDS / DMS replication<br/>or read-only source)]
+    DB[(Shared Data Plane<br/>RDS / DMS replication)]
     WL1 --> DB
     WL2 --> DB
 
@@ -162,6 +164,38 @@ that's why data-migration patterns
 ([`docs/decisions/data-migration-patterns.md`](../decisions/data-migration-patterns.md))
 must be settled in Phase 2, not Phase 3. Rollback is a weight change, not
 a redeploy.
+
+## 5. Target selection decision tree
+
+The first decision per workload: EKS or ECS? Then which compute model?
+
+```mermaid
+flowchart TD
+    W[Workload] --> Q1{Uses K8s API?}
+    Q1 -->|Yes| EKS[→ EKS]:::eks
+    Q1 -->|No| ECS[→ ECS]:::ecs
+    Q1 -->|Mixed| HY[→ Hybrid]:::hy
+
+    EKS --> Q2{Compute model}
+    Q2 --> AM[Auto Mode]
+    Q2 --> KP[Karpenter]
+    Q2 --> MNG[Managed Node Groups]
+    Q2 --> FP[Fargate Profiles]
+
+    ECS --> Q3{Launch type}
+    Q3 --> FG[Fargate]
+    Q3 --> SP[Fargate Spot]
+    Q3 --> EC[EC2]
+
+    classDef eks fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef ecs fill:#dbeafe,stroke:#2563eb,stroke-width:2px;
+    classDef hy fill:#fef9c3,stroke:#ca8a04,stroke-width:2px;
+```
+
+**Reading guide:** The top-level question is binary — if any workload uses
+CRDs, operators, Helm, or mesh CRDs, it stays on EKS. See
+[`docs/decisions/ecs-vs-eks.md`](../decisions/ecs-vs-eks.md) for the full
+3-level decision tree with cost data.
 
 ---
 
